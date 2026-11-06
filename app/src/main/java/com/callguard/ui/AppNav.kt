@@ -94,8 +94,8 @@ private val tabs =
     listOf(
         Tab(Routes.KEYPAD, "Keypad", Icons.Filled.Dialpad) { it.startsWith(Routes.KEYPAD) },
         Tab(Routes.RECENTS, "Recents", Icons.Filled.History) { it == Routes.RECENTS },
-        Tab(Routes.CONTACTS, "Contacts", Icons.Filled.Contacts) { it == Routes.CONTACTS },
         Tab(Routes.MESSAGES, "Messages", Icons.AutoMirrored.Filled.Message) { it == Routes.MESSAGES || it == Routes.COMPOSE },
+        Tab(Routes.CONTACTS, "Contacts", Icons.Filled.Contacts) { it == Routes.CONTACTS },
         Tab(Routes.HOME, "Guard", Icons.Filled.Shield) { it == Routes.HOME || it == Routes.SETTINGS || it == Routes.LISTS },
     )
 
@@ -108,7 +108,7 @@ private val NavLabel =
     )
 
 /**
- * Root navigation: five tabs on a black bottom bar (KEYPAD, RECENTS, CONTACTS, MESSAGES, GUARD). Settings and
+ * Root navigation: five tabs on a black bottom bar (KEYPAD, RECENTS, MESSAGES, CONTACTS, GUARD). Settings and
  * Lists sit under GUARD. The app starts on KEYPAD when it holds the dialer role, otherwise on GUARD.
  * The incoming-call, conversation and compose routes are full-bleed and hide the bar.
  * The Scaffold passes top and bottom insets to the tab screens through its padding.

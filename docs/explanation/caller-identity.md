@@ -54,7 +54,7 @@ Two sources read that cache, and the split matters:
 
 Turning off WhatsApp under APP BRIDGE therefore stops a name learned from WhatsApp from being used, without deleting the entry. Turning it back on restores the name. That behavior is the reason the two readers exist rather than one cache lookup with a filter.
 
-The bundled database comes after the learned cache because it is static. It is right about published business numbers, which is exactly the name a user wants for a bank or a courier line, and it is silent about everything else. It ships as `app/src/main/assets/bundled.json` and its version is shown in Settings.
+The bundled database comes after the learned cache because it is static. It is right about published business numbers, which is exactly the name a user wants for a bank or a courier line, and it is silent about everything else. It ships as `app/src/main/assets/bundled.json` and its version is shown on the Guard tab.
 
 ## Why online lookup is last
 
@@ -69,7 +69,7 @@ Placing online lookup at rank 8 means an opt-in remote call happens only after e
 
 ## What a user sees
 
-The caller ID card shows the name, or `UNKNOWN`, then the formatted number, the source label and the confidence, and the spam score when the number is likely spam. The Settings screen lists the same eight sources in the same order, with nothing to reorder. See the [settings reference](../reference/settings.md) for the switches on those rows.
+The caller ID card shows the name, or `UNKNOWN`, then the formatted number, the source label and the confidence, and the spam score when the number is likely spam. The Guard tab lists the same eight sources in the same order, with nothing to reorder. See the [settings reference](../reference/settings.md) for the switches on those rows.
 
 The keypad runs the same chain before you dial, above the number you typed:
 

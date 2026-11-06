@@ -20,20 +20,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -65,7 +61,7 @@ import com.callguard.messaging.isDefaultSmsApp
 import com.callguard.prefs.Settings
 import com.callguard.prefs.UnknownCallerAction
 import com.callguard.ui.components.CgConfirmDialog
-import com.callguard.ui.components.RoundKey
+import com.callguard.ui.components.CgGutter
 import com.callguard.ui.theme.CgColors
 import com.callguard.ui.theme.CgType
 import kotlinx.coroutines.Dispatchers
@@ -111,10 +107,12 @@ private data class Perms(
     }
 }
 
-/** Settings, opened from the Guard header. [onOpenLists] opens the allow and block lists. */
+/**
+ * Every setting, rendered inline on the GUARD screen below the protection status. The parent column scrolls, so this
+ * has no scroll state, back button or title. [onOpenLists] opens the allow and block lists.
+ */
 @Composable
-fun SettingsScreen(
-    onBack: () -> Unit = {},
+fun SettingsSections(
     onOpenLists: () -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -142,18 +140,7 @@ fun SettingsScreen(
         )
     }
 
-    Column(
-        Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(start = 20.dp, end = 20.dp, top = 28.dp, bottom = 140.dp),
-    ) {
-        RoundKey(onClick = onBack, size = 44.dp, outlined = true) {
-            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-        }
-        Spacer(Modifier.height(16.dp))
-        Text("SETTINGS", style = CgType.Display, color = CgColors.White)
-
+    Column(Modifier.fillMaxWidth().padding(horizontal = CgGutter)) {
         CfgSection("LISTS") {
             CfgRow(
                 title = "ALLOW / BLOCK LISTS",

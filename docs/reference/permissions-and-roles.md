@@ -10,14 +10,14 @@ These show a system prompt and can be refused.
 
 | Permission | Where the code uses it | Without it | Ask for it from |
 |---|---|---|---|
-| `READ_CONTACTS` | `LocalContactSource` for name lookup and `contains`, `Phonebook.loadPhonebook`, the contact search in `ComposeScreen` and `KeypadScreen` | No contact names; contacts only is forced off (`AppGraph.effectiveSettings`); the Contacts screen and contact search are empty | Settings → CONTACTS, the home banner, the Contacts screen, the keypad, the compose screen |
+| `READ_CONTACTS` | `LocalContactSource` for name lookup and `contains`, `Phonebook.loadPhonebook`, the contact search in `ComposeScreen` and `KeypadScreen` | No contact names; contacts only is forced off (`AppGraph.effectiveSettings`); the Contacts screen and contact search are empty | Guard → CONTACTS, the home banner, the Contacts screen, the keypad, the compose screen |
 | `READ_CALL_LOG` | `hasReadCallLog` and `readSystemCalls` in `calllog/RecentCalls.kt`, for the Recents screen | Recents shows only the calls CallGuard logged, and a `Phone call history is off` banner appears | Recents, `Allow call log` |
 | `CALL_PHONE` | `Dialer.placeCall`, `DialActivity`, `ui/Calls.kt` | `placeCall` returns false. `ui/Calls.kt` then opens the system dialer with the number; `DialActivity` shows `This number cannot be called.` | Dial time, per call |
 | `WRITE_CONTACTS` | `Phonebook.setStarred` and `Phonebook.deleteContact` | Star and delete return false and the contact is unchanged | Contacts screen |
-| `RECEIVE_SMS` | `SmsDeliverReceiver` (default SMS app), `SmsReceiver` (`SMS_RECEIVED`) | No texts arrive; the Settings `SMS` row reads not granted | Settings → SMS, with `READ_SMS` |
-| `READ_SMS` | `MessagesScreen`, `ThreadScreen`, `SmsProvider` | The conversation list and threads cannot be read | Settings → SMS, the messages screen, the thread screen |
+| `RECEIVE_SMS` | `SmsDeliverReceiver` (default SMS app), `SmsReceiver` (`SMS_RECEIVED`) | No texts arrive; the `SMS` row on the Guard tab reads not granted | Guard → SMS, with `READ_SMS` |
+| `READ_SMS` | `MessagesScreen`, `ThreadScreen`, `SmsProvider` | The conversation list and threads cannot be read | Guard → SMS, the messages screen, the thread screen |
 | `SEND_SMS` | `ThreadScreen` reply, `HeadlessSmsSendService` | Replies cannot be sent and the send button is disabled | Thread screen |
-| `POST_NOTIFICATIONS` | `CallerIdNotifier`, `MessageNotifier`, `CallNotifier`, `OverlayCard` fallback | No caller ID card, no blocked-call notice, no ringing notification, no message alert | Settings → NOTIFICATIONS |
+| `POST_NOTIFICATIONS` | `CallerIdNotifier`, `MessageNotifier`, `CallNotifier`, `OverlayCard` fallback | No caller ID card, no blocked-call notice, no ringing notification, no message alert | Guard → NOTIFICATIONS |
 | `RECEIVE_MMS` | Declared only. No call site in `app/src/main/java` | Nothing observed. MMS download is not implemented | No prompt; arrives with `ROLE_SMS` |
 | `RECEIVE_WAP_PUSH` | Declared only. No call site in `app/src/main/java` | Nothing observed. `MmsReceiver` still receives `WAP_PUSH_DELIVER` | No prompt; arrives with `ROLE_SMS` |
 
@@ -25,13 +25,13 @@ These show a system prompt and can be refused.
 
 This is confirmed against the API 36 emulator. The `PermissionController` shipped in that image defines a `sms` permission set containing `SEND_SMS`, `RECEIVE_SMS`, `READ_SMS`, `RECEIVE_WAP_PUSH`, `RECEIVE_MMS` and `READ_CELL_BROADCASTS`, and lists that set under `ROLE_SMS`. On the device, with CallGuard holding `ROLE_SMS`, both permissions are granted with the `GRANTED_BY_ROLE` flag. The platform does not require an app to hold a permission before it can be granted the role; qualification is by required components, not by permissions.
 
-`POST_NOTIFICATIONS` is only requested on API 33 and above. The Settings row reads as granted below that (`Perms.read` in `SettingsScreen.kt`).
+`POST_NOTIFICATIONS` is only requested on API 33 and above. The NOTIFICATIONS row on the Guard tab reads as granted below that (`Perms.read` in `SettingsSections.kt`).
 
 ## Permissions granted without a prompt
 
 | Permission | Where the code uses it | Without it | How it is granted |
 |---|---|---|---|
-| `SYSTEM_ALERT_WINDOW` | `OverlayCard.canShow` and `OverlayCard.show` for the caller card over other apps | The card is posted as a heads-up notification on the `caller_id` channel instead | Special access, `Settings.ACTION_MANAGE_OVERLAY_PERMISSION`; the Settings → OVERLAY row opens it |
+| `SYSTEM_ALERT_WINDOW` | `OverlayCard.canShow` and `OverlayCard.show` for the caller card over other apps | The card is posted as a heads-up notification on the `caller_id` channel instead | Special access, `Settings.ACTION_MANAGE_OVERLAY_PERMISSION`; the Guard → OVERLAY row opens it |
 | `USE_FULL_SCREEN_INTENT` | `CallNotifier.setFullScreenIntent` for a ringing call while the screen is off | The ringing call shows as a heads-up notification and does not take over the screen | No prompt |
 | `VIBRATE` | `CallRinger` | An incoming call rings without vibration | No prompt |
 | `FOREGROUND_SERVICE` | `CallForegroundService` | The service start is refused; the in-progress call is posted as a plain notification instead (`CallManager.syncInProgress`) | No prompt |
@@ -69,7 +69,7 @@ Roles come from `android.app.role.RoleManager`. The user grants each one from a 
 
 ### Requesting each role
 
-`Dialer.requestRoleIntent` builds the `ROLE_DIALER` prompt. `SettingsScreen` builds the other two with `RoleManager.createRequestRoleIntent`. The three rows under Settings → PERMISSIONS show `HELD` or `NOT HELD` and open the prompt when tapped. The Messages screen shows a banner with the `ROLE_SMS` prompt.
+`Dialer.requestRoleIntent` builds the `ROLE_DIALER` prompt. `SettingsSections` builds the other two with `RoleManager.createRequestRoleIntent`. The three rows under Guard → PERMISSIONS show `HELD` or `NOT HELD` and open the prompt when tapped. The Messages screen shows a banner with the `ROLE_SMS` prompt.
 
 `DialActivity` offers the same prompt from its own screen when the role is missing. `MainActivity` starts on the keypad only while the role is held, and on the home screen otherwise.
 
@@ -92,14 +92,14 @@ Six components declare an `android:permission`, which is a requirement on the se
 | `CallGuardScreeningService` | `android.permission.BIND_SCREENING_SERVICE` | Telecom, once CallGuard holds `ROLE_CALL_SCREENING` |
 | `CallGuardInCallService` | `android.permission.BIND_INCALL_SERVICE` | Telecom, once CallGuard holds `ROLE_DIALER` |
 
-`AppBridgeListener` also needs notification access, which is not a role and not a runtime permission. The Settings → NOTIFICATION ACCESS row opens `Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS`, and the row reads granted when the package appears in `NotificationManagerCompat.getEnabledListenerPackages`. Without it the bridge service never receives a notification and every switch under APP BRIDGE has no effect.
+`AppBridgeListener` also needs notification access, which is not a role and not a runtime permission. The Guard → NOTIFICATION ACCESS row opens `Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS`, and the row reads granted when the package appears in `NotificationManagerCompat.getEnabledListenerPackages`. Without it the bridge service never receives a notification and every switch under APP BRIDGE has no effect.
 
 ## Failure modes
 
 - A refused runtime permission leaves the app running. Every lookup and read path catches the failure and returns an empty or null result, so the effect is a missing name or an empty screen rather than a crash.
 - `CALL_PHONE` refused at dial time does not drop the call: `placeOrDial` falls back to `Intent.ACTION_DIAL`, which hands the number to the system dialer.
 - The dialer role is the only way CallGuard sees calls from contacts. Without it, those calls are neither logged nor shown in the in-call screen.
-- Notification access can be revoked at any time from system settings. The bridge stops then, with no in-app warning beyond the Settings row changing to not granted.
+- Notification access can be revoked at any time from system settings. The bridge stops then, with no in-app warning beyond the NOTIFICATION ACCESS row on the Guard tab changing to not granted.
 
 ## Related
 

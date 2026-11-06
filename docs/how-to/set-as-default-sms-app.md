@@ -4,7 +4,7 @@ Holding the SMS role (`ROLE_SMS`) is what lets CallGuard store your texts, hold 
 
 ## 1. Open the prompt
 
-Open CallGuard, tap the gear on the Guard screen, and scroll to **PERMISSIONS**. The **DEFAULT SMS APP** row reads **NOT HELD** until the role is granted. Its subtitle is "STORES TEXTS & SENDS REPLIES".
+Open CallGuard, then scroll the **Guard** tab to **PERMISSIONS**. The **DEFAULT SMS APP** row reads **NOT HELD** until the role is granted. Its subtitle is "STORES TEXTS & SENDS REPLIES".
 
 The Messages screen offers the same prompt from its banner, labelled **SET AS DEFAULT SMS APP TO BLOCK TEXTS**. Both routes open the Android role dialog.
 
@@ -40,7 +40,7 @@ Existing conversations stay in the system SMS provider, so the next default app 
 
 - **The banner is still on Messages**: the role is not held. Tap the banner and accept the prompt; the screen re-reads the role when it resumes.
 - **Messages is empty after granting the role**: `READ_SMS` is a separate grant. Tap **GRANT READ SMS** on the banner at the top of the list.
-- **Non-contact texts still ring**: check Ignore mode and Contacts only in Settings, or see [Tune what CallGuard blocks](../how-to/tune-blocking-rules.md).
+- **Non-contact texts still ring**: check Ignore mode and Contacts only under **PROTECTION** on the **Guard** tab, or see [Tune what CallGuard blocks](../how-to/tune-blocking-rules.md).
 
 ## Related
 

@@ -14,7 +14,7 @@ An app call is created inside the app. WhatsApp opens its own audio session, dra
 
 WhatsApp posts a notification for an incoming call, and Android lets a user grant an app access to those notifications. That is the only system-level signal CallGuard can attach to, and it is why the bridge is a `NotificationListenerService` rather than a call service.
 
-Notification access is special access, not a role and not a runtime permission. The user grants it from system settings, and it can be revoked at any time. `AppBridgeListener` declares `BIND_NOTIFICATION_LISTENER_SERVICE`, so only the system can bind it, and the Settings screen reads the state from the enabled listener packages.
+Notification access is special access, not a role and not a runtime permission. The user grants it from system settings, and it can be revoked at any time. `AppBridgeListener` declares `BIND_NOTIFICATION_LISTENER_SERVICE`, so only the system can bind it, and the Guard tab reads the state from the enabled listener packages.
 
 ## What the bridge does with a notification
 
@@ -49,7 +49,7 @@ That restriction is the reason the feature is safe to offer with a listener at a
 - A call from a number the user has saved. WhatsApp shows the saved name and no number, `numberOf` finds nothing, and the listener returns before logging or showing anything. The bridge only identifies callers the phone does not already know.
 - A call that produces no notification, or a device where the user has turned off WhatsApp notifications. There is nothing to read.
 - Any app other than WhatsApp and WhatsApp Business. The package check is exact, and the parser is written against WhatsApp's wording.
-- Anything after notification access is revoked. The service stops receiving posts and the Settings row flips to not granted, with no other warning.
+- Anything after notification access is revoked. The service stops receiving posts and the NOTIFICATION ACCESS row on the Guard tab flips to not granted, with no other warning.
 - Calls the parser does not recognize. A WhatsApp wording change that removes the call line and the call actions would make a call look like a message.
 
 The bridge also cannot verify what it reads. A notification is text from another app, and the name in it is treated as a name, not as proof of identity.

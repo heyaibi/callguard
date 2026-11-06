@@ -1,0 +1,150 @@
+# Keep each job under 3.5 minutes. A job that grows past that moves to
+# instrumented.yml-style triggers: on demand, nightly, and on master.
+name: Instrumented
+
+on:
+  push:
+    branches: [master]
+  schedule:
+    # 02:00 IST (UTC+5:30) every night.
+    - cron: '30 20 * * *'
+  workflow_dispatch:
+  # Only a maintainer's /instrumented comment on a pull request starts a run.
+  # The job conditions below check this. The comment path needs this file on master.
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+
+concurrency:
+  # Each comment gets its own group, so one comment never cancels another run.
+  # Only pushes cancel older runs. Nightly and manual runs are never cancelled.
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.comment.id || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'push' }}
+
+jobs:
+  # Strangers never reach the jobs below: the author association check comes first.
+  acknowledge:
+    name: Acknowledge /instrumented
+    if: >-
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '/instrumented') &&
+      (github.event.comment.author_association == 'OWNER' ||
+      github.event.comment.author_association == 'MEMBER' ||
+      github.event.comment.author_association == 'COLLABORATOR')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: read
+      statuses: write
+    outputs:
+      sha: ${{ steps.pr.outputs.sha }}
+    steps:
+      # This job never checks out code, so it does not run PR code.
+      - name: Add eyes reaction
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          COMMENT_ID: ${{ github.event.comment.id }}
+        run: gh api -X POST "repos/$REPO/issues/comments/$COMMENT_ID/reactions" -f content=eyes
+
+      - name: Read the PR head and set a pending status
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          sha="$(gh api "repos/$REPO/pulls/$PR_NUMBER" --jq .head.sha)"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          gh api -X POST "repos/$REPO/statuses/$sha" -f state=pending -f context="Instrumented Tests" -f description="Running on request." -f target_url="$RUN_URL"
+
+  instrumented:
+    name: Instrumented Tests
+    if: >-
+      github.event_name != 'issue_comment' ||
+      (github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '/instrumented') &&
+      (github.event.comment.author_association == 'OWNER' ||
+      github.event.comment.author_association == 'MEMBER' ||
+      github.event.comment.author_association == 'COLLABORATOR'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # A comment run uses the workflow from master, so check out the PR head explicitly.
+          ref: ${{ github.event_name == 'issue_comment' && format('refs/pull/{0}/head', github.event.issue.number) || '' }}
+          # This job runs PR code, so keep the token out of .git/config.
+          persist-credentials: false
+
+      - name: Set up build
+        uses: ./.github/actions/setup
+
+      # Only the Linux runners expose /dev/kvm; without it the emulator is unusably slow.
+      - name: Enable KVM
+        run: |
+          if [ -e /dev/kvm ]; then
+            sudo chmod 666 /dev/kvm
+          else
+            echo "/dev/kvm is not available; continuing without hardware acceleration"
+          fi
+
+      - name: Run instrumented tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          disable-animations: true
+          script: ./gradlew connectedDebugAndroidTest
+
+      - name: Upload instrumented test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumented-test-reports
+          path: app/build/reports/androidTests/**
+          if-no-files-found: ignore
+
+  report:
+    name: Report /instrumented
+    needs: [acknowledge, instrumented]
+    if: >-
+      always() &&
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '/instrumented') &&
+      (github.event.comment.author_association == 'OWNER' ||
+      github.event.comment.author_association == 'MEMBER' ||
+      github.event.comment.author_association == 'COLLABORATOR')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+      statuses: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      PR_NUMBER: ${{ github.event.issue.number }}
+      SHA: ${{ needs.acknowledge.outputs.sha }}
+      RESULT: ${{ needs.instrumented.result }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      # Also runs for a cancelled or failed run, so the pending status never stays set.
+      - name: Post the status and a comment
+        run: |
+          case "$RESULT" in
+            success) state=success; text="Instrumented tests passed." ;;
+            failure) state=failure; text="Instrumented tests failed." ;;
+            *) state=error; text="Instrumented tests did not finish ($RESULT)." ;;
+          esac
+          gh api -X POST "repos/$REPO/statuses/$SHA" -f state="$state" -f context="Instrumented Tests" -f description="$text" -f target_url="$RUN_URL"
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$text $RUN_URL"

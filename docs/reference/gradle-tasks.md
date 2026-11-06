@@ -16,7 +16,7 @@ Run every command from the repository root, which is the Gradle root (`settings.
 | Kotlin | 2.4.10 | `gradle/libs.versions.toml` |
 | ktlint plugin and engine | 14.2.0 / 1.8.0 | `gradle/libs.versions.toml` |
 | detekt | 2.0.0-alpha.6, plugin id `dev.detekt` | `gradle/libs.versions.toml` |
-| JDK in CI | 21 | `.github/workflows/ci.yml` |
+| JDK in CI | 21 | `.github/actions/setup/action.yml` |
 
 ## Tasks
 
@@ -46,19 +46,16 @@ The detekt block in `app/build.gradle.kts` sets `buildUponDefaultConfig = true`,
 
 ## The CI pipeline
 
-`.github/workflows/ci.yml` runs on a push or pull request to `master`, and on demand. Two jobs run in parallel.
+`.github/workflows/ci.yml` runs on a push or pull request to `master`, and on demand. On a pull request, five jobs run in parallel. The `Scope` job runs only on pull requests. It checks test-only PRs and passes quickly for every other PR.
 
-The `Build & Test` job runs these steps in order and stops at the first failure:
+- `Static checks` runs `./gradlew ktlintCheck`, then `./gradlew detekt`. The detekt step runs even when ktlint fails.
+- `Unit tests` runs `./gradlew testDebugUnitTest`.
+- `Android lint` runs `./gradlew lint`.
+- `Debug build` runs `./gradlew assembleDebug`.
 
-1. `./gradlew ktlintCheck`
-2. `./gradlew detekt`
-3. `./gradlew lint`
-4. `./gradlew testDebugUnitTest`
-5. `./gradlew assembleDebug`
+Each job uploads its reports with `if: always()`, so they survive a failed step: `detekt-report`, `unit-test-reports`, `lint-results`, and `debug-apk`.
 
-It then uploads four artifacts with `if: always()`, so the reports survive a failed step: `debug-apk`, `unit-test-reports`, `lint-results`, and `detekt-report`.
-
-The `Instrumented Tests` job enables KVM when the runner exposes `/dev/kvm`, starts an API 36 `google_apis` x86_64 `pixel_6` emulator with animations disabled, and runs `./gradlew connectedDebugAndroidTest` under a 45 minute job timeout. It uploads `instrumented-test-reports`.
+`.github/workflows/instrumented.yml` runs the `Instrumented Tests` job. It runs on a push to `master`, nightly at 02:00 IST, on demand, and on a `/instrumented` comment from a maintainer on a pull request. The job enables KVM when the runner exposes `/dev/kvm`, starts an API 36 `google_apis` x86_64 `pixel_6` emulator with animations disabled, and runs `./gradlew connectedDebugAndroidTest` under a 45 minute job timeout. It uploads `instrumented-test-reports`.
 
 ## The release build
 

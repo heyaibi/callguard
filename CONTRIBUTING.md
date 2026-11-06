@@ -33,18 +33,32 @@ The suite is `app/src/androidTest/java/com/callguard/MainActivityTest.kt`.
 
 ## CI gates
 
-CI runs on every pull request and every push to `master`, in `.github/workflows/ci.yml`. A pull request is ready for review when both jobs pass.
+CI runs on every pull request and every push to `master`. The jobs are defined in `.github/workflows/ci.yml`. On a pull request, the jobs run in parallel. A pull request is ready for review when every job passes.
 
 | Gate | Command | Job |
 |---|---|---|
-| ktlint | `./gradlew ktlintCheck` | Build & Test |
-| detekt | `./gradlew detekt` | Build & Test |
-| Android Lint | `./gradlew lint` | Build & Test |
-| Unit tests | `./gradlew testDebugUnitTest` | Build & Test |
-| Debug build | `./gradlew assembleDebug` | Build & Test |
-| Instrumented tests | `./gradlew connectedDebugAndroidTest` | Instrumented Tests |
+| ktlint | `./gradlew ktlintCheck` | Static checks |
+| detekt | `./gradlew detekt` | Static checks |
+| Android Lint | `./gradlew lint` | Android lint |
+| Unit tests | `./gradlew testDebugUnitTest` | Unit tests |
+| Debug build | `./gradlew assembleDebug` | Debug build |
+| Scope: test-only PRs may only add or extend tests | `.github/scripts/scope-check.sh` | Scope |
+| Instrumented tests | `./gradlew connectedDebugAndroidTest` | Instrumented Tests (`instrumented.yml`, not on every PR) |
 
-The Build & Test job runs on JDK 21 and uploads the debug APK, the unit test report, the lint report, and the detekt report as artifacts, so you can download them from a failed run. The Instrumented Tests job boots an API 36 Pixel 6 emulator and runs the test task against it.
+The Static checks, Unit tests, Android lint, and Debug build jobs upload their reports as artifacts. You can download them from a failed run.
+
+A pull request is test-only when its branch name starts with `test/`, or when its author is listed in the `TEST_ONLY_AUTHORS` repository variable. A test-only PR may change only files under `app/src/test/` and `app/src/androidTest/`. It may not delete or rename a file, add `@Ignore` or `@Disabled`, or remove an assertion. To run the check on your branch, use `bash .github/scripts/scope-check.sh origin/master true`.
+
+The Instrumented Tests job runs from `.github/workflows/instrumented.yml`. It does not run on every pull request. It runs:
+
+- On every push to `master`.
+- Every night at 02:00 IST (cron `30 20 * * *`, in UTC).
+- When someone starts it by hand from the Actions tab.
+- When a maintainer comments `/instrumented` on a pull request.
+
+Only owners, members, and collaborators can start a run with a comment. The run adds an eyes reaction to your comment. It sets an `Instrumented Tests` status on the pull request head. When the run ends, it posts a comment with the run link. The job boots an API 36 Pixel 6 emulator and runs the test task against it.
+
+Keep each CI job under 3.5 minutes. A job that grows past that moves to the `instrumented.yml` triggers: on demand, nightly, and on master.
 
 Run the style gates before you push. ktlint fixes most formatting complaints on its own:
 
@@ -69,7 +83,7 @@ The detekt pin is `2.0.0-alpha.6`, a pre-release, and that is deliberate rather 
 All changes land on `master` through a pull request. Direct pushes to `master` are blocked, so branch from `master` and open a PR for every change, including one-line fixes.
 
 - Keep the PR to one concern, and say what changed for a user of the app.
-- Wait for both CI jobs before you request review.
+- Wait for every CI job to pass before you request review.
 - Docs change with code. A PR that changes a setting, a default, a permission, or a role updates the page that documents it: [settings reference](docs/reference/settings.md), [permissions and roles](docs/reference/permissions-and-roles.md), or the matching page under [docs](docs/index.md).
 
 ## License

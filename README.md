@@ -63,7 +63,7 @@ The app opens on the Guard home screen with no roles held. [Get started](docs/tu
 
 ```text
 callguard/
-├── .github/workflows/         ci.yml and release.yml
+├── .github/workflows/         ci.yml, instrumented.yml and release.yml
 ├── app/
 │   ├── src/main/
 │   │   ├── java/com/callguard/

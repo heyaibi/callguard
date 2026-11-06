@@ -58,6 +58,8 @@ The app opens on the Guard home screen with no roles held. [Get started](docs/tu
 - [How call screening works](docs/explanation/screening.md): the decision order, the deadline fallback, and what reaches the call log.
 - [How the App Bridge works](docs/explanation/app-bridge.md): how a WhatsApp call notification becomes a caller card.
 - [Architecture](docs/explanation/architecture.md): packages, data flow, and the platform services the app binds.
+- [Testing standard](docs/contributing/testing.md): test types, names, rules, and templates for contributors.
+- [Working from an issue](AGENTS.md): scope, branch, verification, and pull request rules for contributors.
 
 ## Project layout
 

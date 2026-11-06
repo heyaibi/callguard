@@ -2,10 +2,13 @@ package com.callguard.ui.screens
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import com.callguard.ui.theme.CallGuardTheme
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -13,7 +16,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Renders the real Home screen on the JVM. HomeScreen reads its state from the application graph, so this runs against
+ * Renders the real GUARD screen on the JVM. HomeScreen reads its state from the application graph, so this runs against
  * the real [com.callguard.CallGuardApp] that Robolectric builds from the debug manifest.
  *
  * The SDK is pinned to 35: on the app's target SDK 37, Robolectric's application frame reflects into JDK-internal
@@ -27,22 +30,43 @@ class HomeScreenTest {
     val compose = createComposeRule()
 
     @Test
-    fun homeScreenShowsHeadingProtectionAndQuickModes() {
+    fun guardScreenShowsStatusAndEverySettingInOneScroll() {
         compose.setContent {
             CallGuardTheme {
                 HomeScreen()
             }
         }
 
-        // Above the fold: title, the settings entry and the protection status card.
+        // Above the fold: the title and the protection status card. The settings section with the same label sits
+        // lower on the screen, so the status card is the first match.
         compose.onNodeWithText("CALLGUARD").assertIsDisplayed()
-        compose.onNodeWithContentDescription("Settings").assertIsDisplayed()
-        compose.onNodeWithText("PROTECTION").assertIsDisplayed()
+        compose.onAllNodesWithText("PROTECTION")[0].assertIsDisplayed()
+        // The separate Settings entry is gone, so no gear icon is left in the header.
+        compose.onNodeWithContentDescription("Settings").assertDoesNotExist()
 
-        // Below the fold: today's counts, the quick mode toggles and the last identified callers.
+        // Under the status card: today's counts and the last identified callers, before the settings.
         compose.onNodeWithText("TODAY").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("LAST IDENTIFIED").performScrollTo().assertIsDisplayed()
+
+        // Below them, on the same scroll: the settings sections, the lists row and the debug preview.
         compose.onNodeWithText("SILENCE MODE").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("IGNORE MODE").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("LAST IDENTIFIED").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("ALLOW / BLOCK LISTS").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("PERMISSIONS").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("PREVIEW CALL").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun listsRowOpensTheListsScreen() {
+        var opened = false
+        compose.setContent {
+            CallGuardTheme {
+                HomeScreen(onOpenLists = { opened = true })
+            }
+        }
+
+        compose.onNodeWithText("ALLOW / BLOCK LISTS").performScrollTo().performClick()
+
+        assertTrue(opened)
     }
 }

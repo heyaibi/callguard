@@ -47,7 +47,7 @@ The database is four tables created by hand in a `SQLiteOpenHelper`: `cache` key
 
 Room would add KSP and a generated schema to the build for queries this small. It would also introduce migration testing, which this app does not have yet. The cost of the hand-written route is that the first schema change has to write a real `onUpgrade`, and every query is a string.
 
-Settings take the same route at a smaller scale: one SharedPreferences file named `settings`, with one key per setting. The bundled database is a JSON asset read once at startup, replaced only by an app update, and its version is shown in Settings.
+Settings take the same route at a smaller scale: one SharedPreferences file named `settings`, with one key per setting. The bundled database is a JSON asset read once at startup, replaced only by an app update, and its version is shown on the Guard tab.
 
 ## What each package exposes
 

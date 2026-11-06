@@ -20,8 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,12 +44,10 @@ import com.callguard.ui.components.CgDivider
 import com.callguard.ui.components.CgGutter
 import com.callguard.ui.components.CgLabel
 import com.callguard.ui.components.CgPill
-import com.callguard.ui.components.CgToggle
 import com.callguard.ui.components.DotHeading
 import com.callguard.ui.components.MonoRow
 import com.callguard.ui.components.PillAvatar
 import com.callguard.ui.components.RedPill
-import com.callguard.ui.components.RoundKey
 import com.callguard.ui.components.SourceChip
 import com.callguard.ui.displayNumber
 import com.callguard.ui.initialsOf
@@ -60,17 +56,16 @@ import com.callguard.ui.theme.CgColors
 import com.callguard.ui.theme.CgType
 import com.callguard.ui.timeLabel
 import com.callguard.ui.todayStats
-import androidx.compose.material.icons.filled.Settings as GearIcon
 
 /**
- * Home: protection status, today's counts, quick modes and the last identified callers.
- * Status is read from the platform on every resume. Quick modes read and write the persisted settings.
- * [onPreviewCall] is the hidden debug entry into the incoming-call screen.
+ * The GUARD tab: protection status, today's counts and the last identified callers, then every setting in sections
+ * below them, all on one scroll. Status is read from the platform on every resume. [onOpenLists] opens the allow and
+ * block lists. [onPreviewCall] is the hidden debug entry into the incoming-call screen.
  */
 @Composable
 fun HomeScreen(
     onPreviewCall: () -> Unit = {},
-    onOpenSettings: () -> Unit = {},
+    onOpenLists: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -108,22 +103,11 @@ fun HomeScreen(
                 .verticalScroll(rememberScrollState()),
     ) {
         Spacer(Modifier.height(12.dp))
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = CgGutter),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            DotHeading(
-                text = "CallGuard",
-                style = CgType.DisplayXL,
-                modifier = Modifier.weight(1f),
-            )
-            RoundKey(onClick = onOpenSettings, size = 44.dp) {
-                Icon(Icons.Filled.GearIcon, contentDescription = "Settings")
-            }
-        }
+        DotHeading(
+            text = "CallGuard",
+            style = CgType.DisplayXL,
+            modifier = Modifier.padding(horizontal = CgGutter),
+        )
         CgLabel(
             text = "India · caller id + spam shield",
             modifier = Modifier.padding(horizontal = CgGutter, vertical = 8.dp),
@@ -193,25 +177,6 @@ fun HomeScreen(
             StatCell(stats.blocked.toString(), "Blocked", Modifier.weight(1f), accent = CgColors.Red)
         }
 
-        // Quick modes
-        CgLabel("Quick modes", modifier = Modifier.padding(start = CgGutter, end = CgGutter, top = 20.dp))
-        Spacer(Modifier.height(4.dp))
-        CgDivider()
-        ModeLine(
-            title = "Silence mode",
-            subtitle = "Unknown callers go quiet",
-            checked = settings.silenceMode,
-            onChange = { on -> graph.settingsStore.update { it.copy(silenceMode = on) } },
-        )
-        CgDivider()
-        ModeLine(
-            title = "Ignore mode",
-            subtitle = "Non-contact texts skip the inbox",
-            checked = settings.ignoreMode,
-            onChange = { on -> graph.settingsStore.update { it.copy(ignoreMode = on) } },
-        )
-        CgDivider()
-
         // Last identified callers
         CgLabel("Last identified", modifier = Modifier.padding(start = CgGutter, end = CgGutter, top = 24.dp, bottom = 4.dp))
         if (identified.isEmpty()) {
@@ -225,6 +190,9 @@ fun HomeScreen(
                 trailing = { SourceChip(call.source.label(), call.source.confidence.name) },
             )
         }
+
+        // Every setting, on the same scroll as the status above.
+        SettingsSections(onOpenLists = onOpenLists)
 
         // Hidden debug entry: opens the incoming-call preview.
         Text(
@@ -301,27 +269,5 @@ private fun StatCell(
     Column(modifier = modifier) {
         DotHeading(text = value, style = CgType.Display, color = accent)
         CgLabel(label)
-    }
-}
-
-@Composable
-private fun ModeLine(
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    onChange: (Boolean) -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = CgGutter, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(title.uppercase(), style = CgType.Row, color = CgColors.White)
-            Text(subtitle.uppercase(), style = CgType.RowSub, color = CgColors.TextDim)
-        }
-        CgToggle(checked = checked, onCheckedChange = onChange)
     }
 }

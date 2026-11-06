@@ -25,6 +25,6 @@ Needs Google Chrome at `/Applications/Google Chrome.app`.
 - `c-guard-home.png`: Guard home.
 - `d-keypad-who.png`: keypad with a number and the Who is this card.
 - `e-contacts.png`: contacts list with the alphabet scroller.
-- `f-messages.png`: messages with the Quiet Inbox badge.
+- `f-messages.png`: messages inbox with four conversations, their unread counts, and the Inbox and Quiet Inbox tabs.
 - `g-settings.png`: settings with Contacts only on.
 - `h-active-call.png`: active call.

@@ -21,6 +21,10 @@ Silence mode is the master switch for unknown callers, and it also applies to te
 
 **BLOCK SPAM** affects calls only. A text that scores 70 or more goes to the Quiet Inbox whether the toggle is on or off.
 
+A call that scores 70 or more arrives flagged, with the score's reasons alongside it:
+
+![Incoming call flagged as spam, showing the spam likelihood and the reasons behind the score](../images/spam-call.png)
+
 ## How a call is decided
 
 CallGuard applies the rules in this order and stops at the first match:

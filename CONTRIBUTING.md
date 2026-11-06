@@ -54,6 +54,8 @@ Run the style gates before you push. ktlint fixes most formatting complaints on 
 
 detekt reads its rules from `config/detekt/detekt.yml` and its baseline from `config/detekt/baseline.xml`; both files are in the tree.
 
+The detekt pin is `2.0.0-alpha.6`, a pre-release, and that is deliberate rather than an oversight. The only stable line, 1.23.x, ships a Kotlin 2.0-era compiler and cannot parse this project's Kotlin 2.4.10 sources; its bundled copy of the IntelliJ `JavaVersion` parser also throws `IllegalArgumentException: 26.0.2.1` on JDK 25 and newer, and upstream has stated that JDK 25 support will not be backported to 1.x. The 2.0.0 alphas are the only releases that match Kotlin 2.4.10, AGP 9.3.1 and a modern JDK. Leave the exception when a Dependabot or reviewer flags it, and move to `2.0.0` once it goes final.
+
 ## Commit style
 
 - One change per commit, with a subject in the imperative mood ("Add block list export").

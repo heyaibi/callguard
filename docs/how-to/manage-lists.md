@@ -32,6 +32,10 @@ You cannot normally create that state. Adding a number to one list removes it fr
 
 An allow-listed number skips Contacts only, the spam rules, and Silence mode, for calls and texts alike. A block-listed call is rejected with no ring and no notification, and a block-listed text is marked blocked in the Quiet Inbox.
 
+The Contacts screen carries the same state per person:
+
+![Contacts list with a trust state badge on each contact](../images/contacts.png)
+
 The block list is also what the screening deadline falls back on, so a blocked number is still rejected when the full decision arrives too late. See [Tune what CallGuard blocks](../how-to/tune-blocking-rules.md).
 
 ## Verify

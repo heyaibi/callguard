@@ -71,6 +71,10 @@ Placing online lookup at rank 8 means an opt-in remote call happens only after e
 
 The caller ID card shows the name, or `UNKNOWN`, then the formatted number, the source label and the confidence, and the spam score when the number is likely spam. The Settings screen lists the same eight sources in the same order, with nothing to reorder. See the [settings reference](../reference/settings.md) for the switches on those rows.
 
+The keypad runs the same chain before you dial, above the number you typed:
+
+![Keypad with a typed number and the caller lookup shown above it](../images/keypad.png)
+
 ## Related
 
 - [Caller Identity domain specification](../blueprint/domains/caller-identity.md) for the product rules this chain implements.

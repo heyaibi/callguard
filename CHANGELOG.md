@@ -6,9 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-## [0.1.0]
-
-<!-- VERIFY: give 0.1.0 a release date when the first `v*` tag goes out; release.yml publishes the APK from that tag. -->
+## [0.1.0] - 2026-11-06
 
 CallGuard was extracted from a monorepo, so the git history starts at the import. This entry lists the milestones of the branch the app was built on, in the order they landed.
 

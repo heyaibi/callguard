@@ -51,7 +51,7 @@ The task issue form sets Allowed paths to the two test paths by default. Source 
 3. Do not push to `master`. Direct pushes are blocked.
 4. Keep the PR to one concern.
 5. Put `Closes #<issue number>` in the PR body.
-6. Wait for both CI jobs to pass before you ask for review.
+6. Wait for all required CI checks to pass before you ask for review.
 
 ## Off-limits paths
 

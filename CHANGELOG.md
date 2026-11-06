@@ -6,9 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-06
+
 ### Added
 
-- Messages: the Quiet Inbox tab is now Spam, and a text that scores as spam lands there; each tab filters by kind; select many conversations and mark read, block, allow, mark spam or not spam, or delete them at once (#12).
+- Filter each Messages tab by kind, such as OTP, banks, or promotions.
+- Select many conversations and mark them read, block, allow, mark spam or not spam, or delete them at once (#12).
+- SPAM and NOT SPAM marks teach the on-phone classifier, and it keeps what it learned.
+
+### Changed
+
+- The Quiet Inbox tab is now Spam. A text from a stranger that scores as spam lands there, even when it arrived before CallGuard was the default SMS app. Inbox rows show the kind; Spam rows show the kind and the spam score.
+
+### Fixed
+
+- A classifier timing test no longer fails on slow CI runners (#26).
 
 ## [0.1.1] - 2026-11-06
 

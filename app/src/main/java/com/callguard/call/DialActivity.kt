@@ -28,19 +28,21 @@ class DialActivity : ComponentActivity() {
     /** The number waiting for the CALL_PHONE answer. */
     private var pendingCall: String? = null
 
-    private val callPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        val pending = pendingCall
-        pendingCall = null
-        if (granted && pending != null) {
-            placeCall(pending)
-        } else {
-            message = "Calls need the phone permission."
+    private val callPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            val pending = pendingCall
+            pendingCall = null
+            if (granted && pending != null) {
+                placeCall(pending)
+            } else {
+                message = "Calls need the phone permission."
+            }
         }
-    }
 
-    private val roleRequest = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        refreshDefault()
-    }
+    private val roleRequest =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            refreshDefault()
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

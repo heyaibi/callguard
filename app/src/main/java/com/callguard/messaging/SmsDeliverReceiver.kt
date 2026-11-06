@@ -10,7 +10,10 @@ import kotlin.concurrent.thread
  * so [MessageHandler.handle] writes it to the provider.
  */
 class SmsDeliverReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         val parts = smsParts(intent) ?: return
         val pending = goAsync()
         thread {

@@ -6,15 +6,23 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /** Read-only business and spam numbers from assets/bundled.json. An unreadable file yields an empty database. */
-class BundledDatabase(context: Context) {
+class BundledDatabase(
+    context: Context,
+) {
     val version: Int
     private val business: Map<String, String>
     private val spam: Set<String>
 
     init {
-        val root = runCatching {
-            JSONObject(context.assets.open("bundled.json").bufferedReader().use { it.readText() })
-        }.getOrElse { JSONObject() }
+        val root =
+            runCatching {
+                JSONObject(
+                    context.assets
+                        .open("bundled.json")
+                        .bufferedReader()
+                        .use { it.readText() },
+                )
+            }.getOrElse { JSONObject() }
         version = root.optInt("version", 0)
         val names = root.optJSONObject("business") ?: JSONObject()
         business = names.keys().asSequence().associateWith { names.getString(it) }

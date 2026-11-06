@@ -56,7 +56,10 @@ class MainActivity : ComponentActivity() {
         private val SMS_SCHEMES = setOf("sms", "smsto", "mms", "mmsto")
 
         /** Opens the conversation with [e164]. */
-        fun threadIntent(context: Context, e164: String): Intent =
+        fun threadIntent(
+            context: Context,
+            e164: String,
+        ): Intent =
             Intent(context, MainActivity::class.java)
                 .setAction(ACTION_OPEN_THREAD)
                 .putExtra(EXTRA_THREAD, e164)
@@ -76,7 +79,10 @@ class MainActivity : ComponentActivity() {
 
         /** The number a DIAL or tel: VIEW names, or null when it names none (a bare DIAL opens an empty keypad). */
         private fun numberFrom(intent: Intent): String? =
-            intent.data?.takeIf { it.scheme == "tel" }?.schemeSpecificPart?.takeIf { it.isNotBlank() }
+            intent.data
+                ?.takeIf { it.scheme == "tel" }
+                ?.schemeSpecificPart
+                ?.takeIf { it.isNotBlank() }
 
         /** The conversation a launch asks for: a notification's extra, or an sms:, smsto:, mms: or mmsto: link. */
         private fun threadFrom(intent: Intent): String? {

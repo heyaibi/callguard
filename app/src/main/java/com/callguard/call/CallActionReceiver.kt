@@ -9,7 +9,10 @@ import android.content.Intent
  * notifications send these actions. Runs on the main thread, where [CallManager] acts.
  */
 class CallActionReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         val callId = intent.getLongExtra(EXTRA_CALL_ID, NO_CALL)
         if (callId == NO_CALL) return
         when (intent.action) {

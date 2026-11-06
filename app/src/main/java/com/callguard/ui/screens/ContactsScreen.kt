@@ -95,8 +95,13 @@ import java.util.Locale
 
 /** A row of the contacts list: a letter header or a contact. */
 private sealed interface ListItem {
-    data class Header(val letter: Char) : ListItem
-    data class Entry(val contact: PhoneContact) : ListItem
+    data class Header(
+        val letter: Char,
+    ) : ListItem
+
+    data class Entry(
+        val contact: PhoneContact,
+    ) : ListItem
 }
 
 private val LETTERS: List<Char> = ('A'..'Z').toList()
@@ -126,15 +131,18 @@ fun ContactsScreen(
     val contacts by produceState(emptyList<PhoneContact>(), canRead, revision) {
         value = if (canRead) withContext(Dispatchers.IO) { loadPhonebook(context) } else emptyList()
     }
-    val readPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        canRead = granted
-    }
+    val readPermission =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            canRead = granted
+        }
     // Favourites and deletes write to the phonebook. Ask for WRITE_CONTACTS the first time, then run the action.
-    val writePermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        val action = pendingWrite
-        pendingWrite = null
-        if (granted) action?.invoke()
-    }
+    val writePermission =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            val action = pendingWrite
+            pendingWrite = null
+            if (granted) action?.invoke()
+        }
+
     fun withWrite(action: () -> Unit) {
         if (hasWriteContacts(context)) {
             action()
@@ -144,17 +152,20 @@ fun ContactsScreen(
         }
     }
 
-    val visible = remember(contacts, query, favouritesOnly) {
-        contacts.filter { (!favouritesOnly || it.starred) && matchesQuery(query, it) }
-    }
+    val visible =
+        remember(contacts, query, favouritesOnly) {
+            contacts.filter { (!favouritesOnly || it.starred) && matchesQuery(query, it) }
+        }
     val rows = remember(visible) { listItems(visible) }
-    val headerIndex = remember(rows) {
-        rows.mapIndexedNotNull { index, item -> (item as? ListItem.Header)?.let { it.letter to index } }.toMap()
-    }
+    val headerIndex =
+        remember(rows) {
+            rows.mapIndexedNotNull { index, item -> (item as? ListItem.Header)?.let { it.letter to index } }.toMap()
+        }
     val listState = rememberLazyListState()
     val activeLetter by remember(rows) {
         derivedStateOf { sectionAt(rows, listState.firstVisibleItemIndex) }
     }
+
     fun jumpTo(letter: Char) {
         val target = jumpTarget(letter, headerIndex) ?: return
         scope.launch { listState.scrollToItem(target) }
@@ -181,9 +192,10 @@ fun ContactsScreen(
             )
             Spacer(Modifier.height(12.dp))
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = CgGutter),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = CgGutter),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -204,38 +216,51 @@ fun ContactsScreen(
 
             Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
                 when {
-                    !canRead -> Column(modifier = Modifier.padding(horizontal = CgGutter, vertical = 24.dp)) {
-                        CgLabel("Contacts stay on this phone. Allow access to see them here.")
-                        Spacer(Modifier.height(12.dp))
-                        RedPill("Allow contacts", onClick = { readPermission.launch(Manifest.permission.READ_CONTACTS) })
+                    !canRead -> {
+                        Column(modifier = Modifier.padding(horizontal = CgGutter, vertical = 24.dp)) {
+                            CgLabel("Contacts stay on this phone. Allow access to see them here.")
+                            Spacer(Modifier.height(12.dp))
+                            RedPill("Allow contacts", onClick = { readPermission.launch(Manifest.permission.READ_CONTACTS) })
+                        }
                     }
-                    visible.isEmpty() -> CgLabel(
-                        text = if (contacts.isEmpty()) "No contacts yet" else "Nothing matches",
-                        modifier = Modifier.padding(horizontal = CgGutter, vertical = 24.dp),
-                    )
-                    else -> LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(end = 28.dp, bottom = 120.dp),
-                    ) {
-                        items(
-                            items = rows,
-                            key = { item ->
+
+                    visible.isEmpty() -> {
+                        CgLabel(
+                            text = if (contacts.isEmpty()) "No contacts yet" else "Nothing matches",
+                            modifier = Modifier.padding(horizontal = CgGutter, vertical = 24.dp),
+                        )
+                    }
+
+                    else -> {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(end = 28.dp, bottom = 120.dp),
+                        ) {
+                            items(
+                                items = rows,
+                                key = { item ->
+                                    when (item) {
+                                        is ListItem.Header -> "h-${item.letter}"
+                                        is ListItem.Entry -> "c-${item.contact.id}"
+                                    }
+                                },
+                            ) { item ->
                                 when (item) {
-                                    is ListItem.Header -> "h-${item.letter}"
-                                    is ListItem.Entry -> "c-${item.contact.id}"
+                                    is ListItem.Header -> {
+                                        SectionLetter(item.letter.toString())
+                                    }
+
+                                    is ListItem.Entry -> {
+                                        ContactRow(
+                                            contact = item.contact,
+                                            onClick = {
+                                                selected = item.contact
+                                                sheetOpen = true
+                                            },
+                                        )
+                                    }
                                 }
-                            },
-                        ) { item ->
-                            when (item) {
-                                is ListItem.Header -> SectionLetter(item.letter.toString())
-                                is ListItem.Entry -> ContactRow(
-                                    contact = item.contact,
-                                    onClick = {
-                                        selected = item.contact
-                                        sheetOpen = true
-                                    },
-                                )
                             }
                         }
                     }
@@ -244,9 +269,10 @@ fun ContactsScreen(
                     LetterScroller(
                         active = activeLetter,
                         onLetter = { jumpTo(it) },
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(vertical = 16.dp),
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(vertical = 16.dp),
                     )
                 }
             }
@@ -259,26 +285,27 @@ fun ContactsScreen(
                     number = displayNumber(c.number),
                     initials = initialsOf(c.name),
                     photo = selectedPhoto,
-                    actions = listOf(
-                        SheetAction("Call", Icons.Filled.Call) {
-                            sheetOpen = false
-                            placeCall(c.number)
-                        },
-                        SheetAction("Text", Icons.AutoMirrored.Filled.Message) {
-                            sheetOpen = false
-                            onOpenThread(c.number)
-                        },
-                        SheetAction("Video call", Icons.Filled.Videocam, enabled = false) {},
-                        SheetAction(
-                            label = if (c.starred) "Unfavourite" else "Add to fav.",
-                            icon = if (c.starred) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                        ) {
-                            sheetOpen = false
-                            withWrite {
-                                if (setStarred(context, c.id, !c.starred)) revision++
-                            }
-                        },
-                    ),
+                    actions =
+                        listOf(
+                            SheetAction("Call", Icons.Filled.Call) {
+                                sheetOpen = false
+                                placeCall(c.number)
+                            },
+                            SheetAction("Text", Icons.AutoMirrored.Filled.Message) {
+                                sheetOpen = false
+                                onOpenThread(c.number)
+                            },
+                            SheetAction("Video call", Icons.Filled.Videocam, enabled = false) {},
+                            SheetAction(
+                                label = if (c.starred) "Unfavourite" else "Add to fav.",
+                                icon = if (c.starred) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                            ) {
+                                sheetOpen = false
+                                withWrite {
+                                    if (setStarred(context, c.id, !c.starred)) revision++
+                                }
+                            },
+                        ),
                     onDelete = {
                         sheetOpen = false
                         confirmDelete = c
@@ -313,7 +340,10 @@ fun ContactsScreen(
 }
 
 @Composable
-private fun ContactRow(contact: PhoneContact, onClick: () -> Unit) {
+private fun ContactRow(
+    contact: PhoneContact,
+    onClick: () -> Unit,
+) {
     val photo = rememberContactPhoto(contact.photoUri)
     MonoRow(
         title = contact.name,
@@ -323,20 +353,26 @@ private fun ContactRow(contact: PhoneContact, onClick: () -> Unit) {
 }
 
 @Composable
-private fun ContactSearch(query: String, onQuery: (String) -> Unit, onAdd: () -> Unit) {
+private fun ContactSearch(
+    query: String,
+    onQuery: (String) -> Unit,
+    onAdd: () -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = CgGutter),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = CgGutter),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
-            modifier = Modifier
-                .weight(1f)
-                .height(52.dp)
-                .clip(RoundedCornerShape(50))
-                .background(CgColors.Surface)
-                .padding(horizontal = 18.dp),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .height(52.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(CgColors.Surface)
+                    .padding(horizontal = 18.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
@@ -369,11 +405,12 @@ private fun ContactSearch(query: String, onQuery: (String) -> Unit, onAdd: () ->
         }
         Spacer(Modifier.width(10.dp))
         Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(CgColors.Red)
-                .clickable(onClick = onAdd),
+            modifier =
+                Modifier
+                    .size(52.dp)
+                    .clip(CircleShape)
+                    .background(CgColors.Red)
+                    .clickable(onClick = onAdd),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -387,14 +424,20 @@ private fun ContactSearch(query: String, onQuery: (String) -> Unit, onAdd: () ->
 }
 
 @Composable
-private fun FilterChip(label: String, icon: ImageVector, on: Boolean, onClick: () -> Unit) {
+private fun FilterChip(
+    label: String,
+    icon: ImageVector,
+    on: Boolean,
+    onClick: () -> Unit,
+) {
     val fg = if (on) CgColors.Black else CgColors.White
     Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(50))
-            .background(if (on) CgColors.White else CgColors.Surface)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+        modifier =
+            Modifier
+                .clip(RoundedCornerShape(50))
+                .background(if (on) CgColors.White else CgColors.Surface)
+                .clickable(onClick = onClick)
+                .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(icon, contentDescription = null, tint = fg, modifier = Modifier.size(14.dp))
@@ -410,33 +453,38 @@ private fun FilterChip(label: String, icon: ImageVector, on: Boolean, onClick: (
 
 /** Dotted A–Z scroller. Tap or drag anywhere on it; the dot of the active letter is red. */
 @Composable
-private fun LetterScroller(active: Char?, onLetter: (Char) -> Unit, modifier: Modifier = Modifier) {
+private fun LetterScroller(
+    active: Char?,
+    onLetter: (Char) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
-        modifier = modifier
-            .fillMaxHeight()
-            .width(28.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = { offset -> onLetter(letterAt(offset.y, size.height)) })
-            }
-            .pointerInput(Unit) {
-                detectVerticalDragGestures(
-                    onDragStart = { offset -> onLetter(letterAt(offset.y, size.height)) },
-                    onVerticalDrag = { change, _ ->
-                        onLetter(letterAt(change.position.y, size.height))
-                        change.consume()
-                    },
-                )
-            },
+        modifier =
+            modifier
+                .fillMaxHeight()
+                .width(28.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = { offset -> onLetter(letterAt(offset.y, size.height)) })
+                }.pointerInput(Unit) {
+                    detectVerticalDragGestures(
+                        onDragStart = { offset -> onLetter(letterAt(offset.y, size.height)) },
+                        onVerticalDrag = { change, _ ->
+                            onLetter(letterAt(change.position.y, size.height))
+                            change.consume()
+                        },
+                    )
+                },
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         LETTERS.forEach { letter ->
             val on = letter == active
             Box(
-                modifier = Modifier
-                    .size(if (on) 6.dp else 4.dp)
-                    .clip(CircleShape)
-                    .background(if (on) CgColors.Red else CgColors.TextDim),
+                modifier =
+                    Modifier
+                        .size(if (on) 6.dp else 4.dp)
+                        .clip(CircleShape)
+                        .background(if (on) CgColors.Red else CgColors.TextDim),
             )
         }
     }
@@ -444,17 +492,21 @@ private fun LetterScroller(active: Char?, onLetter: (Char) -> Unit, modifier: Mo
 
 /** The contact sheet's edit action: the contact's editor, or a new contact with the number when it has no lookup key. */
 private fun Context.editContact(c: PhoneContact) {
-    val intent = c.lookupKey?.let { key ->
-        Intent(Intent.ACTION_EDIT)
-            .setDataAndType(ContactsContract.Contacts.getLookupUri(c.id, key), ContactsContract.Contacts.CONTENT_ITEM_TYPE)
-    } ?: Intent(Intent.ACTION_INSERT_OR_EDIT)
-        .setType(ContactsContract.Contacts.CONTENT_ITEM_TYPE)
-        .putExtra(ContactsContract.Intents.Insert.PHONE, c.number)
+    val intent =
+        c.lookupKey?.let { key ->
+            Intent(Intent.ACTION_EDIT)
+                .setDataAndType(ContactsContract.Contacts.getLookupUri(c.id, key), ContactsContract.Contacts.CONTENT_ITEM_TYPE)
+        } ?: Intent(Intent.ACTION_INSERT_OR_EDIT)
+            .setType(ContactsContract.Contacts.CONTENT_ITEM_TYPE)
+            .putExtra(ContactsContract.Intents.Insert.PHONE, c.number)
     startSafely(intent)
 }
 
 /** Matches the name, or the number when the query is digits. */
-private fun matchesQuery(query: String, c: PhoneContact): Boolean {
+private fun matchesQuery(
+    query: String,
+    c: PhoneContact,
+): Boolean {
     val q = query.trim()
     if (q.isEmpty()) return true
     if (c.name.contains(q, ignoreCase = true)) return true
@@ -479,7 +531,10 @@ private fun listItems(contacts: List<PhoneContact>): List<ListItem> {
 }
 
 /** The letter of the section that holds the row at [firstVisible], or null before the first header. */
-private fun sectionAt(rows: List<ListItem>, firstVisible: Int): Char? {
+private fun sectionAt(
+    rows: List<ListItem>,
+    firstVisible: Int,
+): Char? {
     for (i in minOf(firstVisible, rows.lastIndex) downTo 0) {
         (rows[i] as? ListItem.Header)?.let { return it.letter }
     }
@@ -487,14 +542,20 @@ private fun sectionAt(rows: List<ListItem>, firstVisible: Int): Char? {
 }
 
 /** Where a jump to [letter] lands: its header, or the next letter that has one, or the previous one. */
-private fun jumpTarget(letter: Char, headers: Map<Char, Int>): Int? {
+private fun jumpTarget(
+    letter: Char,
+    headers: Map<Char, Int>,
+): Int? {
     for (c in letter..'Z') headers[c]?.let { return it }
     for (c in letter downTo 'A') headers[c]?.let { return it }
     return null
 }
 
 /** The scroller letter under vertical position [y] of a scroller [height] pixels tall. */
-private fun letterAt(y: Float, height: Int): Char {
+private fun letterAt(
+    y: Float,
+    height: Int,
+): Char {
     if (height <= 0) return 'A'
     val index = (y / height * LETTERS.size).toInt().coerceIn(0, LETTERS.lastIndex)
     return LETTERS[index]

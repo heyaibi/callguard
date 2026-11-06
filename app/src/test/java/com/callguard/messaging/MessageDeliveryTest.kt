@@ -6,7 +6,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class MessageDeliveryTest {
-
     @Test
     fun notifyOutcomeSounds() {
         assertEquals(AlertMode.SOUND, alertModeFor(MessageOutcome.NOTIFY))
@@ -33,12 +32,13 @@ class MessageDeliveryTest {
 
     @Test
     fun joinsConsecutivePartsFromOneSender() {
-        val joined = joinParts(
-            listOf(
-                SmsPart("+919876543210", "Your OTP ", 100L),
-                SmsPart("+919876543210", "is 1234", 101L),
-            ),
-        )
+        val joined =
+            joinParts(
+                listOf(
+                    SmsPart("+919876543210", "Your OTP ", 100L),
+                    SmsPart("+919876543210", "is 1234", 101L),
+                ),
+            )
         assertEquals(listOf(InboundSms("+919876543210", "Your OTP is 1234", 100L)), joined)
     }
 
@@ -50,9 +50,10 @@ class MessageDeliveryTest {
 
     @Test
     fun doesNotMergeNonConsecutiveRunsFromOneSender() {
-        val joined = joinParts(
-            listOf(SmsPart("A", "first", 1L), SmsPart("B", "middle", 2L), SmsPart("A", "second", 3L)),
-        )
+        val joined =
+            joinParts(
+                listOf(SmsPart("A", "first", 1L), SmsPart("B", "middle", 2L), SmsPart("A", "second", 3L)),
+            )
         assertEquals(3, joined.size)
     }
 

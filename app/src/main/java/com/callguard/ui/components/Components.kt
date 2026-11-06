@@ -5,8 +5,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -92,11 +92,12 @@ fun PillAvatar(
 ) {
     val shape = RoundedCornerShape(percent = 50)
     Box(
-        modifier = modifier
-            .size(width = width, height = height)
-            .clip(shape)
-            .background(CgColors.SurfaceHigh)
-            .border(1.5.dp, ringColor, shape),
+        modifier =
+            modifier
+                .size(width = width, height = height)
+                .clip(shape)
+                .background(CgColors.SurfaceHigh)
+                .border(1.5.dp, ringColor, shape),
         contentAlignment = Alignment.Center,
     ) {
         if (photo != null) {
@@ -157,7 +158,10 @@ fun CgLabel(
 
 /** Dotted section letter, used as a list group header. */
 @Composable
-fun SectionLetter(text: String, modifier: Modifier = Modifier) {
+fun SectionLetter(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = text.uppercase(),
         modifier = modifier.padding(start = CgGutter, top = 20.dp, bottom = 6.dp),
@@ -168,13 +172,17 @@ fun SectionLetter(text: String, modifier: Modifier = Modifier) {
 
 /** Thin full-width divider. */
 @Composable
-fun CgDivider(modifier: Modifier = Modifier, startInset: Dp = 0.dp) {
+fun CgDivider(
+    modifier: Modifier = Modifier,
+    startInset: Dp = 0.dp,
+) {
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = startInset)
-            .height(1.dp)
-            .background(CgColors.Divider),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(start = startInset)
+                .height(1.dp)
+                .background(CgColors.Divider),
     )
 }
 
@@ -198,16 +206,16 @@ fun MonoRow(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .then(
-                    if (onClick != null || onLongClick != null) {
-                        Modifier.combinedClickable(role = Role.Button, onClick = onClick ?: {}, onLongClick = onLongClick)
-                    } else {
-                        Modifier
-                    },
-                )
-                .padding(horizontal = CgGutter, vertical = 12.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .then(
+                        if (onClick != null || onLongClick != null) {
+                            Modifier.combinedClickable(role = Role.Button, onClick = onClick ?: {}, onLongClick = onLongClick)
+                        } else {
+                            Modifier
+                        },
+                    ).padding(horizontal = CgGutter, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (leading != null) {
@@ -255,12 +263,13 @@ fun RoundKey(
     content: @Composable () -> Unit,
 ) {
     Box(
-        modifier = modifier
-            .size(size)
-            .clip(CircleShape)
-            .background(if (outlined) Color.Transparent else containerColor)
-            .then(if (outlined) Modifier.border(1.dp, CgColors.TextFaint, CircleShape) else Modifier)
-            .combinedClickable(role = Role.Button, onClick = onClick, onLongClick = onLongClick),
+        modifier =
+            modifier
+                .size(size)
+                .clip(CircleShape)
+                .background(if (outlined) Color.Transparent else containerColor)
+                .then(if (outlined) Modifier.border(1.dp, CgColors.TextFaint, CircleShape) else Modifier)
+                .combinedClickable(role = Role.Button, onClick = onClick, onLongClick = onLongClick),
         contentAlignment = Alignment.Center,
     ) {
         CompositionLocalProvider(LocalContentColor provides contentColor) {
@@ -281,12 +290,13 @@ fun CgPill(
 ) {
     val shape = RoundedCornerShape(percent = 50)
     Box(
-        modifier = modifier
-            .clip(shape)
-            .background(containerColor)
-            .then(if (borderColor != null) Modifier.border(1.dp, borderColor, shape) else Modifier)
-            .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+        modifier =
+            modifier
+                .clip(shape)
+                .background(containerColor)
+                .then(if (borderColor != null) Modifier.border(1.dp, borderColor, shape) else Modifier)
+                .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
+                .padding(horizontal = 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(text = text.uppercase(), style = PillText, color = contentColor, maxLines = 1)
@@ -312,20 +322,24 @@ fun RedPill(
     }
 }
 
-private fun Modifier.dashedRedOutline(): Modifier = drawBehind {
-    val stroke = 1.dp.toPx()
-    drawRoundRect(
-        color = CgColors.Red,
-        topLeft = Offset(stroke / 2f, stroke / 2f),
-        size = Size(size.width - stroke, size.height - stroke),
-        cornerRadius = CornerRadius(size.height / 2f),
-        style = Stroke(width = stroke, pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 6f))),
-    )
-}
+private fun Modifier.dashedRedOutline(): Modifier =
+    drawBehind {
+        val stroke = 1.dp.toPx()
+        drawRoundRect(
+            color = CgColors.Red,
+            topLeft = Offset(stroke / 2f, stroke / 2f),
+            size = Size(size.width - stroke, size.height - stroke),
+            cornerRadius = CornerRadius(size.height / 2f),
+            style = Stroke(width = stroke, pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 6f))),
+        )
+    }
 
 /** Call outcome tag. Expects ALLOWED, SILENCED or BLOCKED (any case). */
 @Composable
-fun OutcomeTag(outcome: String, modifier: Modifier = Modifier) {
+fun OutcomeTag(
+    outcome: String,
+    modifier: Modifier = Modifier,
+) {
     when (outcome.uppercase()) {
         "BLOCKED" -> RedPill(outcome, modifier)
         "SILENCED" -> CgPill(outcome, modifier, containerColor = Color.Transparent, contentColor = CgColors.TextDim, borderColor = CgColors.TextFaint)
@@ -335,13 +349,18 @@ fun OutcomeTag(outcome: String, modifier: Modifier = Modifier) {
 
 /** Where a name came from: source in bold, confidence dimmed. */
 @Composable
-fun SourceChip(source: String, confidence: String, modifier: Modifier = Modifier) {
+fun SourceChip(
+    source: String,
+    confidence: String,
+    modifier: Modifier = Modifier,
+) {
     val shape = RoundedCornerShape(percent = 50)
     Row(
-        modifier = modifier
-            .clip(shape)
-            .border(1.dp, CgColors.TextFaint, shape)
-            .padding(horizontal = 8.dp, vertical = 3.dp),
+        modifier =
+            modifier
+                .clip(shape)
+                .border(1.dp, CgColors.TextFaint, shape)
+                .padding(horizontal = 8.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -362,21 +381,27 @@ fun SourceChip(source: String, confidence: String, modifier: Modifier = Modifier
 
 /** Thin spam meter. Turns red at or above [threshold]. */
 @Composable
-fun ScoreBar(score: Int, modifier: Modifier = Modifier, threshold: Int = 70) {
+fun ScoreBar(
+    score: Int,
+    modifier: Modifier = Modifier,
+    threshold: Int = 70,
+) {
     val fraction = score.coerceIn(0, 100) / 100f
     val fill = if (score >= threshold) CgColors.Red else CgColors.White
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(6.dp)
-            .clip(RoundedCornerShape(percent = 50))
-            .background(CgColors.SurfaceHigh),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(RoundedCornerShape(percent = 50))
+                .background(CgColors.SurfaceHigh),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(fraction)
-                .background(fill),
+            modifier =
+                Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(fraction)
+                    .background(fill),
         )
     }
 }
@@ -392,14 +417,15 @@ fun CgToggle(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier,
-        colors = SwitchDefaults.colors(
-            checkedThumbColor = CgColors.Black,
-            checkedTrackColor = CgColors.White,
-            checkedBorderColor = Color.Transparent,
-            uncheckedThumbColor = CgColors.TextDim,
-            uncheckedTrackColor = CgColors.Surface,
-            uncheckedBorderColor = CgColors.TextFaint,
-        ),
+        colors =
+            SwitchDefaults.colors(
+                checkedThumbColor = CgColors.Black,
+                checkedTrackColor = CgColors.White,
+                checkedBorderColor = Color.Transparent,
+                uncheckedThumbColor = CgColors.TextDim,
+                uncheckedTrackColor = CgColors.Surface,
+                uncheckedBorderColor = CgColors.TextFaint,
+            ),
     )
 }
 
@@ -429,9 +455,10 @@ fun ActionSheet(
     onEdit: () -> Unit = {},
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = CgGutter, end = CgGutter, bottom = 28.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(start = CgGutter, end = CgGutter, bottom = 28.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             PillAvatar(initials, photo = photo)
@@ -483,15 +510,19 @@ fun ActionSheet(
 }
 
 @Composable
-private fun SheetButton(action: SheetAction, modifier: Modifier = Modifier) {
+private fun SheetButton(
+    action: SheetAction,
+    modifier: Modifier = Modifier,
+) {
     val tint = if (action.enabled) CgColors.White else CgColors.TextFaint
     Row(
-        modifier = modifier
-            .height(54.dp)
-            .clip(RoundedCornerShape(percent = 50))
-            .background(CgColors.SurfaceHigh)
-            .then(if (action.enabled) Modifier.clickable(role = Role.Button, onClick = action.onClick) else Modifier)
-            .padding(horizontal = 16.dp),
+        modifier =
+            modifier
+                .height(54.dp)
+                .clip(RoundedCornerShape(percent = 50))
+                .background(CgColors.SurfaceHigh)
+                .then(if (action.enabled) Modifier.clickable(role = Role.Button, onClick = action.onClick) else Modifier)
+                .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -524,14 +555,15 @@ fun BoxScope.SheetOverlay(
         exit = fadeOut(),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.6f))
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onDismiss,
-                ),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.6f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onDismiss,
+                    ),
         )
     }
     AnimatedVisibility(
@@ -541,18 +573,20 @@ fun BoxScope.SheetOverlay(
         exit = slideOutVertically(targetOffsetY = { it }),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
-                .background(CgColors.Surface)
-                .padding(top = 12.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                    .background(CgColors.Surface)
+                    .padding(top = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Box(
-                modifier = Modifier
-                    .size(width = 32.dp, height = 4.dp)
-                    .clip(RoundedCornerShape(percent = 50))
-                    .background(CgColors.TextFaint),
+                modifier =
+                    Modifier
+                        .size(width = 32.dp, height = 4.dp)
+                        .clip(RoundedCornerShape(percent = 50))
+                        .background(CgColors.TextFaint),
             )
             Spacer(Modifier.height(16.dp))
             content()

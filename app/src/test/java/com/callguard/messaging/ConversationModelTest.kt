@@ -11,22 +11,34 @@ import java.time.Instant
 import java.time.ZoneId
 
 class ConversationModelTest {
+    private fun row(
+        id: Long,
+        address: String,
+        body: String,
+        date: Long,
+        type: Int = SmsType.INBOX,
+        read: Boolean = true,
+        thread: Long = 1,
+    ) = SmsRow(id = id, threadId = thread, address = address, body = body, date = date, type = type, read = read)
 
-    private fun row(id: Long, address: String, body: String, date: Long, type: Int = SmsType.INBOX, read: Boolean = true, thread: Long = 1) =
-        SmsRow(id = id, threadId = thread, address = address, body = body, date = date, type = type, read = read)
-
-    private fun log(id: Long, number: String, outcome: MessageOutcome, ts: Long, body: String = "body") =
-        MessageLogEntry(id = id, number = number, name = null, body = body, outcome = outcome, timestamp = ts)
+    private fun log(
+        id: Long,
+        number: String,
+        outcome: MessageOutcome,
+        ts: Long,
+        body: String = "body",
+    ) = MessageLogEntry(id = id, number = number, name = null, body = body, outcome = outcome, timestamp = ts)
 
     @Test
     fun groupsRowsByNormalizedNumberAndSortsNewestFirst() {
-        val conversations = groupConversations(
-            listOf(
-                row(1, "9876543210", "hi", 100, read = false, thread = 10),
-                row(2, "+919876543210", "there", 200, type = SmsType.SENT, thread = 10),
-                row(3, "5554002", "other", 150, thread = 11),
-            ),
-        )
+        val conversations =
+            groupConversations(
+                listOf(
+                    row(1, "9876543210", "hi", 100, read = false, thread = 10),
+                    row(2, "+919876543210", "there", 200, type = SmsType.SENT, thread = 10),
+                    row(3, "5554002", "other", 150, thread = 11),
+                ),
+            )
         assertEquals(listOf(PhoneNumber("+919876543210"), PhoneNumber("5554002")), conversations.map { it.number })
         val first = conversations.first()
         assertEquals("there", first.snippet)
@@ -37,12 +49,13 @@ class ConversationModelTest {
 
     @Test
     fun unreadCountsOnlyUnreadReceivedTexts() {
-        val rows = listOf(
-            row(1, "A", "one", 1, read = false),
-            row(2, "A", "two", 2, read = true),
-            row(3, "A", "three", 3, type = SmsType.SENT, read = false),
-            row(4, "A", "four", 4, type = SmsType.FAILED, read = false),
-        )
+        val rows =
+            listOf(
+                row(1, "A", "one", 1, read = false),
+                row(2, "A", "two", 2, read = true),
+                row(3, "A", "three", 3, type = SmsType.SENT, read = false),
+                row(4, "A", "four", 4, type = SmsType.FAILED, read = false),
+            )
         assertEquals(1, unreadCount(rows))
         assertEquals(1, groupConversations(rows).single().unread)
     }
@@ -112,11 +125,12 @@ class ConversationModelTest {
         val day1 = Instant.parse("2026-11-05T23:00:00Z").toEpochMilli()
         val day2a = Instant.parse("2026-11-06T01:00:00Z").toEpochMilli()
         val day2b = Instant.parse("2026-11-06T02:00:00Z").toEpochMilli()
-        val messages = listOf(
-            ThreadMessage(1, SmsType.INBOX, "a", day1, true),
-            ThreadMessage(2, SmsType.INBOX, "b", day2a, true),
-            ThreadMessage(3, SmsType.SENT, "c", day2b, true),
-        )
+        val messages =
+            listOf(
+                ThreadMessage(1, SmsType.INBOX, "a", day1, true),
+                ThreadMessage(2, SmsType.INBOX, "b", day2a, true),
+                ThreadMessage(3, SmsType.SENT, "c", day2b, true),
+            )
         val rows = threadRows(messages, utc)
         assertEquals(5, rows.size)
         assertTrue(rows[0] is ThreadRow.Day)
@@ -136,22 +150,25 @@ class ConversationModelTest {
 
     @Test
     fun splitRoutesConversationsByListsAndLog() {
-        val conversations = listOf(
-            Conversation(PhoneNumber("+919000000001"), "a", 300, 0, emptySet()),
-            Conversation(PhoneNumber("+919000000002"), "b", 200, 2, emptySet()),
-            Conversation(PhoneNumber("+919000000003"), "c", 100, 0, emptySet()),
-        )
-        val logs = listOf(
-            log(1, "+919000000001", MessageOutcome.NOTIFY, 250),
-            log(2, "+919000000002", MessageOutcome.QUIET_INBOX, 200),
-            log(3, "+919000000004", MessageOutcome.QUIET_INBOX, 50, body = "held back"),
-        )
-        val split = splitConversations(
-            conversations = conversations,
-            logs = logs,
-            allowList = setOf("+919000000002"),
-            blockList = setOf("+919000000003"),
-        )
+        val conversations =
+            listOf(
+                Conversation(PhoneNumber("+919000000001"), "a", 300, 0, emptySet()),
+                Conversation(PhoneNumber("+919000000002"), "b", 200, 2, emptySet()),
+                Conversation(PhoneNumber("+919000000003"), "c", 100, 0, emptySet()),
+            )
+        val logs =
+            listOf(
+                log(1, "+919000000001", MessageOutcome.NOTIFY, 250),
+                log(2, "+919000000002", MessageOutcome.QUIET_INBOX, 200),
+                log(3, "+919000000004", MessageOutcome.QUIET_INBOX, 50, body = "held back"),
+            )
+        val split =
+            splitConversations(
+                conversations = conversations,
+                logs = logs,
+                allowList = setOf("+919000000002"),
+                blockList = setOf("+919000000003"),
+            )
         assertEquals(listOf("+919000000001", "+919000000002"), split.inbox.map { it.number.e164 })
         assertEquals(listOf("+919000000003", "+919000000004"), split.quiet.map { it.number.e164 })
         val logOnly = split.quiet.last()

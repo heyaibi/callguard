@@ -27,13 +27,19 @@ const val EXTRA_INCOMING_NUMBER = "incoming_number"
 private const val CARD_TIMEOUT_MILLIS = 30_000L
 
 /** Title and text of the caller ID card. */
-data class CardText(val title: String, val text: String)
+data class CardText(
+    val title: String,
+    val text: String,
+)
 
 /**
  * Card wording. The title is the name, or UNKNOWN. The text is the formatted number, the source and the confidence,
  * with the spam score appended when the number is likely spam.
  */
-fun callerCardText(identity: ResolutionResult, spam: SpamAssessment): CardText {
+fun callerCardText(
+    identity: ResolutionResult,
+    spam: SpamAssessment,
+): CardText {
     val parts = mutableListOf(displayNumber(identity.number.e164), identity.source.label())
     if (identity.isKnown) parts += identity.confidence.name
     if (spam.isSpam) parts += "LIKELY SPAM · ${spam.score}"
@@ -44,26 +50,35 @@ fun callerCardText(identity: ResolutionResult, spam: SpamAssessment): CardText {
  * Posts the caller ID card for answered calls and a notice for rejected ones. Nothing is posted while notifications are off
  * for the app. Both channels are created before a post, which is harmless when they already exist.
  */
-class CallerIdNotifier(private val context: Context) {
-
-    fun showCard(number: PhoneNumber, identity: ResolutionResult, spam: SpamAssessment, decision: ScreeningDecision) {
+class CallerIdNotifier(
+    private val context: Context,
+) {
+    fun showCard(
+        number: PhoneNumber,
+        identity: ResolutionResult,
+        spam: SpamAssessment,
+        decision: ScreeningDecision,
+    ) {
         val text = callerCardText(identity, spam)
-        val open = PendingIntent.getActivity(
-            context,
-            cardId(number),
-            Intent(context, MainActivity::class.java)
-                .putExtra(EXTRA_INCOMING_NUMBER, number.e164)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
-        val card = Notification.Builder(context, CHANNEL_CALLER_ID)
-            .setSmallIcon(android.R.drawable.sym_call_incoming)
-            .setContentTitle(text.title)
-            .setContentText(text.text)
-            .setAutoCancel(true)
-            .setTimeoutAfter(CARD_TIMEOUT_MILLIS)
-            .setContentIntent(open)
-            .build()
+        val open =
+            PendingIntent.getActivity(
+                context,
+                cardId(number),
+                Intent(context, MainActivity::class.java)
+                    .putExtra(EXTRA_INCOMING_NUMBER, number.e164)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        val card =
+            Notification
+                .Builder(context, CHANNEL_CALLER_ID)
+                .setSmallIcon(android.R.drawable.sym_call_incoming)
+                .setContentTitle(text.title)
+                .setContentText(text.text)
+                .setAutoCancel(true)
+                .setTimeoutAfter(CARD_TIMEOUT_MILLIS)
+                .setContentIntent(open)
+                .build()
         post(cardId(number), card)
         // The overlay needs "display over other apps". Without it, OverlayCard would post a second notification instead.
         if (OverlayCard.canShow(context)) {
@@ -77,24 +92,33 @@ class CallerIdNotifier(private val context: Context) {
         }
     }
 
-    fun showBlocked(number: PhoneNumber, name: String?) {
-        val open = PendingIntent.getActivity(
-            context,
-            blockedId(number),
-            Intent(context, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE,
-        )
-        val notice = Notification.Builder(context, CHANNEL_BLOCKED)
-            .setSmallIcon(android.R.drawable.sym_call_missed)
-            .setContentTitle("Blocked ${name ?: displayNumber(number.e164)}")
-            .setContentText(if (name != null) "Call rejected · ${displayNumber(number.e164)}" else "Call rejected")
-            .setAutoCancel(true)
-            .setContentIntent(open)
-            .build()
+    fun showBlocked(
+        number: PhoneNumber,
+        name: String?,
+    ) {
+        val open =
+            PendingIntent.getActivity(
+                context,
+                blockedId(number),
+                Intent(context, MainActivity::class.java),
+                PendingIntent.FLAG_IMMUTABLE,
+            )
+        val notice =
+            Notification
+                .Builder(context, CHANNEL_BLOCKED)
+                .setSmallIcon(android.R.drawable.sym_call_missed)
+                .setContentTitle("Blocked ${name ?: displayNumber(number.e164)}")
+                .setContentText(if (name != null) "Call rejected · ${displayNumber(number.e164)}" else "Call rejected")
+                .setAutoCancel(true)
+                .setContentIntent(open)
+                .build()
         post(blockedId(number), notice)
     }
 
-    private fun post(id: Int, notification: Notification) {
+    private fun post(
+        id: Int,
+        notification: Notification,
+    ) {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         ensureChannels(manager)
         if (manager.areNotificationsEnabled()) manager.notify(id, notification)

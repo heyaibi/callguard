@@ -12,13 +12,15 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class SpamPolicyTest {
-
     private class FakeReputation : ReputationStore {
         val entries = mutableMapOf<String, ReputationEntry>()
+
         override fun get(n: PhoneNumber): ReputationEntry? = entries[n.e164]
+
         override fun put(entry: ReputationEntry) {
             entries[entry.number] = entry
         }
+
         override fun remove(n: PhoneNumber) {
             entries.remove(n.e164)
         }
@@ -30,19 +32,27 @@ class SpamPolicyTest {
     private val reputation = FakeReputation()
     private val bundledSpam = mutableSetOf<String>()
     private val callTimes = mutableMapOf<String, MutableList<Long>>()
-    private val policy = SpamPolicy(
-        reputation = reputation,
-        isBundledSpam = { bundledSpam.contains(it.e164) },
-        callsSince = { n, since -> callTimes[n.e164].orEmpty().count { it >= since } },
-        zone = zone,
-    )
+    private val policy =
+        SpamPolicy(
+            reputation = reputation,
+            isBundledSpam = { bundledSpam.contains(it.e164) },
+            callsSince = { n, since -> callTimes[n.e164].orEmpty().count { it >= since } },
+            zone = zone,
+        )
     private val midday = at(12, 0)
 
-    private fun at(hour: Int, minute: Int): Long =
-        ZonedDateTime.of(2026, 11, 6, hour, minute, 0, 0, zone).toInstant().toEpochMilli()
+    private fun at(
+        hour: Int,
+        minute: Int,
+    ): Long = ZonedDateTime.of(2026, 11, 6, hour, minute, 0, 0, zone).toInstant().toEpochMilli()
 
     /** Records [count] calls from [n] that happened [agoMillis] before [time]. */
-    private fun callsBefore(n: PhoneNumber, time: Long, count: Int, agoMillis: Long = 60_000L) {
+    private fun callsBefore(
+        n: PhoneNumber,
+        time: Long,
+        count: Int,
+        agoMillis: Long = 60_000L,
+    ) {
         callTimes.getOrPut(n.e164) { mutableListOf() }.addAll(List(count) { time - agoMillis })
     }
 

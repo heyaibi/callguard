@@ -28,34 +28,36 @@ import java.util.concurrent.TimeUnit
  * Outgoing calls are allowed at once and are only logged.
  */
 class CallGuardScreeningService : CallScreeningService() {
-
     override fun onScreenCall(callDetails: Call.Details) {
         val answer = CallAnswer { decision -> respond(callDetails, decision) }
         try {
             val graph = CallGuardApp.graph(this)
             val settings = graph.settingsStore.settings.value
             val raw = callDetails.handle?.schemeSpecificPart
-            val call = CallInfo(
-                raw = raw,
-                cnap = trustedCnapName(
-                    name = callDetails.callerDisplayName,
-                    presentation = callDetails.callerDisplayNamePresentation,
-                    allowedPresentation = TelecomManager.PRESENTATION_ALLOWED,
-                ),
-                // Unknown direction is screened like an incoming call: only outgoing calls skip screening.
-                direction = if (callDetails.callDirection == Call.Details.DIRECTION_OUTGOING) Direction.OUTGOING else Direction.INCOMING,
-                arrivedAt = System.currentTimeMillis(),
-            )
+            val call =
+                CallInfo(
+                    raw = raw,
+                    cnap =
+                        trustedCnapName(
+                            name = callDetails.callerDisplayName,
+                            presentation = callDetails.callerDisplayNamePresentation,
+                            allowedPresentation = TelecomManager.PRESENTATION_ALLOWED,
+                        ),
+                    // Unknown direction is screened like an incoming call: only outgoing calls skip screening.
+                    direction = if (callDetails.callDirection == Call.Details.DIRECTION_OUTGOING) Direction.OUTGOING else Direction.INCOMING,
+                    arrivedAt = System.currentTimeMillis(),
+                )
             val number = raw?.let { PhoneNumbers.normalize(it) }
             val listsOnly = answerFor(call.direction, number?.e164, settings, screened = null)
 
             // Outgoing calls are answered at once. Incoming calls wait for the full screening, bounded by the deadline.
-            val deadline = if (call.direction == Direction.INCOMING) {
-                timer.schedule(Runnable { answer.offer(listsOnly) }, SCREENING_DEADLINE_MILLIS, TimeUnit.MILLISECONDS)
-            } else {
-                answer.offer(listsOnly)
-                null
-            }
+            val deadline =
+                if (call.direction == Direction.INCOMING) {
+                    timer.schedule(Runnable { answer.offer(listsOnly) }, SCREENING_DEADLINE_MILLIS, TimeUnit.MILLISECONDS)
+                } else {
+                    answer.offer(listsOnly)
+                    null
+                }
             worker.execute {
                 runCatching {
                     val screened = number?.let { runCatching { screen(graph, it, call.cnap) }.getOrNull() }
@@ -70,7 +72,11 @@ class CallGuardScreeningService : CallScreeningService() {
     }
 
     /** The full screening: identity, spam assessment and the decision the rules give. */
-    private fun screen(graph: AppGraph, number: PhoneNumber, cnap: String?): Screened {
+    private fun screen(
+        graph: AppGraph,
+        number: PhoneNumber,
+        cnap: String?,
+    ): Screened {
         val identity = graph.resolutionPolicy.resolve(number, LookupContext(cnap))
         val spam = graph.spamPolicy.assess(number)
         val decision = graph.screeningPolicy.decide(identity, spam, graph.effectiveSettings(), graph.isInContacts(number))
@@ -78,17 +84,22 @@ class CallGuardScreeningService : CallScreeningService() {
     }
 
     /** Sends one answer to the platform. A failure here leaves the platform's own default in place. */
-    private fun respond(callDetails: Call.Details, decision: ScreeningDecision) {
+    private fun respond(
+        callDetails: Call.Details,
+        decision: ScreeningDecision,
+    ) {
         // Recorded before the answer goes out, so the in-call service finds it when the platform adds the call.
         ScreeningVerdicts.record(ScreeningVerdicts.keyFor(callDetails.handle?.schemeSpecificPart), decision)
         val spec = decision.responseSpec()
-        val response = CallScreeningService.CallResponse.Builder()
-            .setDisallowCall(spec.disallowCall)
-            .setRejectCall(spec.rejectCall)
-            .setSkipCallLog(spec.skipCallLog)
-            .setSkipNotification(spec.skipNotification)
-            .setSilenceCall(spec.silenceCall)
-            .build()
+        val response =
+            CallScreeningService.CallResponse
+                .Builder()
+                .setDisallowCall(spec.disallowCall)
+                .setRejectCall(spec.rejectCall)
+                .setSkipCallLog(spec.skipCallLog)
+                .setSkipNotification(spec.skipNotification)
+                .setSilenceCall(spec.silenceCall)
+                .build()
         runCatching { respondToCall(callDetails, response) }
     }
 
@@ -96,7 +107,13 @@ class CallGuardScreeningService : CallScreeningService() {
      * Logging, CNAP learning and the notices. Runs after the answer went out, so nothing here delays the call.
      * The log records the answer that was actually sent, which may be the deadline fallback.
      */
-    private fun afterAnswer(graph: AppGraph, call: CallInfo, number: PhoneNumber?, screened: Screened?, sent: ScreeningDecision) {
+    private fun afterAnswer(
+        graph: AppGraph,
+        call: CallInfo,
+        number: PhoneNumber?,
+        screened: Screened?,
+        sent: ScreeningDecision,
+    ) {
         val identity = screened?.identity
         val name = identity?.name ?: call.cnap
         val source = identity?.source ?: if (call.cnap != null) SourceKind.CNAP else SourceKind.NONE
@@ -119,11 +136,18 @@ class CallGuardScreeningService : CallScreeningService() {
             runCatching {
                 val notifier = CallerIdNotifier(this)
                 when {
-                    sent == ScreeningDecision.BLOCK -> notifier.showBlocked(number, name)
+                    sent == ScreeningDecision.BLOCK -> {
+                        notifier.showBlocked(number, name)
+                    }
+
                     // As the default dialer the in-call screen already shows who is calling, so no card.
-                    Dialer.isDefaultDialer(this) -> Unit
-                    screened != null && (screened.identity.isKnown || graph.settingsStore.settings.value.showCardForUnknown) ->
+                    Dialer.isDefaultDialer(this) -> {
+                        Unit
+                    }
+
+                    screened != null && (screened.identity.isKnown || graph.settingsStore.settings.value.showCardForUnknown) -> {
                         notifier.showCard(number, screened.identity, screened.spam, sent)
+                    }
                 }
             }
         }
@@ -144,7 +168,16 @@ class CallGuardScreeningService : CallScreeningService() {
 private fun daemonThreads(name: String) = ThreadFactory { task -> Thread(task, name).apply { isDaemon = true } }
 
 /** What the service reads from one platform call, copied out of Call.Details so the work can leave the callback. */
-private class CallInfo(val raw: String?, val cnap: String?, val direction: Direction, val arrivedAt: Long)
+private class CallInfo(
+    val raw: String?,
+    val cnap: String?,
+    val direction: Direction,
+    val arrivedAt: Long,
+)
 
 /** A completed full screening of one number. */
-private class Screened(val identity: ResolutionResult, val spam: SpamAssessment, val decision: ScreeningDecision)
+private class Screened(
+    val identity: ResolutionResult,
+    val spam: SpamAssessment,
+    val decision: ScreeningDecision,
+)

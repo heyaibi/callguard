@@ -24,30 +24,36 @@ import com.callguard.screening.ScreeningPolicy
 import com.callguard.spam.SpamPolicy
 
 /** Manual service locator. Built once by [CallGuardApp]. */
-class AppGraph(context: Context) {
+class AppGraph(
+    context: Context,
+) {
     val settingsStore = SettingsStore(context)
     val repos = Repositories(CallGuardDb(context))
     val bundled = BundledDatabase(context)
     private val localContacts = LocalContactSource(context)
 
-    val resolutionPolicy = ResolutionPolicy(
-        listOf(
-            CnapSource(),
-            localContacts,
-            GoogleContactsSource(context, settingsStore.settings),
-            OperatorServiceSource(),
-            AppProfileSource(repos.cache, settingsStore.settings),
-            CacheSource(repos.cache),
-            BundledSource(bundled),
-            OnlineLookupSource(settingsStore.settings),
-        ),
-    )
+    val resolutionPolicy =
+        ResolutionPolicy(
+            listOf(
+                CnapSource(),
+                localContacts,
+                GoogleContactsSource(context, settingsStore.settings),
+                OperatorServiceSource(),
+                AppProfileSource(repos.cache, settingsStore.settings),
+                CacheSource(repos.cache),
+                BundledSource(bundled),
+                OnlineLookupSource(settingsStore.settings),
+            ),
+        )
     val spamPolicy = SpamPolicy(repos.reputation, bundled::isSpam, repos.calls::countSince)
     val screeningPolicy = ScreeningPolicy()
     val messageFilterPolicy = MessageFilterPolicy()
 
     /** Null when [raw] is not a usable number (blank, private, or unrecognized). */
-    fun resolve(raw: String, cnapName: String? = null): ResolutionResult? {
+    fun resolve(
+        raw: String,
+        cnapName: String? = null,
+    ): ResolutionResult? {
         val n = PhoneNumbers.normalize(raw) ?: return null
         return resolutionPolicy.resolve(n, LookupContext(cnapName))
     }

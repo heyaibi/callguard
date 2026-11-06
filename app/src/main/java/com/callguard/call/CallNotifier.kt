@@ -44,7 +44,12 @@ object CallNotifier {
      * Posts a ringing call on the channel [ringingPresentation] picks, replacing its notification. A call that has been
      * answered or has ended loses its ringing notification.
      */
-    fun show(context: Context, call: CallState, uiVisible: Boolean, screenOn: Boolean) {
+    fun show(
+        context: Context,
+        call: CallState,
+        uiVisible: Boolean,
+        screenOn: Boolean,
+    ) {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         val presentation = ringingPresentation(call.phase, call.silenced, uiVisible, screenOn, fullScreenAllowed(manager))
         if (presentation == null) {
@@ -58,7 +63,10 @@ object CallNotifier {
         }.onFailure { Log.w(TAG, "Could not post the ringing notification for call ${call.id}", it) }
     }
 
-    fun cancel(context: Context, callId: Long) {
+    fun cancel(
+        context: Context,
+        callId: Long,
+    ) {
         context.getSystemService(NotificationManager::class.java)?.cancel(ringingId(callId))
     }
 
@@ -76,7 +84,10 @@ object CallNotifier {
      * Posts the call in progress as a plain notification. Used only when the platform refuses to start the foreground
      * service, for example from the background.
      */
-    fun postPlainOngoing(context: Context, call: CallState) {
+    fun postPlainOngoing(
+        context: Context,
+        call: CallState,
+    ) {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         if (!manager.areNotificationsEnabled()) return
         runCatching {
@@ -86,21 +97,28 @@ object CallNotifier {
     }
 
     /** The notification of the call in progress. [callStyle] false gives the plain form with a hang-up button. */
-    fun ongoing(context: Context, call: CallState, callStyle: Boolean): Notification {
-        val builder = Notification.Builder(context, CHANNEL_ONGOING)
-            .setSmallIcon(android.R.drawable.stat_sys_phone_call)
-            .setCategory(Notification.CATEGORY_CALL)
-            .setContentIntent(openUi(context, call.id))
-            .setOngoing(true)
-            .setOnlyAlertOnce(true)
-            .setShowWhen(true)
-            .setWhen(call.connectTime ?: System.currentTimeMillis())
-            .setUsesChronometer(call.phase == CallPhase.ACTIVE)
+    fun ongoing(
+        context: Context,
+        call: CallState,
+        callStyle: Boolean,
+    ): Notification {
+        val builder =
+            Notification
+                .Builder(context, CHANNEL_ONGOING)
+                .setSmallIcon(android.R.drawable.stat_sys_phone_call)
+                .setCategory(Notification.CATEGORY_CALL)
+                .setContentIntent(openUi(context, call.id))
+                .setOngoing(true)
+                .setOnlyAlertOnce(true)
+                .setShowWhen(true)
+                .setWhen(call.connectTime ?: System.currentTimeMillis())
+                .setUsesChronometer(call.phase == CallPhase.ACTIVE)
         val hangUp = actionIntent(context, CallActionReceiver.ACTION_HANG_UP, call.id)
         if (callStyle && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             builder.setStyle(Notification.CallStyle.forOngoingCall(person(call), hangUp))
         } else {
-            builder.setContentTitle(titleOf(call))
+            builder
+                .setContentTitle(titleOf(call))
                 .setContentText(subtitleOf(call))
                 .addAction(plainAction(context, "Hang up", hangUp))
         }
@@ -108,18 +126,26 @@ object CallNotifier {
     }
 
     /** The foreground notification shown for the instant before the service learns that no call is left. */
-    fun ended(context: Context): Notification = Notification.Builder(context, CHANNEL_ONGOING)
-        .setSmallIcon(android.R.drawable.stat_sys_phone_call)
-        .setContentTitle("Call ended")
-        .setOngoing(true)
-        .build()
+    fun ended(context: Context): Notification =
+        Notification
+            .Builder(context, CHANNEL_ONGOING)
+            .setSmallIcon(android.R.drawable.stat_sys_phone_call)
+            .setContentTitle("Call ended")
+            .setOngoing(true)
+            .build()
 
-    private fun ringing(context: Context, call: CallState, presentation: RingingPresentation): Notification {
-        val builder = Notification.Builder(context, presentation.channelId)
-            .setSmallIcon(android.R.drawable.sym_call_incoming)
-            .setCategory(Notification.CATEGORY_CALL)
-            .setContentIntent(openUi(context, call.id))
-            .setOnlyAlertOnce(true)
+    private fun ringing(
+        context: Context,
+        call: CallState,
+        presentation: RingingPresentation,
+    ): Notification {
+        val builder =
+            Notification
+                .Builder(context, presentation.channelId)
+                .setSmallIcon(android.R.drawable.sym_call_incoming)
+                .setCategory(Notification.CATEGORY_CALL)
+                .setContentIntent(openUi(context, call.id))
+                .setOnlyAlertOnce(true)
         // Only the heads-up channel takes the full-screen intent. Android 14 and later can refuse full-screen intents.
         if (presentation.fullScreen) {
             builder.setFullScreenIntent(openUi(context, call.id), true)
@@ -131,7 +157,8 @@ object CallNotifier {
         if (presentation.fullScreen && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             builder.setStyle(Notification.CallStyle.forIncomingCall(person(call), decline, answer))
         } else {
-            builder.setContentTitle(titleOf(call))
+            builder
+                .setContentTitle(titleOf(call))
                 .setContentText(subtitleOf(call))
                 .addAction(plainAction(context, "Decline", decline))
                 .addAction(plainAction(context, "Answer", answer))
@@ -140,41 +167,57 @@ object CallNotifier {
     }
 
     private fun person(call: CallState): Person =
-        Person.Builder().setName(titleOf(call)).setImportant(true).build()
+        Person
+            .Builder()
+            .setName(titleOf(call))
+            .setImportant(true)
+            .build()
 
     /** The name when known, otherwise the number as it is shown on screen. */
     private fun titleOf(call: CallState): String = call.name ?: call.displayNumber
 
-    private fun subtitleOf(call: CallState): String = when (call.phase) {
-        CallPhase.RINGING -> if (call.silenced) "Silenced call" else "Incoming call"
-        CallPhase.DIALING -> "Calling"
-        CallPhase.HOLDING -> "On hold"
-        CallPhase.ACTIVE -> "Ongoing call"
-        CallPhase.DISCONNECTED -> "Call ended"
-    }
+    private fun subtitleOf(call: CallState): String =
+        when (call.phase) {
+            CallPhase.RINGING -> if (call.silenced) "Silenced call" else "Incoming call"
+            CallPhase.DIALING -> "Calling"
+            CallPhase.HOLDING -> "On hold"
+            CallPhase.ACTIVE -> "Ongoing call"
+            CallPhase.DISCONNECTED -> "Call ended"
+        }
 
-    private fun fullScreenAllowed(manager: NotificationManager): Boolean =
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE || manager.canUseFullScreenIntent()
+    private fun fullScreenAllowed(manager: NotificationManager): Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE || manager.canUseFullScreenIntent()
 
-    private fun openUi(context: Context, callId: Long): PendingIntent = PendingIntent.getActivity(
-        context,
-        requestCode("open", callId),
-        InCallActivity.intent(context),
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-    )
+    private fun openUi(
+        context: Context,
+        callId: Long,
+    ): PendingIntent =
+        PendingIntent.getActivity(
+            context,
+            requestCode("open", callId),
+            InCallActivity.intent(context),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
 
-    private fun actionIntent(context: Context, action: String, callId: Long): PendingIntent = PendingIntent.getBroadcast(
-        context,
-        requestCode(action, callId),
-        Intent(context, CallActionReceiver::class.java)
-            .setAction(action)
-            .putExtra(CallActionReceiver.EXTRA_CALL_ID, callId),
-        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-    )
+    private fun actionIntent(
+        context: Context,
+        action: String,
+        callId: Long,
+    ): PendingIntent =
+        PendingIntent.getBroadcast(
+            context,
+            requestCode(action, callId),
+            Intent(context, CallActionReceiver::class.java)
+                .setAction(action)
+                .putExtra(CallActionReceiver.EXTRA_CALL_ID, callId),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
 
     @Suppress("DEPRECATION")
-    private fun plainAction(context: Context, label: String, intent: PendingIntent): Notification.Action =
-        Notification.Action.Builder(0, label, intent).build()
+    private fun plainAction(
+        context: Context,
+        label: String,
+        intent: PendingIntent,
+    ): Notification.Action = Notification.Action.Builder(0, label, intent).build()
 
     private fun ensureChannels(manager: NotificationManager) {
         manager.createNotificationChannel(
@@ -209,5 +252,8 @@ object CallNotifier {
 
     private fun ringingId(callId: Long): Int = "call:$callId".hashCode()
 
-    private fun requestCode(kind: String, callId: Long): Int = "$kind:$callId".hashCode()
+    private fun requestCode(
+        kind: String,
+        callId: Long,
+    ): Int = "$kind:$callId".hashCode()
 }

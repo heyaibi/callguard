@@ -9,7 +9,6 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class RecentCallsTest {
-
     private val t0 = 1_700_000_000_000L
 
     private fun guard(
@@ -53,10 +52,11 @@ class RecentCallsTest {
 
     @Test
     fun eachGuardRecordJoinsAtMostOneSystemCall() {
-        val system = listOf(
-            SystemCall("+919876543210", null, CallKind.INCOMING, t0, 0),
-            SystemCall("+919876543210", null, CallKind.INCOMING, t0 + 5_000, 0),
-        )
+        val system =
+            listOf(
+                SystemCall("+919876543210", null, CallKind.INCOMING, t0, 0),
+                SystemCall("+919876543210", null, CallKind.INCOMING, t0 + 5_000, 0),
+            )
         val rows = mergeRecentCalls(system, listOf(guard("+919876543210", t0 + 1_000)))
 
         assertEquals(2, rows.size)
@@ -74,10 +74,11 @@ class RecentCallsTest {
 
     @Test
     fun rowsAreNewestFirst() {
-        val system = listOf(
-            SystemCall("+919000000001", null, CallKind.OUTGOING, t0, 0),
-            SystemCall("+919000000002", null, CallKind.OUTGOING, t0 + 500_000, 0),
-        )
+        val system =
+            listOf(
+                SystemCall("+919000000001", null, CallKind.OUTGOING, t0, 0),
+                SystemCall("+919000000002", null, CallKind.OUTGOING, t0 + 500_000, 0),
+            )
         val rows = mergeRecentCalls(system, listOf(guard("+919000000003", t0 + 900_000)))
 
         assertEquals(listOf(t0 + 900_000, t0 + 500_000, t0), rows.map { it.timestamp })

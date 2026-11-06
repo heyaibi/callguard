@@ -14,11 +14,19 @@ object DemoData {
     private const val SEEDED = "seeded"
     private const val MINUTE = 60_000L
 
-    fun seedOnce(context: Context, repos: Repositories) {
+    fun seedOnce(
+        context: Context,
+        repos: Repositories,
+    ) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         if (prefs.getBoolean(SEEDED, false)) return
         val now = System.currentTimeMillis()
-        val midnight = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val midnight =
+            LocalDate
+                .now()
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli()
 
         listOf(
             CacheEntry("+919820011223", "Priya Sharma", "call", now),
@@ -42,7 +50,13 @@ object DemoData {
         prefs.edit().putBoolean(SEEDED, true).apply()
     }
 
-    private fun call(number: String, name: String?, source: SourceKind, outcome: String, at: Long) = CallLogEntry(
+    private fun call(
+        number: String,
+        name: String?,
+        source: SourceKind,
+        outcome: String,
+        at: Long,
+    ) = CallLogEntry(
         number = number,
         name = name,
         source = source,

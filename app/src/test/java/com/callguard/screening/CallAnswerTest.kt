@@ -12,7 +12,6 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class CallAnswerTest {
-
     private val number = "+919876500001"
     private val open = Settings(contactsOnly = false)
     private val blockListed = Settings(contactsOnly = false, blockList = setOf(number))

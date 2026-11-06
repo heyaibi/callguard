@@ -27,7 +27,6 @@ private val APP_LABELS = mapOf("com.whatsapp" to "WhatsApp", "com.whatsapp.w4b" 
  * Parsing and lookups run on one background thread; [OverlayCard] takes care of the main thread.
  */
 class AppBridgeListener : NotificationListenerService() {
-
     private val worker: ExecutorService = Executors.newSingleThreadExecutor { Thread(it, "callguard-bridge") }
 
     /** elapsedRealtime of the last handled call per notification key. Touched only on [worker]. */
@@ -35,7 +34,11 @@ class AppBridgeListener : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         val pkg = sbn.packageName
-        val enabled = graph().settingsStore.settings.value.bridgeApps.filterValues { it }.keys
+        val enabled =
+            graph()
+                .settingsStore.settings.value.bridgeApps
+                .filterValues { it }
+                .keys
         val isDebugShell = BuildConfig.DEBUG && pkg == SHELL_PACKAGE
         if (pkg !in enabled && !isDebugShell) return
         val note = readNotification(sbn) ?: return
@@ -48,7 +51,10 @@ class AppBridgeListener : NotificationListenerService() {
         super.onDestroy()
     }
 
-    private fun handle(note: Note, learnNames: Boolean) {
+    private fun handle(
+        note: Note,
+        learnNames: Boolean,
+    ) {
         try {
             val graph = graph()
             val number = numberOf(note)
@@ -81,21 +87,28 @@ class AppBridgeListener : NotificationListenerService() {
     private fun graph(): AppGraph = CallGuardApp.graph(applicationContext)
 
     /** The number in the title. The text is searched only when the title is blank, so a saved name is never second-guessed. */
-    private fun numberOf(note: Note): PhoneNumber? =
-        BridgeParser.numberIn(note.title) ?: if (note.title == null) BridgeParser.numberIn(note.text) else null
+    private fun numberOf(note: Note): PhoneNumber? = BridgeParser.numberIn(note.title) ?: if (note.title == null) BridgeParser.numberIn(note.text) else null
 
-    private fun Note.profileName(): String? =
-        listOf(title, text, subText, conversationTitle, bigText).firstNotNullOfOrNull(BridgeParser::profileName)
+    private fun Note.profileName(): String? = listOf(title, text, subText, conversationTitle, bigText).firstNotNullOfOrNull(BridgeParser::profileName)
 
     /** Stores "~ name" for the number. A name learned from a call or SMS is kept; only app-origin entries are replaced. */
-    private fun learnName(graph: AppGraph, number: PhoneNumber, pkg: String, name: String, seenAt: Long) {
+    private fun learnName(
+        graph: AppGraph,
+        number: PhoneNumber,
+        pkg: String,
+        name: String,
+        seenAt: Long,
+    ) {
         val known = graph.repos.cache.get(number)
         if (known != null && !known.origin.startsWith(APP_ORIGIN_PREFIX)) return
         graph.repos.cache.put(CacheEntry(number.e164, name, APP_ORIGIN_PREFIX + pkg, seenAt))
     }
 
     /** True when this key was handled within [DEDUPE_MILLIS]. Entries outside the window are dropped first. */
-    private fun isRepeat(key: String, now: Long): Boolean {
+    private fun isRepeat(
+        key: String,
+        now: Long,
+    ): Boolean {
         handledAt.entries.removeAll { now - it.value > DEDUPE_MILLIS }
         if (handledAt.containsKey(key)) return true
         handledAt[key] = now
@@ -110,25 +123,27 @@ class AppBridgeListener : NotificationListenerService() {
     }
 
     /** Copies the text fields out of the notification. Null when the notification cannot be read. */
-    private fun readNotification(sbn: StatusBarNotification): Note? = try {
-        val n = sbn.notification
-        val extras = n.extras
-        fun text(key: String): String? = extras.getCharSequence(key)?.toString()?.takeIf { it.isNotBlank() }
-        Note(
-            key = sbn.key,
-            pkg = sbn.packageName,
-            postTime = sbn.postTime,
-            category = n.category,
-            title = text(Notification.EXTRA_TITLE),
-            text = text(Notification.EXTRA_TEXT),
-            subText = text(Notification.EXTRA_SUB_TEXT),
-            bigText = text(Notification.EXTRA_BIG_TEXT),
-            conversationTitle = text(Notification.EXTRA_CONVERSATION_TITLE),
-            actionTitles = n.actions.orEmpty().map { it.title?.toString() },
-        )
-    } catch (e: RuntimeException) {
-        null // a malformed notification must not stop the listener
-    }
+    private fun readNotification(sbn: StatusBarNotification): Note? =
+        try {
+            val n = sbn.notification
+            val extras = n.extras
+
+            fun text(key: String): String? = extras.getCharSequence(key)?.toString()?.takeIf { it.isNotBlank() }
+            Note(
+                key = sbn.key,
+                pkg = sbn.packageName,
+                postTime = sbn.postTime,
+                category = n.category,
+                title = text(Notification.EXTRA_TITLE),
+                text = text(Notification.EXTRA_TEXT),
+                subText = text(Notification.EXTRA_SUB_TEXT),
+                bigText = text(Notification.EXTRA_BIG_TEXT),
+                conversationTitle = text(Notification.EXTRA_CONVERSATION_TITLE),
+                actionTitles = n.actions.orEmpty().map { it.title?.toString() },
+            )
+        } catch (e: RuntimeException) {
+            null // a malformed notification must not stop the listener
+        }
 }
 
 /** The text of one notification, copied out so the work can leave the main thread. */

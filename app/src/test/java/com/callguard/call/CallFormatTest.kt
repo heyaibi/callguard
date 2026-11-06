@@ -4,7 +4,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class CallFormatTest {
-
     @Test
     fun zeroAndSubSecondReadAsZero() {
         assertEquals("00:00", formatElapsed(0L))

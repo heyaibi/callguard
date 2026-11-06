@@ -6,8 +6,8 @@ import java.time.Instant
 import java.time.ZoneId
 
 class FormatTest {
-
     private val utc = ZoneId.of("UTC")
+
     // 2026-11-06 is a Friday.
     private val now = Instant.parse("2026-11-06T12:00:00Z").toEpochMilli()
 

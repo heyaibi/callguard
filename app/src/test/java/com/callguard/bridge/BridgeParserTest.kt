@@ -8,7 +8,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BridgeParserTest {
-
     @Test
     fun incomingVoiceCallLineIsACall() {
         assertTrue(BridgeParser.isCall(null, listOf("Incoming voice call")))

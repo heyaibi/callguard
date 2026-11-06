@@ -9,5 +9,8 @@ import android.content.Intent
  * so the push is ignored.
  */
 class MmsReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) = Unit
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) = Unit
 }

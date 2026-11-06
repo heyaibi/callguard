@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.callguard.AppGraph
 import com.callguard.CallGuardApp
@@ -64,12 +63,6 @@ import com.callguard.identity.Confidence
 import com.callguard.identity.SourceKind
 import com.callguard.identity.hasReadContacts
 import com.callguard.spam.SpamPolicy
-import com.callguard.ui.dialMatches
-import com.callguard.ui.displayNumber
-import com.callguard.ui.initialsOf
-import com.callguard.ui.label
-import com.callguard.ui.rememberContactPhoto
-import com.callguard.ui.rememberPlaceCall
 import com.callguard.ui.components.CgGutter
 import com.callguard.ui.components.CgLabel
 import com.callguard.ui.components.CgPill
@@ -80,6 +73,12 @@ import com.callguard.ui.components.RedPill
 import com.callguard.ui.components.RoundKey
 import com.callguard.ui.components.ScoreBar
 import com.callguard.ui.components.SourceChip
+import com.callguard.ui.dialMatches
+import com.callguard.ui.displayNumber
+import com.callguard.ui.initialsOf
+import com.callguard.ui.label
+import com.callguard.ui.rememberContactPhoto
+import com.callguard.ui.rememberPlaceCall
 import com.callguard.ui.theme.CgColors
 import com.callguard.ui.theme.CgType
 import com.callguard.ui.theme.DotFont
@@ -98,7 +97,11 @@ private data class LookupResult(
 )
 
 /** A row above the keypad: a phonebook contact or a recent call whose number matches what was dialed. */
-private data class Suggestion(val name: String?, val number: String, val photoUri: String?)
+private data class Suggestion(
+    val name: String?,
+    val number: String,
+    val photoUri: String?,
+)
 
 /**
  * The dialer. Matching contacts and recent calls sit above the keypad while digits are typed (or the recent calls
@@ -116,7 +119,9 @@ fun KeypadScreen(
     val context = LocalContext.current
     val graph = CallGuardApp.graph(context)
     val scope = rememberCoroutineScope()
-    val guardCalls by graph.repos.calls.observe().collectAsStateWithLifecycle()
+    val guardCalls by graph.repos.calls
+        .observe()
+        .collectAsStateWithLifecycle()
     var digits by rememberSaveable { mutableStateOf(initialNumber?.let(::dialDigitsFor).orEmpty()) }
     var card by remember { mutableStateOf<LookupResult?>(null) }
     var askedContacts by rememberSaveable { mutableStateOf(false) }
@@ -141,10 +146,11 @@ fun KeypadScreen(
     }
 
     // Contacts are read during identity lookup, so ask once, then look up whatever the answer was.
-    val contactsPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        contactsOn = granted
-        lookup()
-    }
+    val contactsPermission =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            contactsOn = granted
+            lookup()
+        }
 
     fun whoIsThis() {
         if (digits.isEmpty()) return
@@ -182,9 +188,10 @@ fun KeypadScreen(
 
     Column(modifier = modifier.fillMaxSize()) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
             contentAlignment = Alignment.TopStart,
         ) {
             val shown = card
@@ -208,15 +215,17 @@ fun KeypadScreen(
             text = typedDisplay(digits),
             style = TextStyle(fontFamily = DotFont, fontWeight = FontWeight.Black, fontSize = 30.sp, lineHeight = 34.sp, letterSpacing = 1.sp),
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = CgGutter),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = CgGutter),
         )
         Spacer(Modifier.height(8.dp))
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(36.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(36.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -249,11 +258,12 @@ fun KeypadScreen(
 private const val MAX_DIGITS = 15
 
 /** Keypad text for the typed digits: +91 national digits, or a number entered with its own plus sign. */
-private fun typedDisplay(digits: String): String = when {
-    digits.isEmpty() -> "+91"
-    digits.startsWith("+") -> "+" + digits.drop(1).chunked(5).joinToString(" ")
-    else -> "+91 " + digits.chunked(5).joinToString(" ")
-}
+private fun typedDisplay(digits: String): String =
+    when {
+        digits.isEmpty() -> "+91"
+        digits.startsWith("+") -> "+" + digits.drop(1).chunked(5).joinToString(" ")
+        else -> "+91 " + digits.chunked(5).joinToString(" ")
+    }
 
 /** The keypad text for a number handed in by a dial link: national digits for India, the full number otherwise. */
 private fun dialDigitsFor(raw: String): String {
@@ -262,10 +272,18 @@ private fun dialDigitsFor(raw: String): String {
 }
 
 /** Contacts first, then recent calls, one row per number. With nothing typed, the most recent calls. */
-private fun suggestionsFor(typed: String, contacts: List<PhoneContact>, recents: List<RecentCall>): List<Suggestion> {
+private fun suggestionsFor(
+    typed: String,
+    contacts: List<PhoneContact>,
+    recents: List<RecentCall>,
+): List<Suggestion> {
     val photoByNumber = contacts.associate { it.number to it.photoUri }
     val out = LinkedHashMap<String, Suggestion>()
-    fun add(name: String?, number: String) {
+
+    fun add(
+        name: String?,
+        number: String,
+    ) {
         out.putIfAbsent(number, Suggestion(name, number, photoByNumber[number]))
     }
     if (typed.isEmpty()) {
@@ -317,7 +335,10 @@ private fun SuggestionList(
 }
 
 /** Identity and spam score for [raw]. Reads the stores, so callers run it off the main thread. */
-private fun lookupResult(graph: AppGraph, raw: String): LookupResult {
+private fun lookupResult(
+    graph: AppGraph,
+    raw: String,
+): LookupResult {
     val identity = graph.resolve(raw)
     return LookupResult(
         name = identity?.name,
@@ -335,13 +356,14 @@ private fun LookupCard(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = CgGutter)
-            .clip(RoundedCornerShape(28.dp))
-            .background(CgColors.Surface)
-            .clickable(onClick = onClose)
-            .padding(20.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(horizontal = CgGutter)
+                .clip(RoundedCornerShape(28.dp))
+                .background(CgColors.Surface)
+                .clickable(onClick = onClose)
+                .padding(20.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -399,9 +421,10 @@ private fun DialPad(
     onContacts: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = CgGutter),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = CgGutter),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         KeyRow {
@@ -466,12 +489,17 @@ private fun DialKey(
                 color = CgColors.White,
             )
             when {
-                icon != null -> Icon(icon, contentDescription = null, tint = CgColors.TextDim, modifier = Modifier.size(12.dp))
-                letters.isNotEmpty() -> Text(
-                    text = letters,
-                    style = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Normal, fontSize = 8.sp, letterSpacing = 1.5.sp),
-                    color = CgColors.TextDim,
-                )
+                icon != null -> {
+                    Icon(icon, contentDescription = null, tint = CgColors.TextDim, modifier = Modifier.size(12.dp))
+                }
+
+                letters.isNotEmpty() -> {
+                    Text(
+                        text = letters,
+                        style = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Normal, fontSize = 8.sp, letterSpacing = 1.5.sp),
+                        color = CgColors.TextDim,
+                    )
+                }
             }
         }
     }

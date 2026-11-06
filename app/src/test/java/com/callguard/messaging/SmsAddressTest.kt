@@ -7,7 +7,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SmsAddressTest {
-
     @Test
     fun indianNumbersNormalizeToE164() {
         assertEquals(PhoneNumber("+919876543210"), addressToNumber("9876543210"))

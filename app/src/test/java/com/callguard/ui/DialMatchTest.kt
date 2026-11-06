@@ -7,7 +7,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DialMatchTest {
-
     @Test
     fun letterMapsToItsKeypadDigit() {
         assertEquals('2', t9Digit('A'))

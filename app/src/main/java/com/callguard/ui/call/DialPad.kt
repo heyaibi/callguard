@@ -47,21 +47,27 @@ internal fun DialPad(
 }
 
 @Composable
-private fun DialKey(digit: Char, diameter: Dp, onPress: (Char) -> Unit, onRelease: () -> Unit) {
+private fun DialKey(
+    digit: Char,
+    diameter: Dp,
+    onPress: (Char) -> Unit,
+    onRelease: () -> Unit,
+) {
     Box(
-        modifier = Modifier
-            .size(diameter)
-            .clip(CircleShape)
-            .background(CgColors.Surface)
-            .pointerInput(digit) {
-                detectTapGestures(
-                    onPress = {
-                        onPress(digit)
-                        tryAwaitRelease()
-                        onRelease()
-                    },
-                )
-            },
+        modifier =
+            Modifier
+                .size(diameter)
+                .clip(CircleShape)
+                .background(CgColors.Surface)
+                .pointerInput(digit) {
+                    detectTapGestures(
+                        onPress = {
+                            onPress(digit)
+                            tryAwaitRelease()
+                            onRelease()
+                        },
+                    )
+                },
         contentAlignment = Alignment.Center,
     ) {
         Text(

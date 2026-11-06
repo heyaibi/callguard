@@ -12,10 +12,20 @@ import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 /** Calls since local midnight. A call is identified when it carried a name. */
-data class TodayStats(val total: Int, val identified: Int, val silenced: Int, val blocked: Int)
+data class TodayStats(
+    val total: Int,
+    val identified: Int,
+    val silenced: Int,
+    val blocked: Int,
+)
 
 fun todayStats(calls: List<CallLogEntry>): TodayStats {
-    val midnight = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    val midnight =
+        LocalDate
+            .now()
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
     val today = calls.filter { it.timestamp >= midnight }
     return TodayStats(
         total = today.size,
@@ -46,7 +56,11 @@ private val DATE_SHORT: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM",
 private val WEEKDAY: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE", Locale.ENGLISH)
 
 /** Conversation-list time: the clock time today, YESTERDAY, a weekday within the last week, else the date. */
-fun listTimeLabel(millis: Long, now: Long, zone: ZoneId = ZoneId.systemDefault()): String {
+fun listTimeLabel(
+    millis: Long,
+    now: Long,
+    zone: ZoneId = ZoneId.systemDefault(),
+): String {
     val at = Instant.ofEpochMilli(millis).atZone(zone)
     val days = ChronoUnit.DAYS.between(at.toLocalDate(), Instant.ofEpochMilli(now).atZone(zone).toLocalDate())
     return when (days) {
@@ -69,14 +83,15 @@ fun dayLabel(millis: Long): String {
 }
 
 /** Short source name for chips, in the mockup vocabulary. */
-fun SourceKind.label(): String = when (this) {
-    SourceKind.CNAP -> "CNAP"
-    SourceKind.LOCAL_CONTACT -> "CONTACT"
-    SourceKind.GOOGLE_CONTACTS -> "GOOGLE"
-    SourceKind.OPERATOR_SERVICE -> "OPERATOR"
-    SourceKind.APP_PROFILE -> "APP"
-    SourceKind.ON_DEVICE_CACHE -> "CACHE"
-    SourceKind.BUNDLED_DATABASE -> "BUNDLED"
-    SourceKind.ONLINE_LOOKUP -> "ONLINE"
-    SourceKind.NONE -> "NO MATCH"
-}
+fun SourceKind.label(): String =
+    when (this) {
+        SourceKind.CNAP -> "CNAP"
+        SourceKind.LOCAL_CONTACT -> "CONTACT"
+        SourceKind.GOOGLE_CONTACTS -> "GOOGLE"
+        SourceKind.OPERATOR_SERVICE -> "OPERATOR"
+        SourceKind.APP_PROFILE -> "APP"
+        SourceKind.ON_DEVICE_CACHE -> "CACHE"
+        SourceKind.BUNDLED_DATABASE -> "BUNDLED"
+        SourceKind.ONLINE_LOOKUP -> "ONLINE"
+        SourceKind.NONE -> "NO MATCH"
+    }

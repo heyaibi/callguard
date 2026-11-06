@@ -20,26 +20,33 @@ object CallRinger {
     private var current: RingPlan? = null
 
     /** Starts the ringing described by [plan]. A call with the same plan already ringing is left alone. */
-    fun start(context: Context, plan: RingPlan) {
+    fun start(
+        context: Context,
+        plan: RingPlan,
+    ) {
         if (current == plan) return
         stop()
         current = plan
         runCatching {
             if (plan.sound) {
                 val uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE)
-                ringtone = uri?.let { RingtoneManager.getRingtone(context, it) }?.apply {
-                    audioAttributes = AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                        .build()
-                    isLooping = true
-                    play()
-                }
+                ringtone =
+                    uri?.let { RingtoneManager.getRingtone(context, it) }?.apply {
+                        audioAttributes =
+                            AudioAttributes
+                                .Builder()
+                                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                .build()
+                        isLooping = true
+                        play()
+                    }
             }
             if (plan.vibrate) {
-                vibrator = context.getSystemService(Vibrator::class.java)?.also {
-                    it.vibrate(VibrationEffect.createWaveform(PATTERN, 0))
-                }
+                vibrator =
+                    context.getSystemService(Vibrator::class.java)?.also {
+                        it.vibrate(VibrationEffect.createWaveform(PATTERN, 0))
+                    }
             }
         }
     }

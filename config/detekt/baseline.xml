@@ -1,0 +1,402 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:ConversationModel.kt:s.any { !(it.isDigit() || it == '+' || it == ' ' || it == '-' || it == '(' || it == ')') }</ID>
+    <ID>CyclomaticComplexMethod:CallGuardScreeningService.kt:CallGuardScreeningService$private fun afterAnswer</ID>
+    <ID>CyclomaticComplexMethod:ContactsScreen.kt:@Composable fun ContactsScreen</ID>
+    <ID>CyclomaticComplexMethod:IncomingCallScreen.kt:@Composable fun IncomingCallScreen</ID>
+    <ID>CyclomaticComplexMethod:KeypadScreen.kt:@Composable fun KeypadScreen</ID>
+    <ID>CyclomaticComplexMethod:ListsScreen.kt:@Composable fun ListsScreen</ID>
+    <ID>CyclomaticComplexMethod:PhoneNumber.kt:PhoneNumbers$fun normalize: PhoneNumber?</ID>
+    <ID>CyclomaticComplexMethod:SettingsScreen.kt:@Composable fun SettingsScreen</ID>
+    <ID>CyclomaticComplexMethod:ThreadScreen.kt:@OptIn(ExperimentalLayoutApi::class) @Composable fun ThreadScreen</ID>
+    <ID>EmptyFunctionBlock:CallGuardDb.kt:CallGuardDb${}</ID>
+    <ID>FunctionNaming:AppNav.kt:@Composable fun AppNav</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun ActionSheet</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun BoxScope.SheetOverlay</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun CgConfirmDialog</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun CgDivider</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun CgLabel</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun CgPill</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun CgToggle</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun DotHeading</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun OutcomeTag</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun PillAvatar</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun RedPill</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun ScoreBar</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun SectionLetter</ID>
+    <ID>FunctionNaming:Components.kt:@Composable fun SourceChip</ID>
+    <ID>FunctionNaming:Components.kt:@Composable private fun SheetButton</ID>
+    <ID>FunctionNaming:Components.kt:@OptIn(ExperimentalFoundationApi::class) @Composable fun MonoRow</ID>
+    <ID>FunctionNaming:Components.kt:@OptIn(ExperimentalFoundationApi::class) @Composable fun RoundKey</ID>
+    <ID>FunctionNaming:ComposeScreen.kt:@Composable fun ComposeScreen</ID>
+    <ID>FunctionNaming:ContactsScreen.kt:@Composable fun ContactsScreen</ID>
+    <ID>FunctionNaming:ContactsScreen.kt:@Composable private fun ContactRow</ID>
+    <ID>FunctionNaming:ContactsScreen.kt:@Composable private fun ContactSearch</ID>
+    <ID>FunctionNaming:ContactsScreen.kt:@Composable private fun FilterChip</ID>
+    <ID>FunctionNaming:ContactsScreen.kt:@Composable private fun LetterScroller</ID>
+    <ID>FunctionNaming:DialPad.kt:@Composable internal fun DialPad</ID>
+    <ID>FunctionNaming:DialPad.kt:@Composable private fun DialKey</ID>
+    <ID>FunctionNaming:DialScreen.kt:@Composable fun DialScreen</ID>
+    <ID>FunctionNaming:HomeScreen.kt:@Composable fun HomeScreen</ID>
+    <ID>FunctionNaming:HomeScreen.kt:@Composable private fun ActionLine</ID>
+    <ID>FunctionNaming:HomeScreen.kt:@Composable private fun ModeLine</ID>
+    <ID>FunctionNaming:HomeScreen.kt:@Composable private fun StatCell</ID>
+    <ID>FunctionNaming:HomeScreen.kt:@Composable private fun StatusLine</ID>
+    <ID>FunctionNaming:InCallActivity.kt:@Composable private fun FinishWhenIdle</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable fun InCallScreen</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun ActiveContent</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun AnswerRings</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun CallControls</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun CallStatus</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun ControlButton</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun DeclineButton</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun EndCallButton</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun NameLines</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun RingDisc</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun RingingContent</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun SourceLine</ID>
+    <ID>FunctionNaming:InCallScreen.kt:@Composable private fun StatusPill</ID>
+    <ID>FunctionNaming:IncomingCallScreen.kt:@Composable fun IncomingCallScreen</ID>
+    <ID>FunctionNaming:IncomingCallScreen.kt:@Composable private fun CallActionButton</ID>
+    <ID>FunctionNaming:IncomingCallScreen.kt:@Composable private fun CallAnswerRings</ID>
+    <ID>FunctionNaming:IncomingCallScreen.kt:@Composable private fun CallRingDisc</ID>
+    <ID>FunctionNaming:IncomingCallScreen.kt:@Composable private fun CallerNameBlock</ID>
+    <ID>FunctionNaming:IncomingCallScreen.kt:@Composable private fun CallerSourceLabel</ID>
+    <ID>FunctionNaming:IncomingCallScreen.kt:@Preview(showBackground = true, backgroundColor = 0xFF000000) @Composable fun OverlayCardPreview</ID>
+    <ID>FunctionNaming:KeypadScreen.kt:@Composable fun KeypadScreen</ID>
+    <ID>FunctionNaming:KeypadScreen.kt:@Composable private fun DialKey</ID>
+    <ID>FunctionNaming:KeypadScreen.kt:@Composable private fun DialPad</ID>
+    <ID>FunctionNaming:KeypadScreen.kt:@Composable private fun KeyRow</ID>
+    <ID>FunctionNaming:KeypadScreen.kt:@Composable private fun LookupCard</ID>
+    <ID>FunctionNaming:KeypadScreen.kt:@Composable private fun SuggestionList</ID>
+    <ID>FunctionNaming:ListsScreen.kt:@Composable fun ListsScreen</ID>
+    <ID>FunctionNaming:ListsScreen.kt:@Composable private fun LstAddDialog</ID>
+    <ID>FunctionNaming:ListsScreen.kt:@Composable private fun LstDialogField</ID>
+    <ID>FunctionNaming:ListsScreen.kt:@Composable private fun LstKindSegment</ID>
+    <ID>FunctionNaming:ListsScreen.kt:@Composable private fun LstKindSegmented</ID>
+    <ID>FunctionNaming:ListsScreen.kt:@Composable private fun LstRowItem</ID>
+    <ID>FunctionNaming:ListsScreen.kt:@Composable private fun LstSearchRow</ID>
+    <ID>FunctionNaming:MessagesScreen.kt:@Composable fun MessagesScreen</ID>
+    <ID>FunctionNaming:MessagesScreen.kt:@Composable private fun ConversationRowItem</ID>
+    <ID>FunctionNaming:MessagesScreen.kt:@Composable private fun ConversationSheet</ID>
+    <ID>FunctionNaming:MessagesScreen.kt:@Composable private fun CountBadge</ID>
+    <ID>FunctionNaming:MessagesScreen.kt:@Composable private fun MsgDivider</ID>
+    <ID>FunctionNaming:MessagesScreen.kt:@Composable private fun MsgHeader</ID>
+    <ID>FunctionNaming:MessagesScreen.kt:@Composable private fun MsgTab</ID>
+    <ID>FunctionNaming:MessagesScreen.kt:@Composable private fun MsgTabs</ID>
+    <ID>FunctionNaming:MessagesScreen.kt:@Composable private fun SearchPill</ID>
+    <ID>FunctionNaming:MessagesScreen.kt:@Composable private fun SheetPill</ID>
+    <ID>FunctionNaming:MessagesScreen.kt:@Composable private fun SmsBanner</ID>
+    <ID>FunctionNaming:RecentsScreen.kt:@Composable fun RecentsScreen</ID>
+    <ID>FunctionNaming:RecentsScreen.kt:@Composable private fun CallTag</ID>
+    <ID>FunctionNaming:RecentsScreen.kt:@Composable private fun RecentRow</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable fun SettingsScreen</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgActionPill</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgDivider</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgDragHandle</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgGrantPill</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgRow</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgSection</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgSegment</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgSourceRow</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgStatusPill</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgSwitch</ID>
+    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgUnknownSegmented</ID>
+    <ID>FunctionNaming:Theme.kt:@Composable fun CallGuardTheme</ID>
+    <ID>FunctionNaming:ThreadScreen.kt:@Composable private fun Bubble</ID>
+    <ID>FunctionNaming:ThreadScreen.kt:@Composable private fun ComposeBar</ID>
+    <ID>FunctionNaming:ThreadScreen.kt:@Composable private fun DayHeading</ID>
+    <ID>FunctionNaming:ThreadScreen.kt:@Composable private fun StatusLine</ID>
+    <ID>FunctionNaming:ThreadScreen.kt:@Composable private fun ThreadHeader</ID>
+    <ID>FunctionNaming:ThreadScreen.kt:@Composable private fun ThreadMenuItem</ID>
+    <ID>FunctionNaming:ThreadScreen.kt:@OptIn(ExperimentalLayoutApi::class) @Composable fun ThreadScreen</ID>
+    <ID>LongMethod:AppNav.kt:@Composable fun AppNav</ID>
+    <ID>LongMethod:ComposeScreen.kt:@Composable fun ComposeScreen</ID>
+    <ID>LongMethod:ContactsScreen.kt:@Composable fun ContactsScreen</ID>
+    <ID>LongMethod:ContactsScreen.kt:@Composable private fun ContactSearch</ID>
+    <ID>LongMethod:DialScreen.kt:@Composable fun DialScreen</ID>
+    <ID>LongMethod:HomeScreen.kt:@Composable fun HomeScreen</ID>
+    <ID>LongMethod:IncomingCallScreen.kt:@Composable fun IncomingCallScreen</ID>
+    <ID>LongMethod:KeypadScreen.kt:@Composable fun KeypadScreen</ID>
+    <ID>LongMethod:ListsScreen.kt:@Composable fun ListsScreen</ID>
+    <ID>LongMethod:ListsScreen.kt:@Composable private fun LstAddDialog</ID>
+    <ID>LongMethod:ListsScreen.kt:@Composable private fun LstRowItem</ID>
+    <ID>LongMethod:MessagesScreen.kt:@Composable fun MessagesScreen</ID>
+    <ID>LongMethod:OverlayCard.kt:OverlayCard$private fun buildCard: LinearLayout</ID>
+    <ID>LongMethod:RecentsScreen.kt:@Composable fun RecentsScreen</ID>
+    <ID>LongMethod:SettingsScreen.kt:@Composable fun SettingsScreen</ID>
+    <ID>LongMethod:ThreadScreen.kt:@OptIn(ExperimentalLayoutApi::class) @Composable fun ThreadScreen</ID>
+    <ID>MagicNumber:BridgeParser.kt:BridgeParser$16</ID>
+    <ID>MagicNumber:BridgeParser.kt:BridgeParser$8</ID>
+    <ID>MagicNumber:Components.kt:0.9f</ID>
+    <ID>MagicNumber:Components.kt:10f</ID>
+    <ID>MagicNumber:Components.kt:50</ID>
+    <ID>MagicNumber:Components.kt:6f</ID>
+    <ID>MagicNumber:ContactsScreen.kt:50</ID>
+    <ID>MagicNumber:ConversationModel.kt:3</ID>
+    <ID>MagicNumber:DemoData.kt:DemoData$25</ID>
+    <ID>MagicNumber:DemoData.kt:DemoData$3</ID>
+    <ID>MagicNumber:DemoData.kt:DemoData$360</ID>
+    <ID>MagicNumber:DemoData.kt:DemoData$4</ID>
+    <ID>MagicNumber:DemoData.kt:DemoData$5</ID>
+    <ID>MagicNumber:DemoData.kt:DemoData$6</ID>
+    <ID>MagicNumber:DemoData.kt:DemoData$90</ID>
+    <ID>MagicNumber:DialScreen.kt:0.35f</ID>
+    <ID>MagicNumber:Format.kt:6L</ID>
+    <ID>MagicNumber:InCallScreen.kt:0.35f</ID>
+    <ID>MagicNumber:InCallScreen.kt:0xFF0C0C0E</ID>
+    <ID>MagicNumber:InCallScreen.kt:0xFF131315</ID>
+    <ID>MagicNumber:InCallScreen.kt:0xFF1A1A1D</ID>
+    <ID>MagicNumber:InCallScreen.kt:50</ID>
+    <ID>MagicNumber:IncomingCallScreen.kt:0xFF0C0C0E</ID>
+    <ID>MagicNumber:IncomingCallScreen.kt:0xFF131315</ID>
+    <ID>MagicNumber:IncomingCallScreen.kt:0xFF1A1A1D</ID>
+    <ID>MagicNumber:IncomingCallScreen.kt:50</ID>
+    <ID>MagicNumber:KeypadScreen.kt:5</ID>
+    <ID>MagicNumber:ListsScreen.kt:0.9f</ID>
+    <ID>MagicNumber:ListsScreen.kt:50</ID>
+    <ID>MagicNumber:MessagesScreen.kt:50</ID>
+    <ID>MagicNumber:OverlayCard.kt:OverlayCard$12f</ID>
+    <ID>MagicNumber:OverlayCard.kt:OverlayCard$24f</ID>
+    <ID>MagicNumber:OverlayCard.kt:OverlayCard$34f</ID>
+    <ID>MagicNumber:OverlayCard.kt:OverlayCard$52f</ID>
+    <ID>MagicNumber:OverlayCard.kt:OverlayCard$8f</ID>
+    <ID>MagicNumber:PhoneNumber.kt:PhoneNumbers$13</ID>
+    <ID>MagicNumber:PhoneNumber.kt:PhoneNumbers$15</ID>
+    <ID>MagicNumber:PhoneNumber.kt:PhoneNumbers$3</ID>
+    <ID>MagicNumber:PhoneNumber.kt:PhoneNumbers$7</ID>
+    <ID>MagicNumber:PhoneNumber.kt:PhoneNumbers$8</ID>
+    <ID>MagicNumber:Phonebook.kt:3</ID>
+    <ID>MagicNumber:Phonebook.kt:4</ID>
+    <ID>MagicNumber:RecentCalls.kt:3</ID>
+    <ID>MagicNumber:RecentCalls.kt:4</ID>
+    <ID>MagicNumber:RecentsScreen.kt:60</ID>
+    <ID>MagicNumber:Resolution.kt:SourceKind.APP_PROFILE$5</ID>
+    <ID>MagicNumber:Resolution.kt:SourceKind.BUNDLED_DATABASE$7</ID>
+    <ID>MagicNumber:Resolution.kt:SourceKind.GOOGLE_CONTACTS$3</ID>
+    <ID>MagicNumber:Resolution.kt:SourceKind.NONE$99</ID>
+    <ID>MagicNumber:Resolution.kt:SourceKind.ONLINE_LOOKUP$8</ID>
+    <ID>MagicNumber:Resolution.kt:SourceKind.ON_DEVICE_CACHE$6</ID>
+    <ID>MagicNumber:Resolution.kt:SourceKind.OPERATOR_SERVICE$4</ID>
+    <ID>MagicNumber:SettingsScreen.kt:3</ID>
+    <ID>MagicNumber:SettingsScreen.kt:50</ID>
+    <ID>MagicNumber:SpamPolicy.kt:SpamPolicy$10</ID>
+    <ID>MagicNumber:SpamPolicy.kt:SpamPolicy$100</ID>
+    <ID>MagicNumber:SpamPolicy.kt:SpamPolicy$22</ID>
+    <ID>MagicNumber:SpamPolicy.kt:SpamPolicy$30</ID>
+    <ID>MagicNumber:SpamPolicy.kt:SpamPolicy$40</ID>
+    <ID>MagicNumber:SpamPolicy.kt:SpamPolicy$7</ID>
+    <ID>MagicNumber:ThreadScreen.kt:400</ID>
+    <ID>MatchingDeclarationName:CallRules.kt:RingPlan</ID>
+    <ID>MatchingDeclarationName:Format.kt:TodayStats</ID>
+    <ID>MatchingDeclarationName:InCallScreen.kt:InCallActions</ID>
+    <ID>MatchingDeclarationName:Phonebook.kt:PhoneContact</ID>
+    <ID>MaxLineLength:AppBridgeListener.kt:AppBridgeListener$/** Stores "~ name" for the number. A name learned from a call or SMS is kept; only app-origin entries are replaced. */</ID>
+    <ID>MaxLineLength:AppBridgeListener.kt:AppBridgeListener$/** The number in the title. The text is searched only when the title is blank, so a saved name is never second-guessed. */</ID>
+    <ID>MaxLineLength:AppBridgeListener.kt:AppBridgeListener$private</ID>
+    <ID>MaxLineLength:AppBridgeListener.kt:AppBridgeListener$private fun Note.profileName: String?</ID>
+    <ID>MaxLineLength:AppBridgeListener.kt:private const val SHELL_PACKAGE = "com.android.shell" // `adb shell cmd notification post`; accepted in debug builds only</ID>
+    <ID>MaxLineLength:AppNav.kt:/** Switches tabs: one copy of each tab on the stack, its state kept when it is left and restored when it returns. */</ID>
+    <ID>MaxLineLength:AppNav.kt:ContactsScreen(onOpenThread = { number -&gt; nav.navigate(threadRoute(number)) { launchSingleTop = true } })</ID>
+    <ID>MaxLineLength:AppNav.kt:Tab(Routes.HOME, "Guard", Icons.Filled.Shield) { it == Routes.HOME || it == Routes.SETTINGS || it == Routes.LISTS }</ID>
+    <ID>MaxLineLength:AppNav.kt:Tab(Routes.MESSAGES, "Messages", Icons.AutoMirrored.Filled.Message) { it == Routes.MESSAGES || it == Routes.COMPOSE }</ID>
+    <ID>MaxLineLength:AppNav.kt:fun</ID>
+    <ID>MaxLineLength:BridgeParser.kt:BridgeParser$private fun isE164: Boolean</ID>
+    <ID>MaxLineLength:BridgeParserTest.kt:BridgeParserTest$assertFalse(BridgeParser.isCall(null, listOf("+91 98200 11223", "Are you free for lunch?"), listOf("Reply", "Mark as read")))</ID>
+    <ID>MaxLineLength:CallAnswerTest.kt:CallAnswerTest$assertEquals(ScreeningDecision.ALLOW, answerFor(Direction.OUTGOING, number, blockListed, screened = ScreeningDecision.BLOCK))</ID>
+    <ID>MaxLineLength:CallAnswerTest.kt:CallAnswerTest$assertEquals(ScreeningDecision.SILENCE, answerFor(Direction.INCOMING, number, open, screened = ScreeningDecision.SILENCE))</ID>
+    <ID>MaxLineLength:CallForegroundService.kt:CallForegroundService$val notification = if (call != null) CallNotifier.ongoing(this, call, callStyle = true) else CallNotifier.ended(this)</ID>
+    <ID>MaxLineLength:CallGuardDb.kt:CallGuardDb$db.execSQL("CREATE TABLE cache (number TEXT PRIMARY KEY, name TEXT NOT NULL, origin TEXT NOT NULL, last_seen INTEGER NOT NULL)")</ID>
+    <ID>MaxLineLength:CallGuardDb.kt:CallGuardDb$db.execSQL("CREATE TABLE call_log (id INTEGER PRIMARY KEY AUTOINCREMENT, number TEXT NOT NULL, name TEXT, source TEXT NOT NULL, direction TEXT NOT NULL, outcome TEXT NOT NULL, app TEXT, timestamp INTEGER NOT NULL)")</ID>
+    <ID>MaxLineLength:CallGuardDb.kt:CallGuardDb$db.execSQL("CREATE TABLE message_log (id INTEGER PRIMARY KEY AUTOINCREMENT, number TEXT NOT NULL, name TEXT, body TEXT NOT NULL, outcome TEXT NOT NULL, timestamp INTEGER NOT NULL)")</ID>
+    <ID>MaxLineLength:CallGuardDb.kt:CallGuardDb$db.execSQL("CREATE TABLE reputation (number TEXT PRIMARY KEY, score INTEGER NOT NULL, is_spam INTEGER NOT NULL, source TEXT NOT NULL, updated INTEGER NOT NULL)")</ID>
+    <ID>MaxLineLength:CallGuardScreeningService.kt:CallGuardScreeningService$direction = if (callDetails.callDirection == Call.Details.DIRECTION_OUTGOING) Direction.OUTGOING else Direction.INCOMING</ID>
+    <ID>MaxLineLength:CallGuardScreeningService.kt:CallGuardScreeningService$runCatching { graph.repos.cache.put(CacheEntry(number.e164, call.cnap, "call", System.currentTimeMillis())) }</ID>
+    <ID>MaxLineLength:CallGuardScreeningService.kt:CallGuardScreeningService$screened != null &amp;&amp; (screened.identity.isKnown || graph.settingsStore.settings.value.showCardForUnknown)</ID>
+    <ID>MaxLineLength:CallGuardScreeningService.kt:CallGuardScreeningService$timer.schedule(Runnable { answer.offer(listsOnly) }, SCREENING_DEADLINE_MILLIS, TimeUnit.MILLISECONDS)</ID>
+    <ID>MaxLineLength:CallGuardScreeningService.kt:CallGuardScreeningService$val decision = graph.screeningPolicy.decide(identity, spam, graph.effectiveSettings(), graph.isInContacts(number))</ID>
+    <ID>MaxLineLength:CallGuardScreeningService.kt:CallGuardScreeningService.Companion$/** Full screening runs here, so a slow lookup never blocks the main thread. Two threads let two calls resolve at once. */</ID>
+    <ID>MaxLineLength:CallManager.kt:CallManager$/** A CallGuard screen started. Ringing calls re-post their notifications, since this can change what they look like. */</ID>
+    <ID>MaxLineLength:CallManager.kt:CallManager$/** CallGuard screens that are started (the main app and the in-call screen). Counted, so overlap ends with the last. */</ID>
+    <ID>MaxLineLength:CallManager.kt:CallManager$/** Speaker on routes audio to the speaker when the device offers it. Speaker off returns the route to the earpiece. */</ID>
+    <ID>MaxLineLength:CallManager.kt:CallManager$/** The call in progress that the foreground notification shows: an active call first, else a held or dialing one. */</ID>
+    <ID>MaxLineLength:CallManager.kt:CallManager$// Screening logs every call it answers, and it records a verdict for each. A call with a verdict is already logged.</ID>
+    <ID>MaxLineLength:CallManager.kt:CallManager$_calls.value.filter { it.phase == CallPhase.RINGING }.forEach { CallNotifier.show(context, it, uiVisible, screenOn) }</ID>
+    <ID>MaxLineLength:CallManager.kt:CallManager$if</ID>
+    <ID>MaxLineLength:CallManager.kt:CallManager$private</ID>
+    <ID>MaxLineLength:CallManager.kt:CallManager$val direction = if (details.callDirection == Call.Details.DIRECTION_OUTGOING) Direction.OUTGOING else Direction.INCOMING</ID>
+    <ID>MaxLineLength:CallManager.kt:CallManager$val ringerMode = context.getSystemService(AudioManager::class.java)?.ringerMode ?: AudioManager.RINGER_MODE_NORMAL</ID>
+    <ID>MaxLineLength:CallNotifier.kt:CallNotifier$// ringing call without one (the quiet channel, or a silenced call) gets the plain form with the same two buttons.</ID>
+    <ID>MaxLineLength:CallNotifier.kt:CallNotifier$NotificationChannel(CHANNEL_INCOMING_QUIET, "Incoming calls in CallGuard", NotificationManager.IMPORTANCE_DEFAULT)</ID>
+    <ID>MaxLineLength:CallNotifier.kt:CallNotifier$private fun fullScreenAllowed: Boolean</ID>
+    <ID>MaxLineLength:CallNotifier.kt:CallNotifier$val presentation = ringingPresentation(call.phase, call.silenced, uiVisible, screenOn, fullScreenAllowed(manager))</ID>
+    <ID>MaxLineLength:CallRules.kt:*</ID>
+    <ID>MaxLineLength:CallRulesTest.kt:CallRulesTest$assertEquals(RingPlan(sound = false, vibrate = false), ringPlan(silenced = false, dndSuppressed = true, ringerMode = normal))</ID>
+    <ID>MaxLineLength:CallRulesTest.kt:CallRulesTest$assertEquals(RingPlan(sound = false, vibrate = false), ringPlan(silenced = true, dndSuppressed = false, ringerMode = normal))</ID>
+    <ID>MaxLineLength:CallRulesTest.kt:CallRulesTest$assertEquals(RingPlan(sound = false, vibrate = true), ringPlan(silenced = false, dndSuppressed = false, ringerMode = vibrate))</ID>
+    <ID>MaxLineLength:CallRulesTest.kt:CallRulesTest$assertEquals(RingPlan(sound = true, vibrate = true), ringPlan(silenced = false, dndSuppressed = false, ringerMode = normal))</ID>
+    <ID>MaxLineLength:CallRulesTest.kt:CallRulesTest$assertFalse(dndSuppresses(platformSaysSuppressed = false, sdkInt = 33, interruptionFilter = NotificationManager.INTERRUPTION_FILTER_ALL))</ID>
+    <ID>MaxLineLength:CallRulesTest.kt:CallRulesTest$assertFalse(dndSuppresses(platformSaysSuppressed = false, sdkInt = 36, interruptionFilter = NotificationManager.INTERRUPTION_FILTER_NONE))</ID>
+    <ID>MaxLineLength:CallRulesTest.kt:CallRulesTest$assertTrue(dndSuppresses(platformSaysSuppressed = false, sdkInt = 33, interruptionFilter = NotificationManager.INTERRUPTION_FILTER_PRIORITY))</ID>
+    <ID>MaxLineLength:CallRulesTest.kt:CallRulesTest$assertTrue(dndSuppresses(platformSaysSuppressed = true, sdkInt = 36, interruptionFilter = NotificationManager.INTERRUPTION_FILTER_ALL))</ID>
+    <ID>MaxLineLength:CallerIdCard.kt:CallerIdNotifier$*</ID>
+    <ID>MaxLineLength:CallerIdCard.kt:CallerIdNotifier$.</ID>
+    <ID>MaxLineLength:CallerIdCard.kt:CallerIdNotifier$// The overlay needs "display over other apps". Without it, OverlayCard would post a second notification instead.</ID>
+    <ID>MaxLineLength:Components.kt:"SILENCED" -&gt; CgPill(outcome, modifier, containerColor = Color.Transparent, contentColor = CgColors.TextDim, borderColor = CgColors.TextFaint)</ID>
+    <ID>MaxLineLength:Components.kt:.</ID>
+    <ID>MaxLineLength:Components.kt:Modifier.combinedClickable(role = Role.Button, onClick = onClick ?: {}, onLongClick = onLongClick)</ID>
+    <ID>MaxLineLength:Components.kt:dashed -&gt; CgPill(text, modifier.dashedRedOutline(), containerColor = Color.Transparent, contentColor = CgColors.Red, onClick = onClick)</ID>
+    <ID>MaxLineLength:Components.kt:else -&gt; CgPill(text, modifier, containerColor = Color.Transparent, contentColor = CgColors.Red, borderColor = CgColors.Red, onClick = onClick)</ID>
+    <ID>MaxLineLength:Components.kt:filled -&gt; CgPill(text, modifier, containerColor = CgColors.Red, contentColor = CgColors.White, onClick = onClick)</ID>
+    <ID>MaxLineLength:Components.kt:private val PillText = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Bold, fontSize = 10.sp, letterSpacing = 1.sp)</ID>
+    <ID>MaxLineLength:Components.kt:style = TextStyle(fontFamily = DotFont, fontWeight = FontWeight.Bold, fontSize = 16.sp, lineHeight = 18.sp, letterSpacing = 2.sp)</ID>
+    <ID>MaxLineLength:Components.kt:style = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 1.sp)</ID>
+    <ID>MaxLineLength:Components.kt:style = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Bold, fontSize = 12.sp, letterSpacing = 1.sp)</ID>
+    <ID>MaxLineLength:Components.kt:style = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Bold, fontSize = 9.sp, letterSpacing = 1.sp)</ID>
+    <ID>MaxLineLength:Components.kt:style = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Normal, fontSize = 9.sp, letterSpacing = 0.5.sp)</ID>
+    <ID>MaxLineLength:ComposeScreen.kt:private fun hasContactsPermission: Boolean</ID>
+    <ID>MaxLineLength:ComposeScreen.kt:textStyle = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Normal, fontSize = 15.sp, letterSpacing = 1.sp, color = CgColors.White)</ID>
+    <ID>MaxLineLength:ContactSources.kt:GoogleContactsSource$"${ContactsContract.RawContacts.CONTACT_ID} = ? AND ${ContactsContract.RawContacts.ACCOUNT_TYPE} = ?"</ID>
+    <ID>MaxLineLength:ContactSources.kt:internal fun hasReadContacts: Boolean</ID>
+    <ID>MaxLineLength:ContactSuggestion.kt:add(ContactSuggestion(name = c.getString(0).orEmpty().ifBlank { raw }, number = addressToNumber(raw)))</ID>
+    <ID>MaxLineLength:ContactSuggestion.kt:arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER)</ID>
+    <ID>MaxLineLength:ContactsScreen.kt:.</ID>
+    <ID>MaxLineLength:ContactsScreen.kt:/** The contact sheet's edit action: the contact's editor, or a new contact with the number when it has no lookup key. */</ID>
+    <ID>MaxLineLength:ContactsScreen.kt:RedPill("Allow contacts", onClick = { readPermission.launch(Manifest.permission.READ_CONTACTS) })</ID>
+    <ID>MaxLineLength:ConversationModel.kt:/** Groups provider rows into one conversation per sender, newest conversation first. Rows group by normalized address. */</ID>
+    <ID>MaxLineLength:DialActivity.kt:DialActivity$/** Hands the call to Telecom and shows it on the in-call screen. Telecom refusing the call keeps this screen open. */</ID>
+    <ID>MaxLineLength:Dialer.kt:Dialer$*</ID>
+    <ID>MaxLineLength:Dialer.kt:Dialer$fun</ID>
+    <ID>MaxLineLength:Dialer.kt:Dialer$if (context.checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) return false</ID>
+    <ID>MaxLineLength:HomeScreen.kt:CgLabel("Last identified", modifier = Modifier.padding(start = CgGutter, end = CgGutter, top = 24.dp, bottom = 4.dp))</ID>
+    <ID>MaxLineLength:HomeScreen.kt:CgPill("On", containerColor = Color.Transparent, contentColor = CgColors.White, borderColor = CgColors.White)</ID>
+    <ID>MaxLineLength:HomeScreen.kt:private</ID>
+    <ID>MaxLineLength:InCallActivity.kt:InCallActivity.Companion$fun</ID>
+    <ID>MaxLineLength:InCallScreen.kt:/** Concentric discs around the white answer button, as on the incoming-call design, labelled like the decline button. */</ID>
+    <ID>MaxLineLength:IncomingCallScreen.kt:CallActionButton(icon = Icons.Filled.NotificationsOff, label = "SILENCE", tint = CgColors.White, onClick = onDismiss)</ID>
+    <ID>MaxLineLength:Intents.kt:startSafely(Intent.createChooser(Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text), null))</ID>
+    <ID>MaxLineLength:KeypadScreen.kt:style = TextStyle(fontFamily = DotFont, fontWeight = FontWeight.Black, fontSize = 30.sp, lineHeight = 34.sp, letterSpacing = 1.sp)</ID>
+    <ID>MaxLineLength:KeypadScreen.kt:style = TextStyle(fontFamily = DotFont, fontWeight = FontWeight.Bold, fontSize = 30.sp, lineHeight = 32.sp)</ID>
+    <ID>MaxLineLength:KeypadScreen.kt:style = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Normal, fontSize = 8.sp, letterSpacing = 1.5.sp)</ID>
+    <ID>MaxLineLength:ListsScreen.kt:note = if (moved) "MOVED $label FROM ${from.name} TO ${target.name}" else "ADDED $label TO ${target.name}"</ID>
+    <ID>MaxLineLength:MessageActionReceiver.kt:MessageActionReceiver.Companion$/** An intent for [action] on the conversation with [e164]. The data URI keeps each sender's PendingIntent distinct. */</ID>
+    <ID>MaxLineLength:MessageDelivery.kt:fun</ID>
+    <ID>MaxLineLength:MessageFilterPolicy.kt:MessageFilterPolicy$*</ID>
+    <ID>MaxLineLength:MessageNotifier.kt:MessageNotifier$return NotificationCompat.Action.Builder(android.R.drawable.checkbox_on_background, "Mark read", pending).build()</ID>
+    <ID>MaxLineLength:MessagesScreen.kt:RoundKey</ID>
+    <ID>MaxLineLength:MessagesScreen.kt:SheetPill("Delete", Icons.Filled.Delete, Modifier.weight(1f), containerColor = CgColors.Red, onClick = onConfirmDelete)</ID>
+    <ID>MaxLineLength:MessagesScreen.kt:SheetPill(if (quiet) "Move to inbox" else "Allow", Icons.Filled.Check, Modifier.fillMaxWidth(), onClick = onAllow)</ID>
+    <ID>MaxLineLength:MessagesScreen.kt:style = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Bold, fontSize = 12.sp, letterSpacing = 1.sp)</ID>
+    <ID>MaxLineLength:MessagesScreen.kt:text = if (selected == TAB_INBOX) "FROM CONTACTS &amp; TRUSTED SENDERS · RED COUNT IS UNREAD" else "HELD-BACK &amp; BLOCKED SENDERS · NO ALERTS"</ID>
+    <ID>MaxLineLength:OverlayCard.kt:OverlayCard$/** Heads-up notification used when the card cannot be drawn. The post is dropped when notifications are not allowed. */</ID>
+    <ID>MaxLineLength:OverlayCard.kt:OverlayCard$FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)</ID>
+    <ID>MaxLineLength:OverlayCard.kt:OverlayCard$LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)</ID>
+    <ID>MaxLineLength:OverlayCard.kt:OverlayCard$addView(avatar, LinearLayout.LayoutParams(context.dp(52f), context.dp(34f)).apply { marginEnd = context.dp(12f) })</ID>
+    <ID>MaxLineLength:OverlayCard.kt:OverlayCard$addView(card, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT))</ID>
+    <ID>MaxLineLength:OverlayCard.kt:OverlayCard$private fun Context.dpF: Float</ID>
+    <ID>MaxLineLength:OverlayCard.kt:OverlayCard$text = listOf(subtitle.uppercase(), displayNumber(number)).filter { it.isNotBlank() }.joinToString(" · ")</ID>
+    <ID>MaxLineLength:Phonebook.kt:fun hasWriteContacts: Boolean</ID>
+    <ID>MaxLineLength:Phonebook.kt:if (!firstNumber.containsKey(id)) c.getString(1)?.takeIf { it.isNotBlank() }?.let { firstNumber[id] = it }</ID>
+    <ID>MaxLineLength:Phonebook.kt:private fun contactUri: Uri</ID>
+    <ID>MaxLineLength:RecentCalls.kt:/** A system call and a CallGuard record count as the same call when they match on number and start within this window. */</ID>
+    <ID>MaxLineLength:RecentCalls.kt:fun hasReadCallLog: Boolean</ID>
+    <ID>MaxLineLength:RecentsScreen.kt:call.kind == CallKind.REJECTED -&gt; CgPill("Rejected", containerColor = Color.Transparent, contentColor = CgColors.TextDim, borderColor = CgColors.TextFaint)</ID>
+    <ID>MaxLineLength:Repositories.kt:CacheRepository$db.readableDatabase.query("cache", null, null, null, null, null, "last_seen DESC").rows { it.toCacheEntry() }</ID>
+    <ID>MaxLineLength:Repositories.kt:CacheRepository$db.safely(Unit) { db.writableDatabase.insertWithOnConflict("cache", null, cacheValues(entry), SQLiteDatabase.CONFLICT_REPLACE) }</ID>
+    <ID>MaxLineLength:Repositories.kt:Repositories$obj("number" to it.number, "name" to it.name, "body" to it.body, "outcome" to it.outcome.name, "timestamp" to it.timestamp)</ID>
+    <ID>MaxLineLength:Repositories.kt:Repositories$obj("number" to it.number, "score" to it.score, "isSpam" to it.isSpam, "source" to it.source.name, "updated" to it.updated)</ID>
+    <ID>MaxLineLength:Repositories.kt:ReputationRepository$db.readableDatabase.query("reputation", null, "number = ?", arrayOf(n.e164), null, null, null, "1")</ID>
+    <ID>MaxLineLength:Repositories.kt:ReputationRepository$db.readableDatabase.query("reputation", null, null, null, null, null, "updated DESC").rows { it.toReputation() }</ID>
+    <ID>MaxLineLength:Repositories.kt:ReputationRepository$db.safely(Unit) { db.writableDatabase.insertWithOnConflict("reputation", null, reputationValues(entry), SQLiteDatabase.CONFLICT_REPLACE) }</ID>
+    <ID>MaxLineLength:Repositories.kt:private fun &lt;T&gt; Cursor.rows: List&lt;T&gt;</ID>
+    <ID>MaxLineLength:Repositories.kt:private fun Cursor.optStr: String?</ID>
+    <ID>MaxLineLength:Repositories.kt:private fun obj: JSONObject</ID>
+    <ID>MaxLineLength:Resolution.kt:/** Confidence of a name from this source: network and device sources HIGH, learned and bundled MEDIUM, cache and online LOW. */</ID>
+    <ID>MaxLineLength:ResolutionPolicyTest.kt:ResolutionPolicyTest$listOf(FakeSource(SourceKind.LOCAL_CONTACT, " "), FakeSource(SourceKind.BUNDLED_DATABASE, "SBI Card"))</ID>
+    <ID>MaxLineLength:ResolutionPolicyTest.kt:ResolutionPolicyTest$val policy = ResolutionPolicy(listOf(FakeSource(SourceKind.LOCAL_CONTACT), FakeSource(SourceKind.ON_DEVICE_CACHE)))</ID>
+    <ID>MaxLineLength:RingingPresentationTest.kt:RingingPresentationTest$assertFalse(startsInCallUi(Direction.INCOMING, CallPhase.RINGING, silenced = false, uiVisible = false, screenOn = true))</ID>
+    <ID>MaxLineLength:RingingPresentationTest.kt:RingingPresentationTest$assertFalse(startsInCallUi(Direction.INCOMING, CallPhase.RINGING, silenced = true, uiVisible = false, screenOn = false))</ID>
+    <ID>MaxLineLength:RingingPresentationTest.kt:RingingPresentationTest$assertFalse(startsInCallUi(Direction.INCOMING, CallPhase.RINGING, silenced = true, uiVisible = true, screenOn = true))</ID>
+    <ID>MaxLineLength:RingingPresentationTest.kt:RingingPresentationTest$assertNull(phase.name, ringingPresentation(phase, silenced = false, uiVisible = false, screenOn = true, fullScreenAllowed = true))</ID>
+    <ID>MaxLineLength:RingingPresentationTest.kt:RingingPresentationTest$assertTrue(startsInCallUi(Direction.INCOMING, CallPhase.RINGING, silenced = false, uiVisible = false, screenOn = false))</ID>
+    <ID>MaxLineLength:RingingPresentationTest.kt:RingingPresentationTest$assertTrue(startsInCallUi(Direction.INCOMING, CallPhase.RINGING, silenced = false, uiVisible = true, screenOn = true))</ID>
+    <ID>MaxLineLength:RingingPresentationTest.kt:RingingPresentationTest$assertTrue(startsInCallUi(Direction.OUTGOING, CallPhase.DIALING, silenced = false, uiVisible = false, screenOn = true))</ID>
+    <ID>MaxLineLength:ScreeningPolicy.kt:ScreeningPolicy$*</ID>
+    <ID>MaxLineLength:ScreeningPolicyTest.kt:ScreeningPolicyTest$val d = decide(settings = open.copy(allowList = setOf(e164), silenceMode = true, unknownCallerAction = UnknownCallerAction.BLOCK))</ID>
+    <ID>MaxLineLength:ScreeningPolicyTest.kt:ScreeningPolicyTest$val d = decide(spam = true, settings = open.copy(silenceMode = true, unknownCallerAction = UnknownCallerAction.BLOCK))</ID>
+    <ID>MaxLineLength:ScreeningVerdicts.kt:ScreeningVerdicts$/** The key for a call's raw number: E.164 when it normalizes, the trimmed text otherwise, [PRIVATE_KEY] when hidden. */</ID>
+    <ID>MaxLineLength:SettingsScreen.kt:)</ID>
+    <ID>MaxLineLength:SettingsScreen.kt:Intent(AndroidSettings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))</ID>
+    <ID>MaxLineLength:SettingsScreen.kt:Perms.Companion$fun granted</ID>
+    <ID>MaxLineLength:SettingsScreen.kt:context.getSystemService(RoleManager::class.java).createRequestRoleIntent(RoleManager.ROLE_SMS)</ID>
+    <ID>MaxLineLength:SettingsScreen.kt:if (!perms.sms) permLauncher.launch(arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS))</ID>
+    <ID>MaxLineLength:SettingsStore.kt:SettingsStore$fun unlist</ID>
+    <ID>MaxLineLength:SmsProvider.kt:SmsProvider$context.contentResolver.delete(Telephony.Sms.CONTENT_URI, "${Telephony.Sms._ID} = ?", arrayOf(id.toString()))</ID>
+    <ID>MaxLineLength:SmsProvider.kt:SmsProvider$context.contentResolver.update(Telephony.Sms.CONTENT_URI, values, "${Telephony.Sms._ID} = ?$pending", arrayOf(id.toString()))</ID>
+    <ID>MaxLineLength:SmsProvider.kt:SmsProvider$fun</ID>
+    <ID>MaxLineLength:SmsProvider.kt:SmsProvider$return PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)</ID>
+    <ID>MaxLineLength:SmsProvider.kt:SmsProvider$val id = if (isDefaultSmsApp(context)) insertOutbox(context, number.e164, text, System.currentTimeMillis()) else null</ID>
+    <ID>MaxLineLength:SmsProvider.kt:SmsProvider$val pending = if (onlyWhenPending) " AND ${Telephony.Sms.TYPE} IN (${SmsType.OUTBOX}, ${SmsType.QUEUED})" else ""</ID>
+    <ID>MaxLineLength:SmsRole.kt:fun</ID>
+    <ID>MaxLineLength:Theme.kt:CgType$val Display = TextStyle(fontFamily = DotFont, fontWeight = FontWeight.Black, fontSize = 34.sp, lineHeight = 38.sp, letterSpacing = 1.sp)</ID>
+    <ID>MaxLineLength:Theme.kt:CgType$val DisplayXL = TextStyle(fontFamily = DotFont, fontWeight = FontWeight.Black, fontSize = 44.sp, lineHeight = 48.sp, letterSpacing = 2.sp)</ID>
+    <ID>MaxLineLength:Theme.kt:CgType$val RowSub = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Normal, fontSize = 12.sp, letterSpacing = 1.sp)</ID>
+    <ID>MaxLineLength:Theme.kt:CgType$val Title = TextStyle(fontFamily = DotFont, fontWeight = FontWeight.Black, fontSize = 24.sp, lineHeight = 28.sp, letterSpacing = 1.sp)</ID>
+    <ID>MaxLineLength:ThreadScreen.kt:// The window does not resize for the keyboard (edge-to-edge, adjustNothing in the manifest), so this bar lifts itself</ID>
+    <ID>MaxLineLength:ThreadScreen.kt:color = if (state == DeliveryState.SENT || state == DeliveryState.PENDING) CgColors.Black else CgColors.White</ID>
+    <ID>MaxLineLength:ThreadScreen.kt:private val BubbleText = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 18.sp)</ID>
+    <ID>NestedBlockDepth:Phonebook.kt:fun loadPhonebook: List&lt;PhoneContact&gt;</ID>
+    <ID>ReturnCount:AppBridgeListener.kt:AppBridgeListener$private fun handle</ID>
+    <ID>ReturnCount:BridgeParser.kt:BridgeParser$fun numberIn: PhoneNumber?</ID>
+    <ID>ReturnCount:CallNotifier.kt:CallNotifier$fun show</ID>
+    <ID>ReturnCount:ContactsScreen.kt:private fun jumpTarget: Int?</ID>
+    <ID>ReturnCount:ContactsScreen.kt:private fun matchesQuery: Boolean</ID>
+    <ID>ReturnCount:ConversationModel.kt:fun directAddress: PhoneNumber?</ID>
+    <ID>ReturnCount:DialActivity.kt:DialActivity.Companion$fun numberFrom: String</ID>
+    <ID>ReturnCount:Dialer.kt:Dialer$fun placeCall: Boolean</ID>
+    <ID>ReturnCount:MainActivity.kt:MainActivity.Companion$fun requestFrom: OpenRequest?</ID>
+    <ID>ReturnCount:MainActivity.kt:MainActivity.Companion$private fun threadFrom: String?</ID>
+    <ID>ReturnCount:PhoneNumber.kt:PhoneNumbers$fun normalize: PhoneNumber?</ID>
+    <ID>ReturnCount:ScreeningVerdicts.kt:ScreeningVerdicts$fun peek: ScreeningDecision?</ID>
+    <ID>ReturnCount:Sources.kt:AppProfileSource$override fun lookup: String?</ID>
+    <ID>ReturnCount:SpamPolicy.kt:SpamPolicy$fun assess: SpamAssessment</ID>
+    <ID>SwallowedException:AppBridgeListener.kt:AppBridgeListener$e: RuntimeException</ID>
+    <ID>SwallowedException:CallGuardDb.kt:CallGuardDb$e: Exception</ID>
+    <ID>SwallowedException:CallGuardScreeningService.kt:CallGuardScreeningService$t: Throwable</ID>
+    <ID>SwallowedException:ContactSources.kt:GoogleContactsSource$e: Exception</ID>
+    <ID>SwallowedException:ContactSources.kt:e: Exception</ID>
+    <ID>SwallowedException:ContactSuggestion.kt:e: Exception</ID>
+    <ID>SwallowedException:Dialer.kt:Dialer$e: IllegalArgumentException</ID>
+    <ID>SwallowedException:Dialer.kt:Dialer$e: SecurityException</ID>
+    <ID>SwallowedException:MessageNotifier.kt:MessageNotifier$e: SecurityException</ID>
+    <ID>SwallowedException:OverlayCard.kt:OverlayCard$e: IllegalArgumentException</ID>
+    <ID>SwallowedException:OverlayCard.kt:OverlayCard$e: RuntimeException</ID>
+    <ID>SwallowedException:Phonebook.kt:e: Exception</ID>
+    <ID>SwallowedException:RecentCalls.kt:e: Exception</ID>
+    <ID>SwallowedException:Resolution.kt:ResolutionPolicy$e: Exception</ID>
+    <ID>SwallowedException:SmsProvider.kt:SmsProvider$e: SecurityException</ID>
+    <ID>TooGenericExceptionCaught:AppBridgeListener.kt:AppBridgeListener$e: RuntimeException</ID>
+    <ID>TooGenericExceptionCaught:CallGuardDb.kt:CallGuardDb$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:CallGuardScreeningService.kt:CallGuardScreeningService$t: Throwable</ID>
+    <ID>TooGenericExceptionCaught:ContactSources.kt:GoogleContactsSource$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ContactSources.kt:e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ContactSuggestion.kt:e: Exception</ID>
+    <ID>TooGenericExceptionCaught:OverlayCard.kt:OverlayCard$e: RuntimeException</ID>
+    <ID>TooGenericExceptionCaught:Phonebook.kt:e: Exception</ID>
+    <ID>TooGenericExceptionCaught:RecentCalls.kt:e: Exception</ID>
+    <ID>TooGenericExceptionCaught:Resolution.kt:ResolutionPolicy$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SmsProvider.kt:SmsProvider$e: Exception</ID>
+    <ID>TooManyFunctions:CallManager.kt:CallManager</ID>
+    <ID>TooManyFunctions:CallNotifier.kt:CallNotifier</ID>
+    <ID>TooManyFunctions:Components.kt:com.callguard.ui.components.Components.kt</ID>
+    <ID>TooManyFunctions:InCallScreen.kt:com.callguard.ui.call.InCallScreen.kt</ID>
+    <ID>TooManyFunctions:MessagesScreen.kt:com.callguard.ui.screens.MessagesScreen.kt</ID>
+    <ID>TooManyFunctions:OverlayCard.kt:OverlayCard</ID>
+    <ID>TooManyFunctions:Repositories.kt:com.callguard.data.Repositories.kt</ID>
+    <ID>TooManyFunctions:SettingsScreen.kt:com.callguard.ui.screens.SettingsScreen.kt</ID>
+    <ID>TooManyFunctions:SmsProvider.kt:SmsProvider</ID>
+    <ID>UnusedParameter:CallNotifier.kt:CallNotifier$context: Context</ID>
+  </CurrentIssues>
+</SmellBaseline>

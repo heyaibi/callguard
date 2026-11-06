@@ -10,10 +10,13 @@ import android.os.IBinder
  * default SMS role. Runs only when the system sends RESPOND_VIA_MESSAGE, which needs SEND_RESPOND_VIA_MESSAGE.
  */
 class HeadlessSmsSendService : Service() {
-
     override fun onBind(intent: Intent?): IBinder? = null
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         val target = intent?.data?.schemeSpecificPart?.let { Uri.decode(it.substringBefore('?')) }
         val text = intent?.getStringExtra(Intent.EXTRA_TEXT)
         if (!target.isNullOrBlank() && !text.isNullOrBlank()) {

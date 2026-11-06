@@ -10,7 +10,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class MessageFilterPolicyTest {
-
     private val n = PhoneNumber("+919876543210")
     private val e164 = n.e164
     private val policy = MessageFilterPolicy()

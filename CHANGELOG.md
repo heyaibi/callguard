@@ -1,0 +1,26 @@
+# Changelog
+
+All notable changes to CallGuard are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.1.0]
+
+<!-- VERIFY: give 0.1.0 a release date when the first `v*` tag goes out; release.yml publishes the APK from that tag. -->
+
+CallGuard was extracted from a monorepo, so the git history starts at the import. This entry lists the milestones of the branch the app was built on, in the order they landed.
+
+### Added
+
+- Android app scaffold with Kotlin, Jetpack Compose, and the dot-matrix theme.
+- Domain core, data layer, and unit tests for both.
+- UI mockups for home, recents, lookup, messages, lists, settings, and the incoming call card.
+- Home, recents, and lookup wired to the core, plus toll-free number normalization and debug seed data.
+- Contacts-only blocking, on by default once Contacts access is granted.
+- App Bridge: WhatsApp notification listener, notification parser, and overlay card.
+- Call screening service with CNAP, the deadline fallback, and the caller ID card, plus support for running as the default SMS app.
+- Full phone and SMS app: dialer, in-call UI, keypad, contacts, merged recents, conversations, and inline reply.
+- Launcher icon: dot-matrix shield, with adaptive, round, and themed variants.
+- Play Store asset set: icon, feature graphic, and six screenshots.

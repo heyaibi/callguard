@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - The bottom bar reads Keypad, Recents, Messages, Contacts, and Guard.
 
+### Fixed
+
+- Returning to Messages, or switching to its tab, shows the last list at once instead of an empty list. A burst of message changes reloads the list once.
+
 ## [0.1.0] - 2026-11-06
 
 CallGuard was extracted from a monorepo, so the git history starts at the import. This entry lists the milestones of the branch the app was built on, in the order they landed.

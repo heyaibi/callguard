@@ -22,6 +22,14 @@ class MessagesEmptyLabelTest {
     }
 
     @Test
+    fun aFilterThatHidesEveryRowSaysNoMatches() {
+        assertEquals(
+            "NO MATCHES",
+            emptyListLabel(loaded = true, visibleRows = 0, query = "", quiet = false, filtered = true),
+        )
+    }
+
+    @Test
     fun aBlankSearchCountsAsNoSearch() {
         assertEquals("NO TEXTS YET", emptyListLabel(loaded = true, visibleRows = 0, query = "   ", quiet = false))
     }

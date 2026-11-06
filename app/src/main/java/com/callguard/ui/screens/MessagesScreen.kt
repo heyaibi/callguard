@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -73,6 +74,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
@@ -82,14 +84,21 @@ import com.callguard.AppGraph
 import com.callguard.CallGuardApp
 import com.callguard.core.PhoneNumber
 import com.callguard.messaging.Conversation
-import com.callguard.messaging.MessageNotifier
+import com.callguard.messaging.IncomingText
+import com.callguard.messaging.ListFilter
 import com.callguard.messaging.SmsProvider
 import com.callguard.messaging.groupConversations
 import com.callguard.messaging.isDefaultSmsApp
+import com.callguard.messaging.isSpamVerdict
+import com.callguard.messaging.latestIncoming
+import com.callguard.messaging.latestLogEntries
 import com.callguard.messaging.matchesQuery
 import com.callguard.messaging.senderKey
 import com.callguard.messaging.splitConversations
+import com.callguard.messaging.verdictCaption
 import com.callguard.prefs.SenderRing
+import com.callguard.spam.SpamSource
+import com.callguard.spam.classify.SmsVerdict
 import com.callguard.ui.components.OutcomeTag
 import com.callguard.ui.components.PillAvatar
 import com.callguard.ui.components.RedPill
@@ -112,11 +121,20 @@ private const val TAB_QUIET = 1
 /** A burst of list changes waits this long, then the list reloads once. */
 private const val RELOAD_DELAY_MS = 150L
 
-/** One conversation row: the conversation, its contact name, and whether the sender is blocked. */
+/** The caption under the tabs, by tab. */
+private const val INBOX_CAPTION = "FROM CONTACTS & TRUSTED SENDERS · RED COUNT IS UNREAD"
+private const val QUIET_CAPTION = "HELD-BACK & BLOCKED SENDERS · NO ALERTS"
+
+/**
+ * One conversation row: the conversation, its contact name, and whether the sender is blocked. [incoming] is the text
+ * that [verdict] scores. It is the newest received text, or the newest logged text of a quiet sender with no thread.
+ */
 internal data class ListRow(
     val conversation: Conversation,
     val name: String?,
     val blocked: Boolean,
+    val incoming: IncomingText?,
+    val verdict: SmsVerdict?,
 )
 
 internal data class MessagesModel(
@@ -126,8 +144,9 @@ internal data class MessagesModel(
 
 /**
  * The messages list: conversations from the SMS provider, one row per sender, plus the quiet inbox of held-back and
- * blocked senders. Long-press a row for its actions. The red key starts a new message. The last list loaded is kept in
- * the graph, so a return here shows it at once while it refreshes.
+ * blocked senders. Long-press a row for its actions. The filter chips narrow the list by kind and spam score. SELECT
+ * picks many rows for one bulk action. The red key starts a new message. The last list loaded is kept in the graph, so
+ * a return here shows it at once while it refreshes.
  */
 @Composable
 fun MessagesScreen(
@@ -147,6 +166,8 @@ fun MessagesScreen(
     var sheetRow by remember { mutableStateOf<ListRow?>(null) }
     var sheetOpen by remember { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf(false) }
+    var filter by rememberSaveable(stateSaver = listFilterSaver) { mutableStateOf(ListFilter()) }
+    val selection = remember { Selection() }
 
     val placeCall = rememberPlaceCall()
     val smsRole = remember { context.getSystemService(RoleManager::class.java) }
@@ -189,10 +210,7 @@ fun MessagesScreen(
         graph.messagesModel.value = withContext(Dispatchers.IO) { loadModel(context, graph) }
     }
     val rows = if (tab == TAB_INBOX) model.inbox else model.quiet
-    val visible =
-        rows.filter {
-            matchesQuery(query, it.name, it.conversation.number.e164, it.conversation.snippet)
-        }
+    val visible = filteredRows(rows, query, filter)
     val unread = model.inbox.sumOf { it.conversation.unread }
     val now = System.currentTimeMillis()
 
@@ -208,8 +226,19 @@ fun MessagesScreen(
         confirmDelete = false
     }
 
+    // One bulk action runs on the picked rows in one background pass. Selection mode ends with it.
+    fun bulk(action: (ListRow) -> Unit) {
+        val targets = selection.take(visible)
+        act { targets.forEach(action) }
+    }
+
+    BackHandler(enabled = selection.active) { selection.stop() }
+
     Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 120.dp)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = listBottomPadding(selection.active)),
+        ) {
             item(key = "header") { MsgHeader(unread = unread) }
             item(key = "search") { SearchPill(query = query, onQueryChange = { query = it }) }
             if (smsRoleAvailable && !isDefault) {
@@ -235,11 +264,20 @@ fun MessagesScreen(
                     selected = tab,
                     inboxUnread = unread,
                     quietCount = model.quiet.size,
+                    selecting = selection.active,
+                    chosenCount = selection.chosen(visible).size,
                     onSelect = {
                         tab = it
                         closeSheet()
+                        selection.stop()
                     },
+                    onStartSelect = { selection.start() },
+                    onSelectAll = { selection.toggleAll(visible) },
+                    onDoneSelect = { selection.stop() },
                 )
+            }
+            item(key = "filters") {
+                filterBar(filter = filter, onChange = { filter = it })
             }
             val emptyText =
                 emptyListLabel(
@@ -247,6 +285,7 @@ fun MessagesScreen(
                     visibleRows = visible.size,
                     query = query,
                     quiet = tab == TAB_QUIET,
+                    filtered = hiddenByFilter(rows, filter),
                 )
             if (emptyText != null) {
                 item(key = "empty") {
@@ -259,16 +298,20 @@ fun MessagesScreen(
                 }
             }
             items(visible, key = { it.conversation.number.e164 }) { row ->
+                val key = row.conversation.number.e164
                 ConversationRowItem(
                     row = row,
                     quiet = tab == TAB_QUIET,
                     now = now,
-                    onOpen = { onOpenThread(row.conversation.number.e164) },
+                    selecting = selection.active,
+                    selected = key in selection.picked,
+                    onOpen = { onOpenThread(key) },
                     onLongPress = {
                         sheetRow = row
                         confirmDelete = false
                         sheetOpen = true
                     },
+                    onToggle = { selection.toggle(key) },
                     onMoveToInbox = { act { graph.settingsStore.allow(row.conversation.number) } },
                 )
                 MsgDivider(indent = true)
@@ -331,10 +374,7 @@ fun MessagesScreen(
                             closeSheet()
                         },
                         onMarkRead = {
-                            act {
-                                if (isDefaultSmsApp(context)) SmsProvider.markRead(context, number)
-                                MessageNotifier.cancel(context, number)
-                            }
+                            act { markRowRead(context, row) }
                             closeSheet()
                         },
                         onBlock = {
@@ -355,11 +395,7 @@ fun MessagesScreen(
                         },
                         onAskDelete = { confirmDelete = true },
                         onConfirmDelete = {
-                            act {
-                                SmsProvider.deleteConversation(context, number)
-                                graph.repos.messages.deleteFor(number.e164)
-                                MessageNotifier.cancel(context, number)
-                            }
+                            act { deleteRow(context, graph, row) }
                             closeSheet()
                         },
                         onCancelDelete = { confirmDelete = false },
@@ -368,8 +404,26 @@ fun MessagesScreen(
             }
         }
 
-        // Hidden under the conversation sheet, which would otherwise be drawn beneath it.
-        if (!sheetOpen) {
+        // Bulk actions for the picked rows. They take the place of the red key while picking.
+        if (selection.active) {
+            selectionBar(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                quiet = tab == TAB_QUIET,
+                chosen = selection.chosen(visible).size,
+                confirming = selection.confirmingDelete,
+                onRead = { bulk { markRowRead(context, it) } },
+                onBlock = { bulk { graph.settingsStore.block(it.conversation.number) } },
+                onAllow = { bulk { graph.settingsStore.allow(it.conversation.number) } },
+                onSpam = { bulk { markRowSpam(graph, it, spam = true) } },
+                onNotSpam = { bulk { markRowSpam(graph, it, spam = false) } },
+                onAskDelete = { selection.confirmingDelete = true },
+                onConfirmDelete = { bulk { deleteRow(context, graph, it) } },
+                onCancelDelete = { selection.confirmingDelete = false },
+            )
+        }
+
+        // Hidden under the conversation sheet, which would otherwise be drawn beneath it, and while picking rows.
+        if (keyShown(sheetOpen, selection.active)) {
             RoundKey(
                 onClick = onCompose,
                 modifier =
@@ -386,43 +440,98 @@ fun MessagesScreen(
     }
 }
 
-/** Reads the provider and the message log, then splits and names the conversations. Runs off the main thread. */
+/** The rows that match the search and pass the filter, in their order. */
+private fun filteredRows(
+    rows: List<ListRow>,
+    query: String,
+    filter: ListFilter,
+): List<ListRow> =
+    rows.filter {
+        matchesQuery(query, it.name, it.conversation.number.e164, it.conversation.snippet) &&
+            filter.matches(it.verdict)
+    }
+
+/** True when the filter is on and the tab has rows, so the filter may be what hides them all. */
+private fun hiddenByFilter(
+    rows: List<ListRow>,
+    filter: ListFilter,
+): Boolean = filter.active && rows.isNotEmpty()
+
+/** The space the list keeps at its end: the red key's room, or the selection bar's while picking. */
+private fun listBottomPadding(selecting: Boolean): Dp = if (selecting) selectionBarClearance else 120.dp
+
+/** The user's own spam mark for a number: true for spam, false for not spam, or null when the user never marked it. */
+private fun userSpamMark(
+    graph: AppGraph,
+    e164: String,
+): Boolean? {
+    val mark = graph.repos.reputation.get(PhoneNumber(e164)) ?: return null
+    return if (mark.source == SpamSource.USER) mark.isSpam else null
+}
+
+/** The red key shows unless a sheet covers it or rows are being picked. */
+private fun keyShown(
+    sheetOpen: Boolean,
+    selecting: Boolean,
+): Boolean = !sheetOpen && !selecting
+
+/**
+ * Reads the provider and the message log, then splits and names the conversations, and scores each one's newest text.
+ * Runs off the main thread.
+ */
 private fun loadModel(
     context: Context,
     graph: AppGraph,
 ): MessagesModel {
     val settings = graph.settingsStore.settings.value
-    val conversations = groupConversations(SmsProvider.conversationRows(context))
+    val texts = SmsProvider.conversationRows(context)
+    val logs = graph.repos.messages.recent(Int.MAX_VALUE)
     val split =
         splitConversations(
-            conversations = conversations,
-            logs = graph.repos.messages.recent(Int.MAX_VALUE),
+            conversations = groupConversations(texts),
+            logs = logs,
             allowList = settings.allowList,
             blockList = settings.blockList,
+            // The user's own spam mark for a number, if there is one. It decides which list the sender is in.
+            userMark = { e164 -> userSpamMark(graph, e164) },
         )
+    val received = latestIncoming(texts)
+    val logNewest = latestLogEntries(logs)
 
-    fun row(c: Conversation) =
-        ListRow(
+    fun row(c: Conversation): ListRow {
+        val key = c.number.e164
+        // A quiet sender with no provider thread has only its logged texts. Its newest logged text is scored.
+        val incoming =
+            if (c.threadIds.isEmpty()) {
+                logNewest[key]?.let { IncomingText(sender = it.number, body = it.body) }
+            } else {
+                received[key]
+            }
+        return ListRow(
             conversation = c,
             name = graph.resolutionPolicy.resolve(c.number).name,
-            blocked = c.number.e164 in settings.blockList,
+            blocked = key in settings.blockList,
+            incoming = incoming,
+            verdict = incoming?.let { graph.smsClassifier.classify(it.sender, it.body) },
         )
+    }
     return MessagesModel(inbox = split.inbox.map { row(it) }, quiet = split.quiet.map { row(it) })
 }
 
 /**
  * The text for an empty list, or null when there is nothing to say: rows are showing, or the first load has not
- * finished. A search with no hits says so. A blank search counts as no search.
+ * finished. A search or a filter with no hits says so. A blank search counts as no search.
  */
 internal fun emptyListLabel(
     loaded: Boolean,
     visibleRows: Int,
     query: String,
     quiet: Boolean,
+    filtered: Boolean = false,
 ): String? =
     when {
         !loaded || visibleRows > 0 -> null
-        query.isNotBlank() -> "NO MATCHES"
+        query.isNotBlank() || filtered -> "NO MATCHES"
         quiet -> "QUIET INBOX IS EMPTY"
         else -> "NO TEXTS YET"
     }
@@ -531,7 +640,12 @@ private fun MsgTabs(
     selected: Int,
     inboxUnread: Int,
     quietCount: Int,
+    selecting: Boolean,
+    chosenCount: Int,
     onSelect: (Int) -> Unit,
+    onStartSelect: () -> Unit,
+    onSelectAll: () -> Unit,
+    onDoneSelect: () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
         Row(Modifier.fillMaxWidth()) {
@@ -551,11 +665,13 @@ private fun MsgTabs(
             )
         }
         MsgDivider(indent = false)
-        Text(
-            text = if (selected == TAB_INBOX) "FROM CONTACTS & TRUSTED SENDERS · RED COUNT IS UNREAD" else "HELD-BACK & BLOCKED SENDERS · NO ALERTS",
-            style = CgType.Label.copy(fontSize = 9.sp, letterSpacing = 1.2.sp),
-            color = CgColors.TextFaint,
-            modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
+        tabCaption(
+            caption = if (selected == TAB_INBOX) INBOX_CAPTION else QUIET_CAPTION,
+            selecting = selecting,
+            chosenCount = chosenCount,
+            onStartSelect = onStartSelect,
+            onSelectAll = onSelectAll,
+            onDoneSelect = onDoneSelect,
         )
     }
 }
@@ -614,25 +730,35 @@ private fun ConversationRowItem(
     row: ListRow,
     quiet: Boolean,
     now: Long,
+    selecting: Boolean,
+    selected: Boolean,
     onOpen: () -> Unit,
     onLongPress: () -> Unit,
+    onToggle: () -> Unit,
     onMoveToInbox: () -> Unit,
 ) {
     val c = row.conversation
     val unread = c.unread > 0
     val known = row.name != null
     val bold = if (unread) FontWeight.Bold else FontWeight.Normal
+    // In selection mode a tap picks the row, and a long press does nothing.
+    val tap = if (selecting) onToggle else onOpen
+    val hold = if (selecting) null else onLongPress
     Row(
         Modifier
             .fillMaxWidth()
-            .combinedClickable(onClick = onOpen, onLongClick = onLongPress)
+            .combinedClickable(onClick = tap, onLongClick = hold)
             .padding(horizontal = 20.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        PillAvatar(
-            initials = initialsOf(row.name),
-            ringColor = if (known) CgColors.White else CgColors.TextFaint,
-        )
+        if (selecting) {
+            selectionMark(selected)
+        } else {
+            PillAvatar(
+                initials = initialsOf(row.name),
+                ringColor = if (known) CgColors.White else CgColors.TextFaint,
+            )
+        }
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
             Text(
@@ -652,20 +778,46 @@ private fun ConversationRowItem(
             )
         }
         Spacer(Modifier.width(12.dp))
-        Column(horizontalAlignment = Alignment.End) {
+        rowTrail(row = row, quiet = quiet, now = now, selecting = selecting, onMoveToInbox = onMoveToInbox)
+    }
+}
+
+/** The right-hand column of a row: the time, the kind and spam caption, then the tag, the pill or the unread count. */
+@Composable
+private fun rowTrail(
+    row: ListRow,
+    quiet: Boolean,
+    now: Long,
+    selecting: Boolean,
+    onMoveToInbox: () -> Unit,
+) {
+    val c = row.conversation
+    val unread = c.unread > 0
+    Column(horizontalAlignment = Alignment.End) {
+        Text(
+            text = listTimeLabel(c.timestamp, now),
+            style = CgType.RowSub,
+            color = if (unread) CgColors.Red else CgColors.TextFaint,
+        )
+        row.verdict?.let { verdict ->
+            Spacer(Modifier.height(4.dp))
             Text(
-                text = listTimeLabel(c.timestamp, now),
-                style = CgType.RowSub,
-                color = if (unread) CgColors.Red else CgColors.TextFaint,
+                text = verdictCaption(verdict),
+                style = CgType.Label.copy(fontSize = 9.sp),
+                color = if (isSpamVerdict(verdict)) CgColors.Red else CgColors.TextFaint,
+                maxLines = 1,
             )
-            Spacer(Modifier.height(6.dp))
-            if (quiet) {
-                OutcomeTag(if (row.blocked) "BLOCKED" else "QUIET")
+        }
+        Spacer(Modifier.height(6.dp))
+        if (quiet) {
+            OutcomeTag(if (row.blocked) "BLOCKED" else "QUIET")
+            // The inline move is left out while picking, so a tap on the row always picks it.
+            if (!selecting) {
                 Spacer(Modifier.height(6.dp))
                 RedPill("Move to inbox", filled = false, onClick = onMoveToInbox)
-            } else if (unread) {
-                CountBadge(c.unread)
             }
+        } else if (unread) {
+            CountBadge(c.unread)
         }
     }
 }

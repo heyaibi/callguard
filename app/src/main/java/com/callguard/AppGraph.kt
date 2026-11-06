@@ -56,8 +56,25 @@ class AppGraph(
 
     private val smsModelFile = SmsModelFile(File(context.filesDir, "sms_model.bin"))
 
+    /** The token model, loaded once on first use, never on the main thread. */
+    private val smsModel by lazy { smsModelFile.load() }
+
     /** The SMS classifier. Its token model loads on first use, never on the main thread. */
-    val smsClassifier: SmsClassifier by lazy { SmsClassifier(smsModelFile.load()) }
+    val smsClassifier: SmsClassifier by lazy { SmsClassifier(smsModel) }
+
+    /**
+     * Teaches the classifier one text that the user marked spam or not spam, then saves the token model. Call it off
+     * the main thread only, because the save writes a file. A failed save keeps the lesson for this launch only.
+     */
+    @Synchronized
+    fun learnSms(
+        sender: String,
+        body: String,
+        spam: Boolean,
+    ) {
+        smsClassifier.learn(sender, body, spam)
+        runCatching { smsModelFile.save(smsModel) }
+    }
 
     /**
      * The Messages list as last loaded, null until the first load. It outlives the screen, so a return shows it

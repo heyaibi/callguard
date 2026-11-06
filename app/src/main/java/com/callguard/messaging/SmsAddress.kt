@@ -2,6 +2,8 @@ package com.callguard.messaging
 
 import com.callguard.core.PhoneNumber
 import com.callguard.core.PhoneNumbers
+import com.callguard.spam.classify.SenderKind
+import com.callguard.spam.classify.SenderParser
 
 /**
  * The number an SMS address stands for. Numbers normalize to E.164. Addresses that do not normalize
@@ -18,3 +20,12 @@ fun sameAddress(
     address: String,
     number: PhoneNumber,
 ): Boolean = addressToNumber(address) == number
+
+/**
+ * The key that a per-sender ring or mute setting is stored under. A DLT sender uses its brand header in upper case,
+ * so "VM-HDFCBK-S" and "AX-HDFCBK" share the key "HDFCBK". Any other sender uses the e164 form of its address.
+ */
+fun senderKey(address: String): String {
+    val info = SenderParser.parse(address)
+    return if (info.kind == SenderKind.DLT) info.name else addressToNumber(address).e164.uppercase()
+}

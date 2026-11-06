@@ -22,8 +22,11 @@ import com.callguard.prefs.Settings
 import com.callguard.prefs.SettingsStore
 import com.callguard.screening.ScreeningPolicy
 import com.callguard.spam.SpamPolicy
+import com.callguard.spam.classify.SmsClassifier
+import com.callguard.spam.classify.SmsModelFile
 import com.callguard.ui.screens.MessagesModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import java.io.File
 
 /** Manual service locator. Built once by [CallGuardApp]. */
 class AppGraph(
@@ -50,6 +53,11 @@ class AppGraph(
     val spamPolicy = SpamPolicy(repos.reputation, bundled::isSpam, repos.calls::countSince)
     val screeningPolicy = ScreeningPolicy()
     val messageFilterPolicy = MessageFilterPolicy()
+
+    private val smsModelFile = SmsModelFile(File(context.filesDir, "sms_model.bin"))
+
+    /** The SMS classifier. Its token model loads on first use, never on the main thread. */
+    val smsClassifier: SmsClassifier by lazy { SmsClassifier(smsModelFile.load()) }
 
     /**
      * The Messages list as last loaded, null until the first load. It outlives the screen, so a return shows it

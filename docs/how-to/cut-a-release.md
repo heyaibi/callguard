@@ -17,7 +17,7 @@ keytool -genkeypair -v \
   -keyalg RSA -keysize 2048 -validity 10000
 ```
 
-Keep the alias you type here; it becomes `CALLGUARD_KEY_ALIAS`. `keytool` prompts for the store password and the key password, and then for your name and organization.<!-- VERIFY: the keytool command is standard JDK tooling but has not been run against this repository on a device or in CI. -->
+Keep the alias you type here; it becomes `CALLGUARD_KEY_ALIAS`. `keytool` prompts for the store password and the key password, and then for your name and organization.
 
 ## 3. Turn the keystore into a base64 blob
 

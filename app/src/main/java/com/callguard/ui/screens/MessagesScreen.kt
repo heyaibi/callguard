@@ -51,10 +51,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -98,27 +98,32 @@ import com.callguard.ui.theme.CgColors
 import com.callguard.ui.theme.CgType
 import com.callguard.ui.theme.MonoFont
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private const val TAB_INBOX = 0
 private const val TAB_QUIET = 1
 
+/** A burst of list changes waits this long, then the list reloads once. */
+private const val RELOAD_DELAY_MS = 150L
+
 /** One conversation row: the conversation, its contact name, and whether the sender is blocked. */
-private data class ListRow(
+internal data class ListRow(
     val conversation: Conversation,
     val name: String?,
     val blocked: Boolean,
 )
 
-private data class MessagesModel(
+internal data class MessagesModel(
     val inbox: List<ListRow>,
     val quiet: List<ListRow>,
 )
 
 /**
  * The messages list: conversations from the SMS provider, one row per sender, plus the quiet inbox of held-back and
- * blocked senders. Long-press a row for its actions. The red key starts a new message.
+ * blocked senders. Long-press a row for its actions. The red key starts a new message. The last list loaded is kept in
+ * the graph, so a return here shows it at once while it refreshes.
  */
 @Composable
 fun MessagesScreen(
@@ -170,8 +175,14 @@ fun MessagesScreen(
         onDispose { context.contentResolver.unregisterContentObserver(observer) }
     }
 
-    val model by produceState(MessagesModel(emptyList(), emptyList()), revision, settings, logs, readGranted) {
-        value = withContext(Dispatchers.IO) { loadModel(context, graph) }
+    // The last list loaded, kept in the graph. It is null only until the first load lands.
+    val cached by graph.messagesModel.collectAsStateWithLifecycle()
+    val model = cached ?: MessagesModel(emptyList(), emptyList())
+    // A change restarts this effect, so a burst of changes waits out the delay and loads once. The cached list stays on
+    // screen until the next load replaces it.
+    LaunchedEffect(revision, settings, logs, readGranted) {
+        delay(RELOAD_DELAY_MS)
+        graph.messagesModel.value = withContext(Dispatchers.IO) { loadModel(context, graph) }
     }
     val rows = if (tab == TAB_INBOX) model.inbox else model.quiet
     val visible =
@@ -226,15 +237,17 @@ fun MessagesScreen(
                     },
                 )
             }
-            if (visible.isEmpty()) {
+            val emptyText =
+                emptyListLabel(
+                    loaded = cached != null,
+                    visibleRows = visible.size,
+                    query = query,
+                    quiet = tab == TAB_QUIET,
+                )
+            if (emptyText != null) {
                 item(key = "empty") {
                     Text(
-                        text =
-                            when {
-                                query.isNotBlank() -> "NO MATCHES"
-                                tab == TAB_QUIET -> "QUIET INBOX IS EMPTY"
-                                else -> "NO TEXTS YET"
-                            },
+                        text = emptyText,
                         style = CgType.Label,
                         color = CgColors.TextFaint,
                         modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 40.dp),
@@ -383,6 +396,23 @@ private fun loadModel(
         )
     return MessagesModel(inbox = split.inbox.map { row(it) }, quiet = split.quiet.map { row(it) })
 }
+
+/**
+ * The text for an empty list, or null when there is nothing to say: rows are showing, or the first load has not
+ * finished. A search with no hits says so. A blank search counts as no search.
+ */
+internal fun emptyListLabel(
+    loaded: Boolean,
+    visibleRows: Int,
+    query: String,
+    quiet: Boolean,
+): String? =
+    when {
+        !loaded || visibleRows > 0 -> null
+        query.isNotBlank() -> "NO MATCHES"
+        quiet -> "QUIET INBOX IS EMPTY"
+        else -> "NO TEXTS YET"
+    }
 
 @Composable
 private fun MsgHeader(unread: Int) {

@@ -16,6 +16,10 @@ Accept the system prompt that names CallGuard. The row re-reads the role when th
 
 With the role, `SmsDeliverReceiver` receives each text, stores it in the Android SMS provider, writes a log entry, and notifies according to the outcome: a normal alert for a text from a contact or an allow-listed sender, a silent one when Silence mode applies, and none at all for the Quiet Inbox or a blocked sender.
 
+The Messages screen shows that split: unread counts per thread, **INBOX** for what reached you, and **QUIET INBOX** beside it for what was held back.
+
+![Messages inbox showing four conversations with unread counts, with the Inbox and Quiet Inbox tabs](../images/messages.png)
+
 Blocking texts depends on the role. Android delivers `SMS_DELIVER` to the default SMS app only, so while another app holds the role CallGuard's `SmsReceiver` only writes a log entry, and the other app shows and alerts for the message. Non-contact blocking, Ignore mode, and Silence mode therefore take effect on texts only while CallGuard is the default.
 
 Replying from a thread uses `SEND_SMS`, which the app requests the first time you send. MMS download is not implemented, so media messages are not fetched.

@@ -11,16 +11,17 @@ Every image is a 900x1200 canvas with the phone centred at the captures' true
 | `spam-call.png` | Incoming call flagged as spam, with spam likelihood and reasons | `store/raw/b-spam-call.png` |
 | `keypad.png` | Dial pad with a typed number and the caller lookup shown above it | `store/raw/d-keypad-who.png` |
 | `contacts.png` | Contacts list with per-contact trust state badges | `store/raw/e-contacts.png` |
-| `messages.png` | System permission dialog, "Allow CallGuard to send and receive messages?" — see note below | `store/raw/f-messages.png` |
+| `messages.png` | Messages inbox: four conversations with unread counts and the Inbox and Quiet Inbox tabs | `store/raw/f-messages.png` |
 | `settings.png` | Settings: blocking toggles and caller ID data sources | `store/raw/g-settings.png` |
 | `active-call.png` | Active call with elapsed timer and hold, mute and speaker controls | `store/raw/h-active-call.png` |
 
 ## Notes on the captures
 
-- `f-messages.png` does not show a messages list. The capture is the Android
-  runtime permission dialog over the launcher, so the shot is named after the
-  screen it was taken for but the caption on the image stays neutral.
-- All other captures were unambiguous.
+- `f-messages.png` was captured with CallGuard set as the default SMS app and
+  READ SMS granted, so it shows the conversation list rather than a permission
+  banner. The Inbox tab is selected and the Quiet Inbox was empty when the shot
+  was taken.
+- Every capture shows the screen its filename names.
 
 ## Rendering
 

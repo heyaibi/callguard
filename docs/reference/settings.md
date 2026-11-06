@@ -10,6 +10,8 @@ All settings are one `Settings` data class (`app/src/main/java/com/callguard/pre
 
 The Settings screen is `app/src/main/java/com/callguard/ui/screens/SettingsScreen.kt`. Labels in the table below are the uppercase strings that screen renders.
 
+![Settings screen showing the blocking toggles and the caller ID data source rows](../images/settings.png)
+
 ## Settings
 
 | Label in the app | Field | Storage key | Type | Default | What it changes |

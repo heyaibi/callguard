@@ -14,9 +14,15 @@ Tap the **DEFAULT PHONE APP** row and accept the Android prompt that names CallG
 
 `CallGuardInCallService` starts receiving every call on the device, contacts' calls included. CallGuard then draws the in-call screen, rings, and keeps the call in progress through a foreground service.
 
+![Incoming call on the CallGuard in-call screen, showing the caller ID and the network caller name](../images/incoming-call.png)
+
 The dialer role also routes launches: `DIAL` and `tel:` links open the CallGuard keypad with the number filled in, and `DialActivity` answers `CALL tel:` and the hardware call button.
 
 One visible change costs you the caller card. While the role is held, no caller ID card and no overlay are posted for incoming calls, because the in-call screen already shows the caller. Blocked-call notices and the call log are unaffected.
+
+That in-call screen also carries the call controls:
+
+![Active call on the in-call screen, with the elapsed timer and the hold, mute and speaker controls](../images/active-call.png)
 
 ## What breaks when you revoke it
 

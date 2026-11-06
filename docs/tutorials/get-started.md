@@ -66,6 +66,10 @@ adb shell am start -n com.callguard/.MainActivity
 Starting: Intent { cmp=com.callguard/.MainActivity }
 ```
 
+The app opens on the Guard screen:
+
+![Guard home screen with the black list, contacts scanned and calls filtered counters, and quick actions](../images/guard-home.png)
+
 ## Verify
 
 The Guard screen opens with the protection card reading **3 TO SET UP**, because the call screening role, the WhatsApp bridge, and Contacts access are all still missing on a fresh install. The bottom bar shows Keypad, Recents, Contacts, Messages, and Guard. Once CallGuard holds the dialer role it opens on the keypad instead, so expect that on a second run.

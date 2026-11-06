@@ -9,6 +9,8 @@ navigation = "2.9.8"
 junit = "4.13.2"
 ktlintGradle = "14.2.0"
 ktlint = "1.8.0"
+# Pre-release on purpose: the stable 1.23.x line cannot parse Kotlin 2.4.10 and crashes on JDK 25+
+# (`IllegalArgumentException: 26.0.2.1`), which upstream will not backport. See CONTRIBUTING.md.
 detekt = "2.0.0-alpha.6"
 robolectric = "4.17"
 androidxTestCore = "1.7.0"

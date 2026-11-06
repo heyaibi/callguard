@@ -62,7 +62,7 @@ Three conditions change that. A blocked call gets a low-importance notice on the
 - A slow phonebook or a slow cache read makes an unknown call ring. The fallback prefers that to a silence it cannot justify.
 - Screening is a snapshot. A name learned after the call was answered does not change the verdict for that call.
 - The three decisions map onto platform flags rather than onto three distinct behaviors. `BLOCK` sets `disallowCall`, `rejectCall`, and `skipNotification`; `SILENCE` sets only `silenceCall`; `ALLOW` sets nothing and leaves the platform defaults. How a silenced call looks on a given device is the platform's decision, not the app's.
-- The rule list is not user-editable. The Settings screen exposes the modes and the two lists, and no per-rule configuration.
+- The rule list is not user-editable. The Guard tab exposes the modes and the two lists, and no per-rule configuration.
 
 ## Related
 

@@ -41,7 +41,6 @@ import com.callguard.ui.screens.KeypadScreen
 import com.callguard.ui.screens.ListsScreen
 import com.callguard.ui.screens.MessagesScreen
 import com.callguard.ui.screens.RecentsScreen
-import com.callguard.ui.screens.SettingsScreen
 import com.callguard.ui.screens.ThreadScreen
 import com.callguard.ui.theme.CgColors
 import com.callguard.ui.theme.MonoFont
@@ -55,9 +54,8 @@ object Routes {
     const val CONTACTS = "contacts"
     const val MESSAGES = "messages"
 
-    /** The GUARD tab: protection status. Settings and Lists are reached from it. */
+    /** The GUARD tab: protection status and every setting. Lists is pushed from it. */
     const val HOME = "home"
-    const val SETTINGS = "settings"
     const val LISTS = "lists"
     const val INCOMING = "incoming"
     const val THREAD = "thread/{number}"
@@ -96,7 +94,7 @@ private val tabs =
         Tab(Routes.RECENTS, "Recents", Icons.Filled.History) { it == Routes.RECENTS },
         Tab(Routes.MESSAGES, "Messages", Icons.AutoMirrored.Filled.Message) { it == Routes.MESSAGES || it == Routes.COMPOSE },
         Tab(Routes.CONTACTS, "Contacts", Icons.Filled.Contacts) { it == Routes.CONTACTS },
-        Tab(Routes.HOME, "Guard", Icons.Filled.Shield) { it == Routes.HOME || it == Routes.SETTINGS || it == Routes.LISTS },
+        Tab(Routes.HOME, "Guard", Icons.Filled.Shield) { it == Routes.HOME || it == Routes.LISTS },
     )
 
 private val NavLabel =
@@ -108,8 +106,8 @@ private val NavLabel =
     )
 
 /**
- * Root navigation: five tabs on a black bottom bar (KEYPAD, RECENTS, MESSAGES, CONTACTS, GUARD). Settings and
- * Lists sit under GUARD. The app starts on KEYPAD when it holds the dialer role, otherwise on GUARD.
+ * Root navigation: five tabs on a black bottom bar (KEYPAD, RECENTS, MESSAGES, CONTACTS, GUARD). Lists opens
+ * from GUARD. The app starts on KEYPAD when it holds the dialer role, otherwise on GUARD.
  * The incoming-call, conversation and compose routes are full-bleed and hide the bar.
  * The Scaffold passes top and bottom insets to the tab screens through its padding.
  * [request] is a screen to open now: a conversation, an incoming call or the keypad, from MainActivity.
@@ -230,12 +228,6 @@ fun AppNav(request: OpenRequest? = null) {
             composable(Routes.HOME) {
                 HomeScreen(
                     onPreviewCall = { nav.navigate(Routes.INCOMING) },
-                    onOpenSettings = { nav.navigate(Routes.SETTINGS) { launchSingleTop = true } },
-                )
-            }
-            composable(Routes.SETTINGS) {
-                SettingsScreen(
-                    onBack = { nav.popBackStack() },
                     onOpenLists = { nav.navigate(Routes.LISTS) { launchSingleTop = true } },
                 )
             }

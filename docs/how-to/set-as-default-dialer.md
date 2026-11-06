@@ -4,7 +4,7 @@ Holding the default phone app role (`ROLE_DIALER`) gives CallGuard the in-call s
 
 ## 1. Open the permission rows
 
-Open CallGuard, tap the gear on the Guard screen, and scroll to **PERMISSIONS**. The **DEFAULT PHONE APP** row reads **NOT HELD** until the role is granted. Its subtitle is "PLACES CALLS & SHOWS THE IN-CALL SCREEN".
+Open CallGuard, then scroll the **Guard** tab to **PERMISSIONS**. The **DEFAULT PHONE APP** row reads **NOT HELD** until the role is granted. Its subtitle is "PLACES CALLS & SHOWS THE IN-CALL SCREEN".
 
 ## 2. Grant the role
 

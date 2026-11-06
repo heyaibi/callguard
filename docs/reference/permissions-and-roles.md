@@ -18,10 +18,12 @@ These show a system prompt and can be refused.
 | `READ_SMS` | `MessagesScreen`, `ThreadScreen`, `SmsProvider` | The conversation list and threads cannot be read | Settings → SMS, the messages screen, the thread screen |
 | `SEND_SMS` | `ThreadScreen` reply, `HeadlessSmsSendService` | Replies cannot be sent and the send button is disabled | Thread screen |
 | `POST_NOTIFICATIONS` | `CallerIdNotifier`, `MessageNotifier`, `CallNotifier`, `OverlayCard` fallback | No caller ID card, no blocked-call notice, no ringing notification, no message alert | Settings → NOTIFICATIONS |
-| `RECEIVE_MMS` | Declared only. No call site in `app/src/main/java` | Nothing observed. MMS download is not implemented | Not requested |
-| `RECEIVE_WAP_PUSH` | Declared only. No call site in `app/src/main/java` | Nothing observed. It is part of the MMS receiver set the SMS role expects, alongside `RECEIVE_MMS` | Not requested |
+| `RECEIVE_MMS` | Declared only. No call site in `app/src/main/java` | Nothing observed. MMS download is not implemented | No prompt; arrives with `ROLE_SMS` |
+| `RECEIVE_WAP_PUSH` | Declared only. No call site in `app/src/main/java` | Nothing observed. `MmsReceiver` still receives `WAP_PUSH_DELIVER` | No prompt; arrives with `ROLE_SMS` |
 
-<!-- VERIFY: RECEIVE_MMS has no code path that reads or checks it. It is declared likely because the SMS role expects a complete MMS receiver set. The platform's role criteria would need checking to confirm the declaration is required. -->
+`RECEIVE_MMS` and `RECEIVE_WAP_PUSH` are declared because `ROLE_SMS` confers them, not because any code path reads them. The relationship runs from the role to the permission: holding `ROLE_SMS` is what grants them, and the declaration is what gives the grant something to attach to.
+
+This is confirmed against the API 36 emulator. The `PermissionController` shipped in that image defines a `sms` permission set containing `SEND_SMS`, `RECEIVE_SMS`, `READ_SMS`, `RECEIVE_WAP_PUSH`, `RECEIVE_MMS` and `READ_CELL_BROADCASTS`, and lists that set under `ROLE_SMS`. On the device, with CallGuard holding `ROLE_SMS`, both permissions are granted with the `GRANTED_BY_ROLE` flag. The platform does not require an app to hold a permission before it can be granted the role; qualification is by required components, not by permissions.
 
 `POST_NOTIFICATIONS` is only requested on API 33 and above. The Settings row reads as granted below that (`Perms.read` in `SettingsScreen.kt`).
 
@@ -45,7 +47,13 @@ These are in the manifest and nothing in `app/src/main/java` reads or checks the
 | `ANSWER_PHONE_CALLS` | Declared. CallGuard answers calls through `Call.answer` in `CallManager`, which the in-call service provides, not through this permission. |
 | `WRITE_CALL_LOG` | Declared. `calllog/RecentCalls.kt` reads `CallLog.Calls` and never writes to it. CallGuard keeps its own log in `call_log`. |
 
-<!-- VERIFY: no call site exists for these three, and the manifest comment does not explain them. They may be left from an earlier design, or required by a role the app asks for. Removing them without checking the role requirements risks losing the dialer or SMS role. -->
+All three are declared because the `phone` permission set is part of both `ROLE_SMS` and `ROLE_DIALER`. They are not leftover from an earlier design.
+
+Confirmed against the API 36 emulator. The `PermissionController` in that image defines a `phone` permission set containing `READ_PHONE_STATE`, `CALL_PHONE`, `READ_CALL_LOG`, `WRITE_CALL_LOG`, the voicemail permissions, `USE_SIP`, `PROCESS_OUTGOING_CALLS` and `ANSWER_PHONE_CALLS`, and both `ROLE_DIALER` and `ROLE_SMS` list that set. On the device, with CallGuard holding `ROLE_SMS`, all three carry the `GRANTED_BY_ROLE` flag.
+
+The platform does not require an app to hold these permissions in order to be granted either role. Qualification is decided by required components, not by permissions, and revoking `READ_PHONE_STATE` from the current `ROLE_SMS` holder left the role in place (tested on API 36). The direction is the reverse: the role grants the permission, and the manifest declaration is what lets the grant attach. Role-set permissions CallGuard does not declare, such as `CAMERA` and `RECORD_AUDIO`, are absent from the package entirely rather than withheld, which is the same mechanism seen from the other side.
+
+The grants themselves are unused: CallGuard never calls the APIs behind `READ_PHONE_STATE`, `ANSWER_PHONE_CALLS` or `WRITE_CALL_LOG`, and answers calls through `Call.answer` in `CallManager`. Their purpose is to satisfy the role's permission set, not to enable a code path.
 
 CallGuard declares no `INTERNET` permission. Nothing in the app can open a network connection, which is why `OnlineLookupSource` returns no name.
 

@@ -1,3 +1,5 @@
+# Keep each job under 3.5 minutes. A job that grows past that moves to
+# instrumented.yml-style triggers: on demand, nightly, and on master.
 name: CI
 
 on:
@@ -15,73 +17,68 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build & Test
+  # A test-only PR may add or extend tests and nothing else. See scope-check.sh.
+  scope:
+    name: Scope
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # The scope check diffs against the base branch, so it needs the full history.
+          fetch-depth: 0
+
+      # A PR is test-only when its head branch starts with test/ or its author is listed
+      # in the TEST_ONLY_AUTHORS repository variable (comma-separated logins).
+      - name: Decide if the PR is test-only
+        id: decide
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          TEST_ONLY_AUTHORS: ${{ vars.TEST_ONLY_AUTHORS }}
+        run: |
+          is_test_only=false
+          case "$HEAD_REF" in
+            test/*) is_test_only=true ;;
+          esac
+          author="$(printf '%s' "$AUTHOR" | tr '[:upper:]' '[:lower:]')"
+          listed="$(printf '%s' "$TEST_ONLY_AUTHORS" | tr '[:upper:]' '[:lower:]')"
+          IFS=',' read -ra logins <<< "$listed"
+          for login in "${logins[@]}"; do
+            login="${login//[[:space:]]/}"
+            if [ -n "$login" ] && [ "$login" = "$author" ]; then
+              is_test_only=true
+            fi
+          done
+          echo "is_test_only=$is_test_only" >> "$GITHUB_OUTPUT"
+          echo "Test-only PR: $is_test_only"
+
+      - name: Scope check
+        env:
+          BASE_REF: origin/${{ github.base_ref }}
+          IS_TEST_ONLY: ${{ steps.decide.outputs.is_test_only }}
+        run: bash .github/scripts/scope-check.sh "$BASE_REF" "$IS_TEST_ONLY"
+
+  static:
+    name: Static checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      # local.properties is gitignored, so the SDK has to be installed here.
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          # The action defaults to `tools platform-tools`, but the legacy `tools`
-          # package no longer exists in the SDK repository and the install fails
-          # with "Failed to find package 'tools'".
-          packages: platform-tools
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - name: Set up build
+        uses: ./.github/actions/setup
 
       - name: ktlint
         run: ./gradlew ktlintCheck
 
+      # Runs even when ktlint fails, so the detekt report is always written.
       - name: detekt
+        if: always()
         run: ./gradlew detekt
 
-      - name: Android lint
-        run: ./gradlew lint
-
-      - name: Unit tests
-        run: ./gradlew testDebugUnitTest
-
-      - name: Assemble debug
-        run: ./gradlew assembleDebug
-
       # always() so reports survive a failing step above.
-      - name: Upload debug APK
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-apk
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: ignore
-
-      - name: Upload unit test reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unit-test-reports
-          path: app/build/reports/tests/testDebugUnitTest/**
-          if-no-files-found: ignore
-
-      - name: Upload lint results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-results
-          path: |
-            app/build/reports/lint-results-debug.html
-            app/build/reports/lint-results-debug.xml
-          if-no-files-found: ignore
-
       # Detekt writes into whichever build dir its plugin is applied to.
       - name: Upload detekt report
         if: always()
@@ -93,54 +90,70 @@ jobs:
             app/build/reports/detekt/**
           if-no-files-found: ignore
 
-  instrumented:
-    name: Instrumented Tests
+  unit:
+    name: Unit tests
     runs-on: ubuntu-latest
-    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
+      - name: Set up build
+        uses: ./.github/actions/setup
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          # The action defaults to `tools platform-tools`, but the legacy `tools`
-          # package no longer exists in the SDK repository and the install fails
-          # with "Failed to find package 'tools'".
-          packages: platform-tools
+      - name: Unit tests
+        run: ./gradlew testDebugUnitTest
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      # Only the Linux runners expose /dev/kvm; without it the emulator is unusably slow.
-      - name: Enable KVM
-        run: |
-          if [ -e /dev/kvm ]; then
-            sudo chmod 666 /dev/kvm
-          else
-            echo "/dev/kvm is not available; continuing without hardware acceleration"
-          fi
-
-      - name: Run instrumented tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 36
-          target: google_apis
-          arch: x86_64
-          profile: pixel_6
-          disable-animations: true
-          script: ./gradlew connectedDebugAndroidTest
-
-      - name: Upload instrumented test reports
+      # always() so reports survive a failing step above.
+      - name: Upload unit test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: instrumented-test-reports
-          path: app/build/reports/androidTests/**
+          name: unit-test-reports
+          path: app/build/reports/tests/testDebugUnitTest/**
+          if-no-files-found: ignore
+
+  lint:
+    name: Android lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up build
+        uses: ./.github/actions/setup
+
+      - name: Android lint
+        run: ./gradlew lint
+
+      # always() so reports survive a failing step above.
+      - name: Upload lint results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-results
+          path: |
+            app/build/reports/lint-results-debug.html
+            app/build/reports/lint-results-debug.xml
+          if-no-files-found: ignore
+
+  assemble:
+    name: Debug build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up build
+        uses: ./.github/actions/setup
+
+      - name: Assemble debug
+        run: ./gradlew assembleDebug
+
+      # always() so the APK upload runs even when the build fails.
+      - name: Upload debug APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-apk
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: ignore

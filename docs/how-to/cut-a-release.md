@@ -2,7 +2,7 @@
 
 Pushing a tag that starts with `v` builds a signed APK and publishes it as a GitHub Release. You need write access to the repository, a release keystore, and the four signing secrets already stored in the repository settings.
 
-The release job builds and publishes; it does not run the tests. Merge to `master` and let CI pass first, since CI is what runs `ktlintCheck`, `detekt`, `lint`, `testDebugUnitTest`, `assembleDebug`, and the instrumented tests.
+The release job builds and publishes; it does not run the tests. Merge to `master` and let CI pass first, since CI is what runs `ktlintCheck`, `detekt`, `lint`, `testDebugUnitTest`, and `assembleDebug`. The instrumented tests run on the push to `master`, from `instrumented.yml`.
 
 ## 1. Bump the version
 

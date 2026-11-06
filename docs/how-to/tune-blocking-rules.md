@@ -1,6 +1,6 @@
 # Tune what CallGuard blocks
 
-You set how unknown callers, spam, and non-contact texts are handled from the toggles under **Settings**, then **PROTECTION**. You need the call screening role granted for any call rule to run, and Contacts access for Contacts only to do anything.
+You set how unknown callers, spam, and non-contact texts are handled from the toggles under **PROTECTION** on the **Guard** tab. You need the call screening role granted for any call rule to run, and Contacts access for Contacts only to do anything.
 
 Every rule lives on this one screen. The numbers themselves live in the allow and block lists, covered in [Manage the allow and block lists](../how-to/manage-lists.md).
 

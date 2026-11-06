@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - The bottom bar reads Keypad, Recents, Messages, Contacts, and Guard.
+- Settings now live on the Guard screen, below the protection status. The separate Settings screen is gone.
 
 ### Fixed
 

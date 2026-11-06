@@ -8,7 +8,7 @@ All settings are one `Settings` data class (`app/src/main/java/com/callguard/pre
 
 `SettingsStore.settings` is a `StateFlow<Settings>` that every screen collects. A change through `update`, `allow`, `block` or `unlist` writes the whole record and publishes the new value, so the next call or text sees the change without a restart.
 
-The Settings screen is `app/src/main/java/com/callguard/ui/screens/SettingsScreen.kt`. Labels in the table below are the uppercase strings that screen renders.
+The rows live in `app/src/main/java/com/callguard/ui/screens/SettingsSections.kt` and show on the Guard tab, below the protection status. Labels in the table below are the uppercase strings that the Guard tab renders.
 
 ![Settings screen showing the blocking toggles and the caller ID data source rows](../images/settings.png)
 
@@ -37,7 +37,7 @@ The two list rows have no switch. The row opens the lists screen, and numbers re
 
 When on, any number that is not in the phonebook is blocked: calls are rejected, and texts are stored, logged as blocked, and produce no alert. The check runs after the allow list, so an allow-listed non-contact still rings.
 
-The setting only applies while `READ_CONTACTS` is granted. `AppGraph.effectiveSettings()` copies the settings with `contactsOnly = false` when the permission is missing, which keeps the screening and messaging policies free of permission checks. The Settings screen shows a `GRANT CONTACTS` pill under the row in that state, and the Contacts screen shows the same request.
+The setting only applies while `READ_CONTACTS` is granted. `AppGraph.effectiveSettings()` copies the settings with `contactsOnly = false` when the permission is missing, which keeps the screening and messaging policies free of permission checks. The Guard tab shows a `GRANT CONTACTS` pill under the row in that state, and the Contacts screen shows the same request.
 
 ### SILENCE MODE
 
@@ -83,7 +83,7 @@ Both lists hold E.164 strings. `SettingsStore.allow` adds a number to the allow 
 
 The allow list is checked before every other rule except the block list, so an allow-listed number rings and notifies even with contacts only and silence mode on. The block list is checked first of all, so a number that somehow reached both lists would be blocked; the store methods keep that state from being written. The lists screen, the conversation screen, the messages screen and the incoming-call screen all change the lists through the same three store methods.
 
-## Identity source rows on the Settings screen
+## Identity source rows on the Guard tab
 
 The `IDENTITY SOURCES · ORDER` section lists eight sources in the fixed order the resolution policy uses: CNAP, Contacts, Google Contacts, Operator Service, App Profile, Cache, Bundled DB, Online Lookup. The order is not a preference. It comes from the `rank` value on `SourceKind` (`app/src/main/java/com/callguard/identity/Resolution.kt`), and nothing on the screen writes it back.
 
@@ -91,7 +91,7 @@ Two rows carry switches: `GOOGLE CONTACTS` (`googleContacts`) and `ONLINE LOOKUP
 
 The other rows draw a three-bar drag handle. The handle is decoration: no drag gesture is attached, and no setting stores a source order.
 
-## Actions on the Settings screen
+## Actions on the Guard tab
 
 | Action | What it writes | What survives |
 |---|---|---|

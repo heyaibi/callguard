@@ -9,7 +9,7 @@
     <ID>CyclomaticComplexMethod:KeypadScreen.kt:@Composable fun KeypadScreen</ID>
     <ID>CyclomaticComplexMethod:ListsScreen.kt:@Composable fun ListsScreen</ID>
     <ID>CyclomaticComplexMethod:PhoneNumber.kt:PhoneNumbers$fun normalize: PhoneNumber?</ID>
-    <ID>CyclomaticComplexMethod:SettingsScreen.kt:@Composable fun SettingsScreen</ID>
+    <ID>CyclomaticComplexMethod:SettingsSections.kt:@Composable fun SettingsSections</ID>
     <ID>CyclomaticComplexMethod:ThreadScreen.kt:@OptIn(ExperimentalLayoutApi::class) @Composable fun ThreadScreen</ID>
     <ID>EmptyFunctionBlock:CallGuardDb.kt:CallGuardDb${}</ID>
     <ID>FunctionNaming:AppNav.kt:@Composable fun AppNav</ID>
@@ -41,7 +41,6 @@
     <ID>FunctionNaming:DialScreen.kt:@Composable fun DialScreen</ID>
     <ID>FunctionNaming:HomeScreen.kt:@Composable fun HomeScreen</ID>
     <ID>FunctionNaming:HomeScreen.kt:@Composable private fun ActionLine</ID>
-    <ID>FunctionNaming:HomeScreen.kt:@Composable private fun ModeLine</ID>
     <ID>FunctionNaming:HomeScreen.kt:@Composable private fun StatCell</ID>
     <ID>FunctionNaming:HomeScreen.kt:@Composable private fun StatusLine</ID>
     <ID>FunctionNaming:InCallActivity.kt:@Composable private fun FinishWhenIdle</ID>
@@ -92,18 +91,18 @@
     <ID>FunctionNaming:RecentsScreen.kt:@Composable fun RecentsScreen</ID>
     <ID>FunctionNaming:RecentsScreen.kt:@Composable private fun CallTag</ID>
     <ID>FunctionNaming:RecentsScreen.kt:@Composable private fun RecentRow</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable fun SettingsScreen</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgActionPill</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgDivider</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgDragHandle</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgGrantPill</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgRow</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgSection</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgSegment</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgSourceRow</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgStatusPill</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgSwitch</ID>
-    <ID>FunctionNaming:SettingsScreen.kt:@Composable private fun CfgUnknownSegmented</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable fun SettingsSections</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable private fun CfgActionPill</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable private fun CfgDivider</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable private fun CfgDragHandle</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable private fun CfgGrantPill</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable private fun CfgRow</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable private fun CfgSection</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable private fun CfgSegment</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable private fun CfgSourceRow</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable private fun CfgStatusPill</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable private fun CfgSwitch</ID>
+    <ID>FunctionNaming:SettingsSections.kt:@Composable private fun CfgUnknownSegmented</ID>
     <ID>FunctionNaming:Theme.kt:@Composable fun CallGuardTheme</ID>
     <ID>FunctionNaming:ThreadScreen.kt:@Composable private fun Bubble</ID>
     <ID>FunctionNaming:ThreadScreen.kt:@Composable private fun ComposeBar</ID>
@@ -126,7 +125,7 @@
     <ID>LongMethod:MessagesScreen.kt:@Composable fun MessagesScreen</ID>
     <ID>LongMethod:OverlayCard.kt:OverlayCard$private fun buildCard: LinearLayout</ID>
     <ID>LongMethod:RecentsScreen.kt:@Composable fun RecentsScreen</ID>
-    <ID>LongMethod:SettingsScreen.kt:@Composable fun SettingsScreen</ID>
+    <ID>LongMethod:SettingsSections.kt:@Composable fun SettingsSections</ID>
     <ID>LongMethod:ThreadScreen.kt:@OptIn(ExperimentalLayoutApi::class) @Composable fun ThreadScreen</ID>
     <ID>MagicNumber:BridgeParser.kt:BridgeParser$16</ID>
     <ID>MagicNumber:BridgeParser.kt:BridgeParser$8</ID>
@@ -180,8 +179,8 @@
     <ID>MagicNumber:Resolution.kt:SourceKind.ONLINE_LOOKUP$8</ID>
     <ID>MagicNumber:Resolution.kt:SourceKind.ON_DEVICE_CACHE$6</ID>
     <ID>MagicNumber:Resolution.kt:SourceKind.OPERATOR_SERVICE$4</ID>
-    <ID>MagicNumber:SettingsScreen.kt:3</ID>
-    <ID>MagicNumber:SettingsScreen.kt:50</ID>
+    <ID>MagicNumber:SettingsSections.kt:3</ID>
+    <ID>MagicNumber:SettingsSections.kt:50</ID>
     <ID>MagicNumber:SpamPolicy.kt:SpamPolicy$10</ID>
     <ID>MagicNumber:SpamPolicy.kt:SpamPolicy$100</ID>
     <ID>MagicNumber:SpamPolicy.kt:SpamPolicy$22</ID>
@@ -200,7 +199,6 @@
     <ID>MaxLineLength:AppBridgeListener.kt:private const val SHELL_PACKAGE = "com.android.shell" // `adb shell cmd notification post`; accepted in debug builds only</ID>
     <ID>MaxLineLength:AppNav.kt:/** Switches tabs: one copy of each tab on the stack, its state kept when it is left and restored when it returns. */</ID>
     <ID>MaxLineLength:AppNav.kt:ContactsScreen(onOpenThread = { number -&gt; nav.navigate(threadRoute(number)) { launchSingleTop = true } })</ID>
-    <ID>MaxLineLength:AppNav.kt:Tab(Routes.HOME, "Guard", Icons.Filled.Shield) { it == Routes.HOME || it == Routes.SETTINGS || it == Routes.LISTS }</ID>
     <ID>MaxLineLength:AppNav.kt:Tab(Routes.MESSAGES, "Messages", Icons.AutoMirrored.Filled.Message) { it == Routes.MESSAGES || it == Routes.COMPOSE }</ID>
     <ID>MaxLineLength:AppNav.kt:fun</ID>
     <ID>MaxLineLength:BridgeParser.kt:BridgeParser$private fun isE164: Boolean</ID>
@@ -327,11 +325,11 @@
     <ID>MaxLineLength:ScreeningPolicyTest.kt:ScreeningPolicyTest$val d = decide(settings = open.copy(allowList = setOf(e164), silenceMode = true, unknownCallerAction = UnknownCallerAction.BLOCK))</ID>
     <ID>MaxLineLength:ScreeningPolicyTest.kt:ScreeningPolicyTest$val d = decide(spam = true, settings = open.copy(silenceMode = true, unknownCallerAction = UnknownCallerAction.BLOCK))</ID>
     <ID>MaxLineLength:ScreeningVerdicts.kt:ScreeningVerdicts$/** The key for a call's raw number: E.164 when it normalizes, the trimmed text otherwise, [PRIVATE_KEY] when hidden. */</ID>
-    <ID>MaxLineLength:SettingsScreen.kt:)</ID>
-    <ID>MaxLineLength:SettingsScreen.kt:Intent(AndroidSettings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))</ID>
-    <ID>MaxLineLength:SettingsScreen.kt:Perms.Companion$fun granted</ID>
-    <ID>MaxLineLength:SettingsScreen.kt:context.getSystemService(RoleManager::class.java).createRequestRoleIntent(RoleManager.ROLE_SMS)</ID>
-    <ID>MaxLineLength:SettingsScreen.kt:if (!perms.sms) permLauncher.launch(arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS))</ID>
+    <ID>MaxLineLength:SettingsSections.kt:)</ID>
+    <ID>MaxLineLength:SettingsSections.kt:Intent(AndroidSettings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:${context.packageName}"))</ID>
+    <ID>MaxLineLength:SettingsSections.kt:Perms.Companion$fun granted</ID>
+    <ID>MaxLineLength:SettingsSections.kt:context.getSystemService(RoleManager::class.java).createRequestRoleIntent(RoleManager.ROLE_SMS)</ID>
+    <ID>MaxLineLength:SettingsSections.kt:if (!perms.sms) permLauncher.launch(arrayOf(Manifest.permission.RECEIVE_SMS, Manifest.permission.READ_SMS))</ID>
     <ID>MaxLineLength:SettingsStore.kt:SettingsStore$fun unlist</ID>
     <ID>MaxLineLength:SmsProvider.kt:SmsProvider$context.contentResolver.delete(Telephony.Sms.CONTENT_URI, "${Telephony.Sms._ID} = ?", arrayOf(id.toString()))</ID>
     <ID>MaxLineLength:SmsProvider.kt:SmsProvider$context.contentResolver.update(Telephony.Sms.CONTENT_URI, values, "${Telephony.Sms._ID} = ?$pending", arrayOf(id.toString()))</ID>
@@ -395,7 +393,7 @@
     <ID>TooManyFunctions:MessagesScreen.kt:com.callguard.ui.screens.MessagesScreen.kt</ID>
     <ID>TooManyFunctions:OverlayCard.kt:OverlayCard</ID>
     <ID>TooManyFunctions:Repositories.kt:com.callguard.data.Repositories.kt</ID>
-    <ID>TooManyFunctions:SettingsScreen.kt:com.callguard.ui.screens.SettingsScreen.kt</ID>
+    <ID>TooManyFunctions:SettingsSections.kt:com.callguard.ui.screens.SettingsSections.kt</ID>
     <ID>TooManyFunctions:SmsProvider.kt:SmsProvider</ID>
     <ID>UnusedParameter:CallNotifier.kt:CallNotifier$context: Context</ID>
   </CurrentIssues>

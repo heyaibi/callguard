@@ -61,7 +61,7 @@ import kotlinx.coroutines.withContext
 
 private enum class LstKind { ALLOW, BLOCK }
 
-/** The allow and block lists. Opened from Settings; [onBack] returns to it. */
+/** The allow and block lists. Opened from the Guard screen; [onBack] returns to it. */
 @Composable
 fun ListsScreen(onBack: () -> Unit = {}) {
     val graph = CallGuardApp.graph(LocalContext.current)

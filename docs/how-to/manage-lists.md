@@ -1,10 +1,10 @@
 # Manage the allow and block lists
 
-Numbers on the allow list always ring and notify, and numbers on the block list never do. You manage both from **Settings**, then **LISTS**, then **ALLOW / BLOCK LISTS**, and the change applies to the next call or text.
+Numbers on the allow list always ring and notify, and numbers on the block list never do. You manage both from the **Guard** tab: scroll to **LISTS**, then tap **ALLOW / BLOCK LISTS**. The change applies to the next call or text.
 
 ## Add a number
 
-1. Open **Settings** from the gear on the Guard screen, then tap **ALLOW / BLOCK LISTS**.
+1. Open the **Guard** tab and scroll to **LISTS**, then tap **ALLOW / BLOCK LISTS**.
 2. Pick **ALLOW** or **BLOCK** at the top. Each segment shows its count, and the line under it reads "ALWAYS RING & TEXT THROUGH" or "NEVER RING, NEVER TEXT".
 3. Tap the red round button next to the search field.
 4. In the **ADD NUMBER** dialog, pick the list and type the number or sender ID.

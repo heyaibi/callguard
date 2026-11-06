@@ -54,9 +54,9 @@ The classifier gives each text one kind. Each kind has a switch under TEXTS THAT
 | GOVERNMENT | GOVERNMENT | Tax, passport, and other official notices | Yes |
 | TRANSACTIONAL | SERVICE & BILLS | Service and bill notices from a registered sender ID or short code | Yes |
 | DELIVERY | DELIVERY | Order, courier, and tracking updates | Yes |
-| PERSONAL | PERSONAL | Texts from a phone number, when no other kind applies | Yes |
+| PERSONAL | PERSONAL | Texts from a phone number, when no other kind applies | No |
 | PROMOTIONAL | PROMOTIONS | Offers, deals, and advertising | No |
-| SCAM | SCAM | Likely fraud or phishing | No |
+| SCAM | (no switch) | Likely fraud or phishing. Always goes to the quiet inbox | No |
 
 A text that is neither a scam nor a promotion gets its specific kind first, such as OTP or DELIVERY. Otherwise the scam and promotion checks decide. A text that matches no kind is TRANSACTIONAL when it comes from a registered sender ID or short code, and PERSONAL otherwise.
 

@@ -20,7 +20,8 @@ data class Settings(
     // Both lists hold e164 numbers.
     val allowList: Set<String> = emptySet(),
     val blockList: Set<String> = emptySet(),
-    // Kinds of text that ring when the sender is not a contact. Contacts always ring.
+    // Kinds of text that ring when the sender is not a contact. Contacts always ring. PERSONAL is off by default, so a
+    // stranger's personal text follows the unknown-sender modes.
     val ringKinds: Set<SmsKind> =
         setOf(
             SmsKind.OTP,
@@ -28,7 +29,6 @@ data class Settings(
             SmsKind.GOVERNMENT,
             SmsKind.TRANSACTIONAL,
             SmsKind.DELIVERY,
-            SmsKind.PERSONAL,
         ),
     // Keyed by senderKey(): the e164 form for a number, the brand header for a DLT sender.
     val senderRing: Map<String, SenderRing> = emptyMap(),

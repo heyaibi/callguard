@@ -28,7 +28,7 @@ The rows live in `app/src/main/java/com/callguard/ui/screens/SettingsSections.kt
 | WHATSAPP BUSINESS | `bridgeApps["com.whatsapp.w4b"]` | `bridgeApps` | Entry in a string set, written `com.whatsapp.w4b=true` | `true` | The same for WhatsApp Business |
 | ALLOW / BLOCK LISTS | `allowList` | `allowList` | String set of E.164 numbers | empty | Numbers that always ring and notify |
 | ALLOW / BLOCK LISTS | `blockList` | `blockList` | String set of E.164 numbers | empty | Numbers that are always blocked |
-| TEXTS THAT RING | `ringKinds` | `ringKinds` | String set of kind names, such as `OTP` | OTP, FINANCE, GOVERNMENT, TRANSACTIONAL, DELIVERY and PERSONAL on; PROMOTIONAL and SCAM off | Texts of a kind that is on ring when the sender is not a contact |
+| TEXTS THAT RING | `ringKinds` | `ringKinds` | String set of kind names, such as `OTP` | OTP, FINANCE, GOVERNMENT, TRANSACTIONAL and DELIVERY on; PERSONAL and PROMOTIONAL off | Texts of a kind that is on ring when the sender is not a contact |
 | ALWAYS RING and MUTE SENDER | `senderRing` | `senderRing` | String set, each entry `key=RING` or `key=MUTE` | Empty | RING notifies every text from the sender. MUTE silences every text from it. |
 
 The two list rows have no switch. The row opens the lists screen, and numbers reach the lists from that screen, the conversation screen, the messages screen, and the incoming-call screen. The recents screen changes spam marks instead, which is a separate record.
@@ -91,9 +91,9 @@ The allow list is checked before every other rule except the block list, so an a
 
 Each kind of text has one switch under TEXTS THAT RING on the Guard tab. A switch that is on makes a text of that kind notify. This applies to a sender that is not a contact, when the text scores below 0.6 for spam and the number is not marked as spam. Texts from contacts notify too, unless the number is marked as spam. The app sorts each text into one kind when it arrives, and the switches do not change that sorting.
 
-A text that scores 0.6 or more for spam goes to the quiet inbox before its kind is checked. So PROMOTIONS changes only promotions that score below 0.6. SCAM has no effect, because a scam text always scores 0.7 or more.
+A text that scores 0.6 or more for spam goes to the quiet inbox before its kind is checked. So PROMOTIONS changes only promotions that score below 0.6. There is no SCAM switch. A scam text always scores 0.7 or more, so it always goes to the quiet inbox.
 
-PROMOTIONS and SCAM are off by default. The full order is in [How CallGuard decides which texts ring](../explanation/message-filtering.md).
+PERSONAL and PROMOTIONS are off by default. The full order is in [How CallGuard decides which texts ring](../explanation/message-filtering.md).
 
 ### ALWAYS RING and MUTE SENDER
 

@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - The bottom bar reads Keypad, Recents, Messages, Contacts, and Guard.
 - Settings now live on the Guard screen, below the protection status. The separate Settings screen is gone.
-- Texts from people who are not your contacts ring by default when they are one-time codes, bank, government, service, delivery, or personal texts. Promotions and scams do not ring by default.
+- Texts from people who are not your contacts ring by default when they are one-time codes, bank, government, service, or delivery texts. Personal texts and promotions from strangers do not ring by default. Scams never ring.
 
 ### Fixed
 

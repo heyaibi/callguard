@@ -197,10 +197,12 @@ class MessageFilterPolicyTest {
     }
 
     @Test
-    fun personalTextFromAStrangerRingsWithDefaultSettings() {
-        val d = decide(verdict = text(SmsKind.PERSONAL, 0.1), settings = Settings())
+    fun personalTextFromAStrangerIsSilencedWithDefaultKinds() {
+        val settings = open.copy(silenceMode = true, ringKinds = Settings().ringKinds)
 
-        assertEquals(MessageOutcome.NOTIFY, d)
+        val d = decide(verdict = text(SmsKind.PERSONAL, 0.1), settings = settings)
+
+        assertEquals(MessageOutcome.SILENCED, d)
     }
 
     @Test

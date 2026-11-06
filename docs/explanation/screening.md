@@ -1,6 +1,6 @@
 # Why CallGuard answers a call in 2.5 seconds and never twice
 
-A cellular call gives CallGuard one callback and a few seconds to decide between allowing, silencing, and blocking it. This page explains the ordered rule model, why the deadline fallback gives up accuracy rather than risk a late answer, and why contacts-only blocking only works because of how Android binds screening services.
+A cellular call gives CallGuard one callback and a few seconds to decide between allowing, silencing, and blocking it. This page explains the ordered rule model, why the deadline fallback gives up accuracy rather than risk a late answer, and why contacts-only blocking is the app's own rule rather than something the platform does for it.
 
 The decision rules themselves are product rules and live in [Call Screening](../blueprint/domains/call-screening.md). What follows is the reasoning behind the mechanism that applies them.
 
@@ -32,16 +32,14 @@ The answer that went out is the one that gets logged, so a call handled by the f
 
 ## Why contacts-only blocking works at all
 
-Android binds a third-party screening service only for calls that are not from a contact. The platform's contact check runs before CallGuard sees the call, so the calls that reach `onScreenCall` are already the ones the user might not know.
+Android binds a third-party screening service for calls from contacts as well. Confirmed on an API 36 device with CallGuard holding `ROLE_CALL_SCREENING`: a call from a saved contact was bound to `CallGuardScreeningService` and screened, while Telecom's own record for that call carried `mIsInContacts=true`. The calls that reach `onScreenCall` are therefore all of them, not a set the platform has already filtered down to strangers.
 
-That is what makes the contacts-only rule effective without CallGuard having to be right about every contact. The rule acts on the calls the platform forwards, and the phonebook is consulted again at decision time through `AppGraph.isInContacts`, a single `PhoneLookup` query.
+The contact check is the app's own, done at decision time. `ScreeningPolicy.decide` is handed `graph.isInContacts(number)` as a plain Boolean and applies `contactsOnly` itself, so the rule blocks a number outside the contacts and allows one inside them. That is what makes contacts-only both accurate and effective: contacts ring because no rule ever blocks a contact, and non-contacts are blocked because the app looked, not because the platform skipped them.
 
-Two consequences follow from the same platform behavior:
+Two consequences follow:
 
 - Without `READ_CONTACTS`, `isInContacts` is always false, so contacts only would block every call that reaches screening. `AppGraph.effectiveSettings()` clears `contactsOnly` in that state, which keeps the policy pure and moves the permission question out of the decision.
-- With the dialer role held, calls from contacts reach `CallGuardInCallService` and never get a screening verdict. `CallManager.logUnscreened` writes their log entry when Telecom removes the call, so the log stays complete even though those calls were never screened.
-
-The platform's exclusion of contact calls from screening is behavior of this Android build and has not been re-verified on a device for this version of the app.
+- With the dialer role held, `CallGuardInCallService` receives every call, contacts included. That changes who draws the call, not who screens it: a contact's call is screened and logged like any other, and `CallManager.logUnscreened` is left for calls that end without a screening verdict.
 
 ## Why the verdict is stored in memory
 

@@ -75,7 +75,7 @@ Roles come from `android.app.role.RoleManager`. The user grants each one from a 
 
 ### What the dialer role changes
 
-The in-call service receives every call on the device, contacts included. Screening is unaffected: `CallGuardScreeningService` is bound for the calls Telecom forwards to screening, which excludes calls from contacts. A contact's call therefore reaches the log through `CallManager.logUnscreened` with no screening verdict, and rings normally.
+The in-call service receives every call on the device, contacts included. Screening is unaffected: `CallGuardScreeningService` is bound for the calls Telecom forwards to screening, and calls from contacts are among them. Confirmed on API 36: a call from a saved contact was screened while Telecom's record for that call carried `mIsInContacts=true`. A contact's call is therefore screened and logged like any other, and `CallManager.logUnscreened` is left for calls that end without a screening verdict.
 
 While the role is held, `CallerIdNotifier` posts no card for answered calls, because the in-call screen already shows the caller. Blocked-call notices and log entries are unchanged.
 

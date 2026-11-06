@@ -53,7 +53,7 @@ Texts use a different order:
 
 The rule is on by default, and it cannot work without `READ_CONTACTS`. While the permission is missing, the app drops the rule before deciding, so a call is never blocked by a check it cannot run, and the row shows a **GRANT CONTACTS** pill. Tap the pill to grant.
 
-Android forwards a call to a third-party screening service only when the caller is not in your contacts, so contacts' calls are never screened and always ring.<!-- VERIFY: platform behavior taken from docs/explanation/screening.md; it has not been re-tested on a device. -->
+Android forwards calls from your contacts to a third-party screening service as well, so the platform does not filter them out before the app sees them. Confirmed on API 36 with CallGuard holding `ROLE_CALL_SCREENING`: a call from a saved contact was bound to `CallGuardScreeningService` and screened, and Telecom's own record for that call carried `mIsInContacts=true`. Contacts ring because the contacts-only rule never blocks a contact, not because the platform skips them.
 
 ## When the answer arrives late
 

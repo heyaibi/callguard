@@ -1,6 +1,11 @@
 package com.callguard.prefs
 
+import com.callguard.spam.classify.SmsKind
+
 enum class UnknownCallerAction { SILENCE, BLOCK }
+
+/** A per-sender override. RING notifies with sound. MUTE silences the text but keeps it in the inbox. */
+enum class SenderRing { RING, MUTE }
 
 data class Settings(
     val contactsOnly: Boolean = true,
@@ -15,4 +20,16 @@ data class Settings(
     // Both lists hold e164 numbers.
     val allowList: Set<String> = emptySet(),
     val blockList: Set<String> = emptySet(),
+    // Kinds of text that ring when the sender is not a contact. Contacts always ring.
+    val ringKinds: Set<SmsKind> =
+        setOf(
+            SmsKind.OTP,
+            SmsKind.FINANCE,
+            SmsKind.GOVERNMENT,
+            SmsKind.TRANSACTIONAL,
+            SmsKind.DELIVERY,
+            SmsKind.PERSONAL,
+        ),
+    // Keyed by senderKey(): the e164 form for a number, the brand header for a DLT sender.
+    val senderRing: Map<String, SenderRing> = emptyMap(),
 )

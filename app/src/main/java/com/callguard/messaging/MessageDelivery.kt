@@ -4,21 +4,29 @@ package com.callguard.messaging
 enum class AlertMode { SOUND, SILENT, NONE }
 
 /** NOTIFY sounds, SILENCED posts silently, and quiet or blocked texts stay out of the shade. */
-fun alertModeFor(outcome: MessageOutcome): AlertMode = when (outcome) {
-    MessageOutcome.NOTIFY -> AlertMode.SOUND
-    MessageOutcome.SILENCED -> AlertMode.SILENT
-    MessageOutcome.QUIET_INBOX, MessageOutcome.BLOCKED -> AlertMode.NONE
-}
+fun alertModeFor(outcome: MessageOutcome): AlertMode =
+    when (outcome) {
+        MessageOutcome.NOTIFY -> AlertMode.SOUND
+        MessageOutcome.SILENCED -> AlertMode.SILENT
+        MessageOutcome.QUIET_INBOX, MessageOutcome.BLOCKED -> AlertMode.NONE
+    }
 
 /** Quiet and blocked texts are stored already read, so they never show as unread. */
-fun isReadOnArrival(outcome: MessageOutcome): Boolean =
-    outcome == MessageOutcome.QUIET_INBOX || outcome == MessageOutcome.BLOCKED
+fun isReadOnArrival(outcome: MessageOutcome): Boolean = outcome == MessageOutcome.QUIET_INBOX || outcome == MessageOutcome.BLOCKED
 
 /** One SMS part as the telephony framework reports it. */
-data class SmsPart(val address: String, val body: String, val timestamp: Long)
+data class SmsPart(
+    val address: String,
+    val body: String,
+    val timestamp: Long,
+)
 
 /** One message after its parts are joined. */
-data class InboundSms(val address: String, val body: String, val timestamp: Long)
+data class InboundSms(
+    val address: String,
+    val body: String,
+    val timestamp: Long,
+)
 
 /**
  * Joins consecutive parts from the same sender into one message, in arrival order.

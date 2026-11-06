@@ -7,17 +7,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.provider.Settings as AndroidSettings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.Icon
-import com.callguard.ui.components.CgConfirmDialog
-import com.callguard.ui.components.RoundKey
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,6 +32,10 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -67,6 +64,8 @@ import com.callguard.identity.hasReadContacts
 import com.callguard.messaging.isDefaultSmsApp
 import com.callguard.prefs.Settings
 import com.callguard.prefs.UnknownCallerAction
+import com.callguard.ui.components.CgConfirmDialog
+import com.callguard.ui.components.RoundKey
 import com.callguard.ui.theme.CgColors
 import com.callguard.ui.theme.CgType
 import kotlinx.coroutines.Dispatchers
@@ -75,6 +74,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import android.provider.Settings as AndroidSettings
 
 private enum class CfgTone { OK, BAD, OFF }
 
@@ -113,7 +113,10 @@ private data class Perms(
 
 /** Settings, opened from the Guard header. [onOpenLists] opens the allow and block lists. */
 @Composable
-fun SettingsScreen(onBack: () -> Unit = {}, onOpenLists: () -> Unit = {}) {
+fun SettingsScreen(
+    onBack: () -> Unit = {},
+    onOpenLists: () -> Unit = {},
+) {
     val context = LocalContext.current
     val graph = CallGuardApp.graph(context)
     val store = graph.settingsStore
@@ -123,12 +126,14 @@ fun SettingsScreen(onBack: () -> Unit = {}, onOpenLists: () -> Unit = {}) {
     var confirm by remember { mutableStateOf<CfgReset?>(null) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { perms = Perms.read(context) }
-    val permLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        perms = Perms.read(context)
-    }
-    val roleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        perms = Perms.read(context)
-    }
+    val permLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            perms = Perms.read(context)
+        }
+    val roleLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            perms = Perms.read(context)
+        }
     val grantContacts: @Composable () -> Unit = {
         CfgStatusPill(
             text = "GRANT CONTACTS",
@@ -277,7 +282,8 @@ fun SettingsScreen(onBack: () -> Unit = {}, onOpenLists: () -> Unit = {}) {
                 onClick = {
                     if (!perms.role) {
                         roleLauncher.launch(
-                            context.getSystemService(RoleManager::class.java)
+                            context
+                                .getSystemService(RoleManager::class.java)
                                 .createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING),
                         )
                     }
@@ -359,11 +365,12 @@ fun SettingsScreen(onBack: () -> Unit = {}, onOpenLists: () -> Unit = {}) {
         val clear = action == CfgReset.CLEAR
         CgConfirmDialog(
             title = if (clear) "CLEAR CACHE & LOGS?" else "RESET ALL?",
-            body = if (clear) {
-                "CALL AND MESSAGE LOGS AND LEARNED NAMES GO. YOUR LISTS, SPAM MARKS AND SETTINGS STAY."
-            } else {
-                "LISTS AND SETTINGS GO BACK TO DEFAULTS. LOGS AND LEARNED NAMES ARE CLEARED. YOUR SPAM MARKS STAY."
-            },
+            body =
+                if (clear) {
+                    "CALL AND MESSAGE LOGS AND LEARNED NAMES GO. YOUR LISTS, SPAM MARKS AND SETTINGS STAY."
+                } else {
+                    "LISTS AND SETTINGS GO BACK TO DEFAULTS. LOGS AND LEARNED NAMES ARE CLEARED. YOUR SPAM MARKS STAY."
+                },
             confirmLabel = if (clear) "CLEAR" else "RESET",
             onConfirm = {
                 confirm = null
@@ -380,40 +387,51 @@ fun SettingsScreen(onBack: () -> Unit = {}, onOpenLists: () -> Unit = {}) {
 }
 
 /** Writes settings and every stored record to one JSON file in the app's files dir, then opens the share sheet. */
-private suspend fun exportAndShare(context: Context, graph: AppGraph, settings: Settings) {
-    val uri = withContext(Dispatchers.IO) {
-        val json = JSONObject()
-            .put("settings", settings.toJson())
-            .put("data", JSONObject(graph.repos.exportJson()))
-        val dir = context.getExternalFilesDir(null) ?: context.filesDir
-        val file = File(dir, "callguard-export-${System.currentTimeMillis()}.json")
-        file.writeText(json.toString(2))
-        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-    }
-    val send = Intent(Intent.ACTION_SEND)
-        .setType("application/json")
-        .putExtra(Intent.EXTRA_STREAM, uri)
-        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+private suspend fun exportAndShare(
+    context: Context,
+    graph: AppGraph,
+    settings: Settings,
+) {
+    val uri =
+        withContext(Dispatchers.IO) {
+            val json =
+                JSONObject()
+                    .put("settings", settings.toJson())
+                    .put("data", JSONObject(graph.repos.exportJson()))
+            val dir = context.getExternalFilesDir(null) ?: context.filesDir
+            val file = File(dir, "callguard-export-${System.currentTimeMillis()}.json")
+            file.writeText(json.toString(2))
+            FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+        }
+    val send =
+        Intent(Intent.ACTION_SEND)
+            .setType("application/json")
+            .putExtra(Intent.EXTRA_STREAM, uri)
+            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     context.startActivity(Intent.createChooser(send, null))
 }
 
-private fun Settings.toJson(): JSONObject = JSONObject()
-    .put("contactsOnly", contactsOnly)
-    .put("silenceMode", silenceMode)
-    .put("ignoreMode", ignoreMode)
-    .put("unknownCallerAction", unknownCallerAction.name)
-    .put("blockSpam", blockSpam)
-    .put("showCardForUnknown", showCardForUnknown)
-    .put("onlineLookup", onlineLookup)
-    .put("googleContacts", googleContacts)
-    .put("bridgeApps", JSONObject(bridgeApps))
-    .put("allowList", JSONArray(allowList.toList()))
-    .put("blockList", JSONArray(blockList.toList()))
+private fun Settings.toJson(): JSONObject =
+    JSONObject()
+        .put("contactsOnly", contactsOnly)
+        .put("silenceMode", silenceMode)
+        .put("ignoreMode", ignoreMode)
+        .put("unknownCallerAction", unknownCallerAction.name)
+        .put("blockSpam", blockSpam)
+        .put("showCardForUnknown", showCardForUnknown)
+        .put("onlineLookup", onlineLookup)
+        .put("googleContacts", googleContacts)
+        .put("bridgeApps", JSONObject(bridgeApps))
+        .put("allowList", JSONArray(allowList.toList()))
+        .put("blockList", JSONArray(blockList.toList()))
 
 private val CfgSub = CgType.RowSub.copy(fontSize = 10.sp, letterSpacing = 0.8.sp)
 
 @Composable
-private fun CfgSection(title: String, content: @Composable ColumnScope.() -> Unit) {
+private fun CfgSection(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Column(Modifier.fillMaxWidth().padding(top = 30.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = title, style = CgType.Label, color = CgColors.TextDim)
@@ -461,7 +479,12 @@ private fun CfgRow(
 }
 
 @Composable
-private fun CfgSourceRow(index: Int, title: String, detail: String, trailing: @Composable () -> Unit) {
+private fun CfgSourceRow(
+    index: Int,
+    title: String,
+    detail: String,
+    trailing: @Composable () -> Unit,
+) {
     Column {
         Row(
             Modifier.fillMaxWidth().padding(vertical = 14.dp),
@@ -499,7 +522,10 @@ private fun CfgDragHandle() {
 }
 
 @Composable
-private fun CfgSwitch(checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun CfgSwitch(
+    checked: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
     val track by animateColorAsState(if (checked) CgColors.Red else CgColors.SurfaceHigh)
     val thumbX by animateDpAsState(if (checked) 22.dp else 2.dp)
     Box(
@@ -528,13 +554,18 @@ private fun CfgGrantPill(granted: Boolean) {
 }
 
 @Composable
-private fun CfgStatusPill(text: String, tone: CfgTone, onClick: (() -> Unit)? = null) {
+private fun CfgStatusPill(
+    text: String,
+    tone: CfgTone,
+    onClick: (() -> Unit)? = null,
+) {
     val bg = if (tone == CfgTone.BAD) CgColors.Red else Color.Transparent
-    val edge = when (tone) {
-        CfgTone.OK -> CgColors.White
-        CfgTone.BAD -> CgColors.Red
-        CfgTone.OFF -> CgColors.TextFaint
-    }
+    val edge =
+        when (tone) {
+            CfgTone.OK -> CgColors.White
+            CfgTone.BAD -> CgColors.Red
+            CfgTone.OFF -> CgColors.TextFaint
+        }
     val fg = if (tone == CfgTone.OFF) CgColors.TextDim else CgColors.White
     Box(
         Modifier
@@ -553,7 +584,10 @@ private fun CfgStatusPill(text: String, tone: CfgTone, onClick: (() -> Unit)? = 
 }
 
 @Composable
-private fun CfgUnknownSegmented(selected: UnknownCallerAction, onSelect: (UnknownCallerAction) -> Unit) {
+private fun CfgUnknownSegmented(
+    selected: UnknownCallerAction,
+    onSelect: (UnknownCallerAction) -> Unit,
+) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -630,4 +664,3 @@ private fun CfgActionPill(
         )
     }
 }
-

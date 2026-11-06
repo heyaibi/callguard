@@ -41,7 +41,10 @@ object OverlayCard {
     private val TEXT_DIM = Color.parseColor("#9A9A9E")
     private val RED = Color.parseColor("#D71921")
 
-    private class Shown(val context: Context, val root: View)
+    private class Shown(
+        val context: Context,
+        val root: View,
+    )
 
     private val main = Handler(Looper.getMainLooper())
     private val autoDismiss = Runnable { dismiss(animate = true) }
@@ -51,7 +54,13 @@ object OverlayCard {
     fun canShow(context: Context): Boolean = android.provider.Settings.canDrawOverlays(context)
 
     /** Shows the card for six seconds, or until it is tapped. Safe to call from any thread. */
-    fun show(context: Context, name: String, number: String, subtitle: String, spam: Boolean = false) {
+    fun show(
+        context: Context,
+        name: String,
+        number: String,
+        subtitle: String,
+        spam: Boolean = false,
+    ) {
         val app = context.applicationContext
         onMain {
             if (!canShow(app)) {
@@ -60,21 +69,27 @@ object OverlayCard {
             }
             dismiss(animate = false)
             val card = buildCard(app, name, number, subtitle, spam)
-            val root = FrameLayout(app).apply {
-                val gutter = app.dp(16f)
-                setPadding(gutter, 0, gutter, 0)
-                addView(card, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT))
-            }
+            val root =
+                FrameLayout(app).apply {
+                    val gutter = app.dp(16f)
+                    setPadding(gutter, 0, gutter, 0)
+                    addView(card, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT))
+                }
             card.setOnClickListener { if (shown?.root === root) dismiss(animate = true) }
             try {
                 app.getSystemService(WindowManager::class.java).addView(root, layoutParams(app))
-            } catch (e: RuntimeException) {   // the window was refused, for example BadTokenException
+            } catch (e: RuntimeException) {
+                // the window was refused, for example BadTokenException
                 notifyFallback(app, name, number, subtitle, spam)
                 return@onMain
             }
             shown = Shown(app, root)
             root.alpha = 0f
-            root.animate().alpha(1f).setDuration(FADE_MILLIS).start()
+            root
+                .animate()
+                .alpha(1f)
+                .setDuration(FADE_MILLIS)
+                .start()
             main.postDelayed(autoDismiss, DISMISS_MILLIS)
         }
     }
@@ -84,7 +99,12 @@ object OverlayCard {
         val current = shown ?: return
         shown = null
         if (animate) {
-            current.root.animate().alpha(0f).setDuration(FADE_MILLIS).withEndAction { removeRoot(current) }.start()
+            current.root
+                .animate()
+                .alpha(0f)
+                .setDuration(FADE_MILLIS)
+                .withEndAction { removeRoot(current) }
+                .start()
         } else {
             removeRoot(current)
         }
@@ -98,67 +118,77 @@ object OverlayCard {
         }
     }
 
-    private fun layoutParams(context: Context): WindowManager.LayoutParams = WindowManager.LayoutParams(
-        WindowManager.LayoutParams.MATCH_PARENT,
-        WindowManager.LayoutParams.WRAP_CONTENT,
-        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-        PixelFormat.TRANSLUCENT,
-    ).apply {
-        gravity = Gravity.TOP
-        y = statusBarHeight(context) + context.dp(8f)
-        title = "CallGuardCard"
-    }
+    private fun layoutParams(context: Context): WindowManager.LayoutParams =
+        WindowManager
+            .LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                PixelFormat.TRANSLUCENT,
+            ).apply {
+                gravity = Gravity.TOP
+                y = statusBarHeight(context) + context.dp(8f)
+                title = "CallGuardCard"
+            }
 
-    private fun buildCard(context: Context, name: String, number: String, subtitle: String, spam: Boolean): LinearLayout {
+    private fun buildCard(
+        context: Context,
+        name: String,
+        number: String,
+        subtitle: String,
+        spam: Boolean,
+    ): LinearLayout {
         val res = context.resources
 
-        val avatar = FrameLayout(context).apply {
-            background = panel(context, SURFACE_HIGH, radiusDp = 17f, strokeDp = 1.5f, strokeColor = WHITE)
-            addView(
-                TextView(context).apply {
-                    text = initialsOf(name).uppercase()
-                    typeface = res.getFont(R.font.doto_black)
-                    textSize = 13f
-                    letterSpacing = 0.08f
-                    setTextColor(WHITE)
-                    gravity = Gravity.CENTER
-                    includeFontPadding = false
-                },
-                FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT),
-            )
-        }
+        val avatar =
+            FrameLayout(context).apply {
+                background = panel(context, SURFACE_HIGH, radiusDp = 17f, strokeDp = 1.5f, strokeColor = WHITE)
+                addView(
+                    TextView(context).apply {
+                        text = initialsOf(name).uppercase()
+                        typeface = res.getFont(R.font.doto_black)
+                        textSize = 13f
+                        letterSpacing = 0.08f
+                        setTextColor(WHITE)
+                        gravity = Gravity.CENTER
+                        includeFontPadding = false
+                    },
+                    FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT),
+                )
+            }
 
-        val labels = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            addView(
-                TextView(context).apply {
-                    text = name.uppercase()
-                    typeface = res.getFont(R.font.doto_black)
-                    textSize = 18f
-                    letterSpacing = 0.055f
-                    setTextColor(WHITE)
-                    isSingleLine = true
-                    ellipsize = TextUtils.TruncateAt.END
-                    includeFontPadding = false
-                },
-                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT),
-            )
-            addView(
-                TextView(context).apply {
-                    text = listOf(subtitle.uppercase(), displayNumber(number)).filter { it.isNotBlank() }.joinToString(" · ")
-                    typeface = res.getFont(R.font.space_mono_regular)
-                    textSize = 11f
-                    letterSpacing = 0.14f
-                    setTextColor(TEXT_DIM)
-                    isSingleLine = true
-                    ellipsize = TextUtils.TruncateAt.END
-                },
-                LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                    topMargin = context.dp(4f)
-                },
-            )
-        }
+        val labels =
+            LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(
+                    TextView(context).apply {
+                        text = name.uppercase()
+                        typeface = res.getFont(R.font.doto_black)
+                        textSize = 18f
+                        letterSpacing = 0.055f
+                        setTextColor(WHITE)
+                        isSingleLine = true
+                        ellipsize = TextUtils.TruncateAt.END
+                        includeFontPadding = false
+                    },
+                    LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT),
+                )
+                addView(
+                    TextView(context).apply {
+                        text = listOf(subtitle.uppercase(), displayNumber(number)).filter { it.isNotBlank() }.joinToString(" · ")
+                        typeface = res.getFont(R.font.space_mono_regular)
+                        textSize = 11f
+                        letterSpacing = 0.14f
+                        setTextColor(TEXT_DIM)
+                        isSingleLine = true
+                        ellipsize = TextUtils.TruncateAt.END
+                    },
+                    LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                        topMargin = context.dp(4f)
+                    },
+                )
+            }
 
         return LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -185,12 +215,13 @@ object OverlayCard {
         radiusDp: Float,
         strokeDp: Float = 0f,
         strokeColor: Int = Color.TRANSPARENT,
-    ): GradientDrawable = GradientDrawable().apply {
-        shape = GradientDrawable.RECTANGLE
-        cornerRadius = context.dpF(radiusDp)
-        setColor(fill)
-        if (strokeDp > 0f) setStroke(context.dpF(strokeDp).roundToInt().coerceAtLeast(1), strokeColor)
-    }
+    ): GradientDrawable =
+        GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = context.dpF(radiusDp)
+            setColor(fill)
+            if (strokeDp > 0f) setStroke(context.dpF(strokeDp).roundToInt().coerceAtLeast(1), strokeColor)
+        }
 
     private fun statusBarHeight(context: Context): Int {
         val id = context.resources.getIdentifier("status_bar_height", "dimen", "android")
@@ -198,7 +229,13 @@ object OverlayCard {
     }
 
     /** Heads-up notification used when the card cannot be drawn. The post is dropped when notifications are not allowed. */
-    private fun notifyFallback(context: Context, name: String, number: String, subtitle: String, spam: Boolean) {
+    private fun notifyFallback(
+        context: Context,
+        name: String,
+        number: String,
+        subtitle: String,
+        spam: Boolean,
+    ) {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         if (manager.getNotificationChannel(CHANNEL_ID) == null) {
             manager.createNotificationChannel(
@@ -206,19 +243,22 @@ object OverlayCard {
                     .apply { description = "Name cards for calls from other apps" },
             )
         }
-        val details = listOfNotNull(
-            if (spam) "LIKELY SPAM" else null,
-            subtitle.uppercase(),
-            displayNumber(number),
-        ).joinToString(" · ")
-        val notification = Notification.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.sym_call_incoming)
-            .setContentTitle(name)
-            .setContentText(details)
-            .setCategory(Notification.CATEGORY_CALL)
-            .setAutoCancel(true)
-            .setTimeoutAfter(DISMISS_MILLIS)
-            .build()
+        val details =
+            listOfNotNull(
+                if (spam) "LIKELY SPAM" else null,
+                subtitle.uppercase(),
+                displayNumber(number),
+            ).joinToString(" · ")
+        val notification =
+            Notification
+                .Builder(context, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.sym_call_incoming)
+                .setContentTitle(name)
+                .setContentText(details)
+                .setCategory(Notification.CATEGORY_CALL)
+                .setAutoCancel(true)
+                .setTimeoutAfter(DISMISS_MILLIS)
+                .build()
         manager.notify(NOTIFICATION_ID, notification)
     }
 
@@ -226,8 +266,7 @@ object OverlayCard {
         if (Looper.myLooper() == Looper.getMainLooper()) block() else main.post { block() }
     }
 
-    private fun Context.dpF(value: Float): Float =
-        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, resources.displayMetrics)
+    private fun Context.dpF(value: Float): Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, resources.displayMetrics)
 
     private fun Context.dp(value: Float): Int = dpF(value).roundToInt()
 }

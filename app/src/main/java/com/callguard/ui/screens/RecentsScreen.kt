@@ -69,27 +69,34 @@ import com.callguard.ui.label
 import com.callguard.ui.rememberPlaceCall
 import com.callguard.ui.shareText
 import com.callguard.ui.startSafely
-import com.callguard.ui.timeLabel
 import com.callguard.ui.theme.CgColors
 import com.callguard.ui.theme.CgType
+import com.callguard.ui.timeLabel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Locale
 
-private enum class RecentFilter(val label: String) {
+private enum class RecentFilter(
+    val label: String,
+) {
     ALL("All"),
     SILENCED("Silenced"),
     BLOCKED("Blocked"),
-    SPAM("Spam");
+    SPAM("Spam"),
+    ;
 
-    fun keeps(call: RecentCall, spam: Boolean): Boolean = when (this) {
-        ALL -> true
-        SILENCED -> call.guard?.outcome == "SILENCED"
-        BLOCKED -> call.kind == CallKind.BLOCKED || call.guard?.outcome == "BLOCKED"
-        SPAM -> spam
-    }
+    fun keeps(
+        call: RecentCall,
+        spam: Boolean,
+    ): Boolean =
+        when (this) {
+            ALL -> true
+            SILENCED -> call.guard?.outcome == "SILENCED"
+            BLOCKED -> call.kind == CallKind.BLOCKED || call.guard?.outcome == "BLOCKED"
+            SPAM -> spam
+        }
 }
 
 /**
@@ -104,7 +111,9 @@ fun RecentsScreen(
 ) {
     val context = LocalContext.current
     val graph = CallGuardApp.graph(context)
-    val guardCalls by graph.repos.calls.observe().collectAsStateWithLifecycle()
+    val guardCalls by graph.repos.calls
+        .observe()
+        .collectAsStateWithLifecycle()
     val placeCall = rememberPlaceCall()
     var filter by remember { mutableStateOf(RecentFilter.ALL) }
     var sheetCall by remember { mutableStateOf<RecentCall?>(null) }
@@ -112,21 +121,28 @@ fun RecentsScreen(
     var spamRevision by remember { mutableIntStateOf(0) }
     var hasLog by remember { mutableStateOf(hasReadCallLog(context)) }
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { hasLog = hasReadCallLog(context) }
-    val logPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        hasLog = granted
-    }
+    val logPermission =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            hasLog = granted
+        }
 
     val recents by produceState(emptyList<RecentCall>(), guardCalls, hasLog) {
         value = withContext(Dispatchers.IO) { mergeRecentCalls(readSystemCalls(context), guardCalls) }
     }
     // Spam is decided by the policy, which reads the database, so it is computed off the main thread.
     val spamByNumber by produceState(emptyMap<String, Boolean>(), recents, spamRevision) {
-        value = withContext(Dispatchers.IO) {
-            recents.map { it.number }.distinct().associateWith { graph.spamPolicy.assess(PhoneNumber(it)).isSpam }
-        }
+        value =
+            withContext(Dispatchers.IO) {
+                recents.map { it.number }.distinct().associateWith { graph.spamPolicy.assess(PhoneNumber(it)).isSpam }
+            }
     }
 
-    val startOfDay = LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    val startOfDay =
+        LocalDate
+            .now()
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
     val today = recents.filter { it.timestamp >= startOfDay }
     val todayBlocked = today.count { it.kind == CallKind.BLOCKED || it.guard?.outcome == "BLOCKED" }
     val visible = recents.filter { filter.keeps(it, spamByNumber[it.number] == true) }
@@ -160,9 +176,10 @@ fun RecentsScreen(
             }
             if (!hasLog) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = CgGutter, vertical = 8.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = CgGutter, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
@@ -172,9 +189,10 @@ fun RecentsScreen(
             }
 
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
                 contentPadding = PaddingValues(bottom = 16.dp),
             ) {
                 groups.forEach { (day, rows) ->
@@ -213,42 +231,43 @@ fun RecentsScreen(
         SheetOverlay(open = sheetOpen, onDismiss = { sheetOpen = false }) {
             sheetCall?.let { call ->
                 val n = PhoneNumbers.normalize(call.number)
-                val onDelete: (() -> Unit)? = call.guard?.let { entry ->
-                    {
-                        graph.repos.calls.delete(entry.id)
-                        sheetOpen = false
+                val onDelete: (() -> Unit)? =
+                    call.guard?.let { entry ->
+                        {
+                            graph.repos.calls.delete(entry.id)
+                            sheetOpen = false
+                        }
                     }
-                }
                 ActionSheet(
                     name = call.name,
                     number = displayNumber(call.number),
                     initials = initialsOf(call.name),
-                    actions = listOf(
-                        SheetAction("Call", Icons.Filled.Call) {
-                            sheetOpen = false
-                            placeCall(call.number)
-                        },
-                        SheetAction("Text", Icons.AutoMirrored.Filled.Message) {
-                            sheetOpen = false
-                            onOpenThread(n?.e164 ?: call.number)
-
-                        },
-                        SheetAction("Mark spam", Icons.Filled.Report) {
-                            sheetOpen = false
-                            n?.let {
-                                graph.spamPolicy.mark(it, true)
-                                spamRevision++
-                            }
-                        },
-                        SheetAction("Block", Icons.Filled.Block) {
-                            sheetOpen = false
-                            n?.let(graph.settingsStore::block)
-                        },
-                        SheetAction("Allow", Icons.Filled.Check) {
-                            sheetOpen = false
-                            n?.let(graph.settingsStore::allow)
-                        },
-                    ),
+                    actions =
+                        listOf(
+                            SheetAction("Call", Icons.Filled.Call) {
+                                sheetOpen = false
+                                placeCall(call.number)
+                            },
+                            SheetAction("Text", Icons.AutoMirrored.Filled.Message) {
+                                sheetOpen = false
+                                onOpenThread(n?.e164 ?: call.number)
+                            },
+                            SheetAction("Mark spam", Icons.Filled.Report) {
+                                sheetOpen = false
+                                n?.let {
+                                    graph.spamPolicy.mark(it, true)
+                                    spamRevision++
+                                }
+                            },
+                            SheetAction("Block", Icons.Filled.Block) {
+                                sheetOpen = false
+                                n?.let(graph.settingsStore::block)
+                            },
+                            SheetAction("Allow", Icons.Filled.Check) {
+                                sheetOpen = false
+                                n?.let(graph.settingsStore::allow)
+                            },
+                        ),
                     onDelete = onDelete,
                     onShare = {
                         sheetOpen = false
@@ -293,7 +312,10 @@ private fun RecentRow(
 
 /** The tag for a row: spam, then CallGuard's outcome, then the phone's call type. */
 @Composable
-private fun CallTag(call: RecentCall, spam: Boolean) {
+private fun CallTag(
+    call: RecentCall,
+    spam: Boolean,
+) {
     val guard = call.guard
     when {
         spam -> RedPill("Spam", filled = false)

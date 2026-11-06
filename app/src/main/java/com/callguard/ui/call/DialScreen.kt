@@ -49,11 +49,12 @@ fun DialScreen(
     onSetDefault: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(CgColors.Black)
-            .systemBarsPadding()
-            .padding(horizontal = 24.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(CgColors.Black)
+                .systemBarsPadding()
+                .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(16.dp))
@@ -75,13 +76,14 @@ fun DialScreen(
                 modifier = Modifier.weight(1f),
             )
             Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .alpha(if (number.isEmpty()) 0.35f else 1f)
-                    .clip(CircleShape)
-                    .clickable(enabled = number.isNotEmpty(), role = Role.Button) {
-                        onNumberChange(number.dropLast(1))
-                    },
+                modifier =
+                    Modifier
+                        .size(48.dp)
+                        .alpha(if (number.isEmpty()) 0.35f else 1f)
+                        .clip(CircleShape)
+                        .clickable(enabled = number.isNotEmpty(), role = Role.Button) {
+                            onNumberChange(number.dropLast(1))
+                        },
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -109,12 +111,13 @@ fun DialScreen(
         )
         Spacer(Modifier.height(24.dp))
         Box(
-            modifier = Modifier
-                .size(84.dp)
-                .alpha(if (number.isEmpty()) 0.35f else 1f)
-                .clip(CircleShape)
-                .background(CgColors.White)
-                .clickable(enabled = number.isNotEmpty(), role = Role.Button) { onCall(number) },
+            modifier =
+                Modifier
+                    .size(84.dp)
+                    .alpha(if (number.isEmpty()) 0.35f else 1f)
+                    .clip(CircleShape)
+                    .background(CgColors.White)
+                    .clickable(enabled = number.isNotEmpty(), role = Role.Button) { onCall(number) },
             contentAlignment = Alignment.Center,
         ) {
             Icon(

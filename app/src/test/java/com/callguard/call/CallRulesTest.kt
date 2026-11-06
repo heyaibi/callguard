@@ -9,7 +9,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CallRulesTest {
-
     private val normal = AudioManager.RINGER_MODE_NORMAL
     private val vibrate = AudioManager.RINGER_MODE_VIBRATE
     private val silent = AudioManager.RINGER_MODE_SILENT

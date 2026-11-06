@@ -6,7 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class SettingsStore(context: Context) {
+class SettingsStore(
+    context: Context,
+) {
     private val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
     private val state = MutableStateFlow(load())
     val settings: StateFlow<Settings> = state.asStateFlow()
@@ -36,25 +38,31 @@ class SettingsStore(context: Context) {
             contactsOnly = prefs.getBoolean(CONTACTS_ONLY, d.contactsOnly),
             silenceMode = prefs.getBoolean(SILENCE, d.silenceMode),
             ignoreMode = prefs.getBoolean(IGNORE, d.ignoreMode),
-            unknownCallerAction = prefs.getString(UNKNOWN_ACTION, null)
-                ?.let { runCatching { UnknownCallerAction.valueOf(it) }.getOrNull() } ?: d.unknownCallerAction,
+            unknownCallerAction =
+                prefs
+                    .getString(UNKNOWN_ACTION, null)
+                    ?.let { runCatching { UnknownCallerAction.valueOf(it) }.getOrNull() } ?: d.unknownCallerAction,
             blockSpam = prefs.getBoolean(BLOCK_SPAM, d.blockSpam),
             showCardForUnknown = prefs.getBoolean(SHOW_CARD, d.showCardForUnknown),
             onlineLookup = prefs.getBoolean(ONLINE, d.onlineLookup),
             googleContacts = prefs.getBoolean(GOOGLE, d.googleContacts),
-            bridgeApps = if (prefs.contains(BRIDGE)) {
-                prefs.getStringSet(BRIDGE, null).orEmpty()
-                    .associate { it.substringBefore('=') to it.substringAfter('=').toBoolean() }
-            } else {
-                d.bridgeApps
-            },
+            bridgeApps =
+                if (prefs.contains(BRIDGE)) {
+                    prefs
+                        .getStringSet(BRIDGE, null)
+                        .orEmpty()
+                        .associate { it.substringBefore('=') to it.substringAfter('=').toBoolean() }
+                } else {
+                    d.bridgeApps
+                },
             allowList = prefs.getStringSet(ALLOW, null).orEmpty().toSet(),
             blockList = prefs.getStringSet(BLOCK, null).orEmpty().toSet(),
         )
     }
 
     private fun save(s: Settings) {
-        prefs.edit()
+        prefs
+            .edit()
             .putBoolean(CONTACTS_ONLY, s.contactsOnly)
             .putBoolean(SILENCE, s.silenceMode)
             .putBoolean(IGNORE, s.ignoreMode)

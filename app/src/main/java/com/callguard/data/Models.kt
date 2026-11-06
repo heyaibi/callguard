@@ -26,6 +26,17 @@ data class MessageLogEntry(
     val timestamp: Long,
 )
 
-data class CacheEntry(val number: String, val name: String, val origin: String, val lastSeen: Long) // origin: call | sms | app:<pkg>
+data class CacheEntry(
+    val number: String,
+    val name: String,
+    val origin: String,
+    val lastSeen: Long,
+) // origin: call | sms | app:<pkg>
 
-data class ReputationEntry(val number: String, val score: Int, val isSpam: Boolean, val source: SpamSource, val updated: Long)
+data class ReputationEntry(
+    val number: String,
+    val score: Int,
+    val isSpam: Boolean,
+    val source: SpamSource,
+    val updated: Long,
+)

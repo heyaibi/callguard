@@ -14,8 +14,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -62,21 +62,28 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /** A resolved incoming number and its spam assessment, computed off the main thread. */
-private class LiveCaller(val result: ResolutionResult, val spam: SpamAssessment)
+private class LiveCaller(
+    val result: ResolutionResult,
+    val spam: SpamAssessment,
+)
 
 /**
  * With [number] null the screen shows the sample caller (tap the name to flip it to spam).
  * With a number it shows the resolved name, source, confidence and spam score; BLOCK and ALLOW write to the lists.
  */
 @Composable
-fun IncomingCallScreen(number: String? = null, onDismiss: () -> Unit) {
+fun IncomingCallScreen(
+    number: String? = null,
+    onDismiss: () -> Unit,
+) {
     val graph = CallGuardApp.graph(LocalContext.current)
     val live by produceState<LiveCaller?>(null, number) {
-        value = number?.let { raw ->
-            withContext(Dispatchers.IO) {
-                graph.resolve(raw)?.let { LiveCaller(it, graph.spamPolicy.assess(it.number)) }
+        value =
+            number?.let { raw ->
+                withContext(Dispatchers.IO) {
+                    graph.resolve(raw)?.let { LiveCaller(it, graph.spamPolicy.assess(it.number)) }
+                }
             }
-        }
     }
     val target = number?.let { PhoneNumbers.normalize(it) }
     var sampleSpam by remember { mutableStateOf(false) }
@@ -85,39 +92,43 @@ fun IncomingCallScreen(number: String? = null, onDismiss: () -> Unit) {
     val glow by animateColorAsState(if (spam) Color(0xFF3A1215) else Color(0xFF3A3A3E))
 
     val caller = live?.result
-    val sourceText = when {
-        number == null -> "CNAP · HIGH"
-        caller == null -> "NO CALLER ID"
-        caller.isKnown -> "${caller.source.label()} · ${caller.confidence.name}"
-        else -> "NO NAME FOUND"
-    }
-    val nameLines = if (number == null) {
-        if (sampleSpam) listOf("LOAN", "DESK") else listOf("PRIYA", "SHARMA")
-    } else {
-        splitName(caller?.name)
-    }
-    val numberText = if (number == null) {
-        if (sampleSpam) "+91 70123 55120" else "+91 98100 44217"
-    } else {
-        target?.let { PhoneNumbers.format(it) } ?: number
-    }
+    val sourceText =
+        when {
+            number == null -> "CNAP · HIGH"
+            caller == null -> "NO CALLER ID"
+            caller.isKnown -> "${caller.source.label()} · ${caller.confidence.name}"
+            else -> "NO NAME FOUND"
+        }
+    val nameLines =
+        if (number == null) {
+            if (sampleSpam) listOf("LOAN", "DESK") else listOf("PRIYA", "SHARMA")
+        } else {
+            splitName(caller?.name)
+        }
+    val numberText =
+        if (number == null) {
+            if (sampleSpam) "+91 70123 55120" else "+91 98100 44217"
+        } else {
+            target?.let { PhoneNumbers.format(it) } ?: number
+        }
     val pillText = if (spam) "LIKELY SPAM · ${live?.spam?.score ?: 87}" else "is calling…"
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(CgColors.Black)
-            .drawBehind {
-                drawRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(glow, CgColors.Black),
-                        center = Offset(size.width / 2f, 0f),
-                        radius = size.height * 0.6f,
-                    ),
-                )
-            }
-            .navigationBarsPadding()
-            .padding(horizontal = 24.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(CgColors.Black)
+                .drawBehind {
+                    drawRect(
+                        brush =
+                            Brush.radialGradient(
+                                colors = listOf(glow, CgColors.Black),
+                                center = Offset(size.width / 2f, 0f),
+                                radius = size.height * 0.6f,
+                            ),
+                    )
+                }.navigationBarsPadding()
+                .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(48.dp))
@@ -192,11 +203,12 @@ fun IncomingCallScreen(number: String? = null, onDismiss: () -> Unit) {
             text = if (showCard) "HIDE BRIDGE CARD" else "SHOW BRIDGE CARD",
             style = CgType.Label.copy(fontSize = 10.sp, letterSpacing = 1.2.sp),
             color = CgColors.TextDim,
-            modifier = Modifier
-                .clip(RoundedCornerShape(50))
-                .border(1.dp, CgColors.TextFaint, RoundedCornerShape(50))
-                .clickable { showCard = !showCard }
-                .padding(horizontal = 14.dp, vertical = 8.dp),
+            modifier =
+                Modifier
+                    .clip(RoundedCornerShape(50))
+                    .border(1.dp, CgColors.TextFaint, RoundedCornerShape(50))
+                    .clickable { showCard = !showCard }
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
         )
         Spacer(Modifier.height(20.dp))
     }
@@ -210,7 +222,10 @@ private fun splitName(name: String?): List<String> {
 }
 
 @Composable
-private fun CallerSourceLabel(text: String, modifier: Modifier = Modifier) {
+private fun CallerSourceLabel(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Canvas(Modifier.size(9.dp)) {
             drawCircle(
@@ -230,17 +245,21 @@ private fun CallerSourceLabel(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun CallerNameBlock(lines: List<String>, onClick: (() -> Unit)?) {
+private fun CallerNameBlock(
+    lines: List<String>,
+    onClick: (() -> Unit)?,
+) {
     Column(
-        modifier = if (onClick != null) {
-            Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick,
-            )
-        } else {
-            Modifier
-        },
+        modifier =
+            if (onClick != null) {
+                Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onClick,
+                )
+            } else {
+                Modifier
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         lines.forEach { line ->
@@ -281,7 +300,10 @@ private fun CallAnswerRings(onAnswer: () -> Unit) {
 }
 
 @Composable
-private fun CallRingDisc(diameter: Dp, fill: Color) {
+private fun CallRingDisc(
+    diameter: Dp,
+    fill: Color,
+) {
     Box(
         Modifier
             .size(diameter)
@@ -292,7 +314,12 @@ private fun CallRingDisc(diameter: Dp, fill: Color) {
 }
 
 @Composable
-private fun CallActionButton(icon: ImageVector, label: String, tint: Color, onClick: () -> Unit) {
+private fun CallActionButton(
+    icon: ImageVector,
+    label: String,
+    tint: Color,
+    onClick: () -> Unit,
+) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             Modifier

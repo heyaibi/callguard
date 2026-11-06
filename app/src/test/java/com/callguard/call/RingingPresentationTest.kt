@@ -8,7 +8,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class RingingPresentationTest {
-
     private fun ringing(
         uiVisible: Boolean,
         screenOn: Boolean = true,

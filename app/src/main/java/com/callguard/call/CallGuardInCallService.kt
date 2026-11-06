@@ -9,7 +9,6 @@ import android.telecom.InCallService
  * [CallManager]. CallGuard draws the in-call UI itself ([InCallActivity]) and rings itself, as the manifest declares.
  */
 class CallGuardInCallService : InCallService() {
-
     override fun onCreate() {
         super.onCreate()
         CallManager.attach(this)

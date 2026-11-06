@@ -21,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings as GearIcon
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,6 +60,7 @@ import com.callguard.ui.theme.CgColors
 import com.callguard.ui.theme.CgType
 import com.callguard.ui.timeLabel
 import com.callguard.ui.todayStats
+import androidx.compose.material.icons.filled.Settings as GearIcon
 
 /**
  * Home: protection status, today's counts, quick modes and the last identified callers.
@@ -76,7 +76,9 @@ fun HomeScreen(
     val context = LocalContext.current
     val graph = CallGuardApp.graph(context)
     val settings by graph.settingsStore.settings.collectAsStateWithLifecycle()
-    val calls by graph.repos.calls.observe().collectAsStateWithLifecycle()
+    val calls by graph.repos.calls
+        .observe()
+        .collectAsStateWithLifecycle()
     var screeningOn by remember { mutableStateOf(isScreeningHeld(context)) }
     var bridgeOn by remember { mutableStateOf(isBridgeEnabled(context)) }
     var contactsOn by remember { mutableStateOf(hasReadContacts(context)) }
@@ -85,12 +87,14 @@ fun HomeScreen(
         bridgeOn = isBridgeEnabled(context)
         contactsOn = hasReadContacts(context)
     }
-    val roleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        screeningOn = isScreeningHeld(context)
-    }
-    val contactsLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-        contactsOn = hasReadContacts(context)
-    }
+    val roleLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            screeningOn = isScreeningHeld(context)
+        }
+    val contactsLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+            contactsOn = hasReadContacts(context)
+        }
     val stats = todayStats(calls)
     val identified = calls.filter { it.name != null }.take(3)
     // Contacts only does nothing without READ_CONTACTS, so the protection is incomplete until it is granted.
@@ -98,15 +102,17 @@ fun HomeScreen(
     val pending = listOf(screeningOn, bridgeOn, !needsContacts).count { !it }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
     ) {
         Spacer(Modifier.height(12.dp))
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = CgGutter),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = CgGutter),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             DotHeading(
@@ -125,12 +131,13 @@ fun HomeScreen(
 
         // Protection status card
         Column(
-            modifier = Modifier
-                .padding(horizontal = CgGutter, vertical = 12.dp)
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(28.dp))
-                .background(CgColors.Surface)
-                .padding(20.dp),
+            modifier =
+                Modifier
+                    .padding(horizontal = CgGutter, vertical = 12.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(28.dp))
+                    .background(CgColors.Surface)
+                    .padding(20.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -151,7 +158,8 @@ fun HomeScreen(
                 on = screeningOn,
                 onSetUp = {
                     roleLauncher.launch(
-                        context.getSystemService(RoleManager::class.java)
+                        context
+                            .getSystemService(RoleManager::class.java)
                             .createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING),
                     )
                 },
@@ -175,9 +183,10 @@ fun HomeScreen(
         // Today's counts
         CgLabel("Today", modifier = Modifier.padding(start = CgGutter, end = CgGutter, top = 12.dp))
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = CgGutter, vertical = 8.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = CgGutter, vertical = 8.dp),
         ) {
             StatCell(stats.identified.toString(), "Identified", Modifier.weight(1f))
             StatCell(stats.silenced.toString(), "Silenced", Modifier.weight(1f))
@@ -223,29 +232,33 @@ fun HomeScreen(
             style = CgType.Label,
             color = CgColors.TextFaint,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onPreviewCall)
-                .padding(vertical = 28.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onPreviewCall)
+                    .padding(vertical = 28.dp),
         )
     }
 }
 
 /** Call screening is held by this app when the platform says so. */
-private fun isScreeningHeld(context: Context): Boolean =
-    context.getSystemService(RoleManager::class.java)?.isRoleHeld(RoleManager.ROLE_CALL_SCREENING) == true
+private fun isScreeningHeld(context: Context): Boolean = context.getSystemService(RoleManager::class.java)?.isRoleHeld(RoleManager.ROLE_CALL_SCREENING) == true
 
 /** WhatsApp bridge is on when this app is enabled as a notification listener. */
-private fun isBridgeEnabled(context: Context): Boolean =
-    context.packageName in NotificationManagerCompat.getEnabledListenerPackages(context)
+private fun isBridgeEnabled(context: Context): Boolean = context.packageName in NotificationManagerCompat.getEnabledListenerPackages(context)
 
 @Composable
-private fun StatusLine(label: String, on: Boolean, onSetUp: () -> Unit) {
+private fun StatusLine(
+    label: String,
+    on: Boolean,
+    onSetUp: () -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = !on, onClick = onSetUp)
-            .padding(vertical = 12.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(enabled = !on, onClick = onSetUp)
+                .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -260,11 +273,16 @@ private fun StatusLine(label: String, on: Boolean, onSetUp: () -> Unit) {
 
 /** A status row whose only control is a red action pill, for a permission the user still has to allow. */
 @Composable
-private fun ActionLine(label: String, action: String, onAction: () -> Unit) {
+private fun ActionLine(
+    label: String,
+    action: String,
+    onAction: () -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -274,7 +292,12 @@ private fun ActionLine(label: String, action: String, onAction: () -> Unit) {
 }
 
 @Composable
-private fun StatCell(value: String, label: String, modifier: Modifier, accent: Color = CgColors.White) {
+private fun StatCell(
+    value: String,
+    label: String,
+    modifier: Modifier,
+    accent: Color = CgColors.White,
+) {
     Column(modifier = modifier) {
         DotHeading(text = value, style = CgType.Display, color = accent)
         CgLabel(label)
@@ -282,11 +305,17 @@ private fun StatCell(value: String, label: String, modifier: Modifier, accent: C
 }
 
 @Composable
-private fun ModeLine(title: String, subtitle: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+private fun ModeLine(
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = CgGutter, vertical = 14.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = CgGutter, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {

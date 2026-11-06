@@ -13,10 +13,13 @@ import android.os.IBinder
  * start rebuilds the notification from the current call state, which also updates it.
  */
 class CallForegroundService : Service() {
-
     override fun onBind(intent: Intent?): IBinder? = null
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         CallNotifier.createChannels(this)
         val call = CallManager.inProgressCall()
         // startForeground must follow every startForegroundService call, even when no call is left by then.

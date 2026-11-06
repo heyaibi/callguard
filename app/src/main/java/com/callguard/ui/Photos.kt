@@ -18,7 +18,10 @@ private object PhotoCache {
 
     fun get(uri: String): ImageBitmap? = cache.get(uri)
 
-    fun put(uri: String, image: ImageBitmap) {
+    fun put(
+        uri: String,
+        image: ImageBitmap,
+    ) {
         cache.put(uri, image)
     }
 }

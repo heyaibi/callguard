@@ -86,14 +86,14 @@ import com.callguard.messaging.groupConversations
 import com.callguard.messaging.isDefaultSmsApp
 import com.callguard.messaging.matchesQuery
 import com.callguard.messaging.splitConversations
-import com.callguard.ui.displayNumber
-import com.callguard.ui.initialsOf
-import com.callguard.ui.listTimeLabel
-import com.callguard.ui.rememberPlaceCall
 import com.callguard.ui.components.OutcomeTag
 import com.callguard.ui.components.PillAvatar
 import com.callguard.ui.components.RedPill
 import com.callguard.ui.components.RoundKey
+import com.callguard.ui.displayNumber
+import com.callguard.ui.initialsOf
+import com.callguard.ui.listTimeLabel
+import com.callguard.ui.rememberPlaceCall
 import com.callguard.ui.theme.CgColors
 import com.callguard.ui.theme.CgType
 import com.callguard.ui.theme.MonoFont
@@ -105,20 +105,32 @@ private const val TAB_INBOX = 0
 private const val TAB_QUIET = 1
 
 /** One conversation row: the conversation, its contact name, and whether the sender is blocked. */
-private data class ListRow(val conversation: Conversation, val name: String?, val blocked: Boolean)
+private data class ListRow(
+    val conversation: Conversation,
+    val name: String?,
+    val blocked: Boolean,
+)
 
-private data class MessagesModel(val inbox: List<ListRow>, val quiet: List<ListRow>)
+private data class MessagesModel(
+    val inbox: List<ListRow>,
+    val quiet: List<ListRow>,
+)
 
 /**
  * The messages list: conversations from the SMS provider, one row per sender, plus the quiet inbox of held-back and
  * blocked senders. Long-press a row for its actions. The red key starts a new message.
  */
 @Composable
-fun MessagesScreen(onOpenThread: (String) -> Unit = {}, onCompose: () -> Unit = {}) {
+fun MessagesScreen(
+    onOpenThread: (String) -> Unit = {},
+    onCompose: () -> Unit = {},
+) {
     val context = LocalContext.current
     val graph = CallGuardApp.graph(context)
     val scope = rememberCoroutineScope()
-    val logs by graph.repos.messages.observe().collectAsStateWithLifecycle()
+    val logs by graph.repos.messages
+        .observe()
+        .collectAsStateWithLifecycle()
     val settings by graph.settingsStore.settings.collectAsStateWithLifecycle()
     var tab by rememberSaveable { mutableStateOf(TAB_INBOX) }
     var query by rememberSaveable { mutableStateOf("") }
@@ -136,21 +148,24 @@ fun MessagesScreen(onOpenThread: (String) -> Unit = {}, onCompose: () -> Unit = 
         isDefault = isDefaultSmsApp(context)
         readGranted = hasSmsPermission(context, Manifest.permission.READ_SMS)
     }
-    val roleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        isDefault = isDefaultSmsApp(context)
-    }
-    val readLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        readGranted = granted
-        revision++
-    }
+    val roleLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            isDefault = isDefaultSmsApp(context)
+        }
+    val readLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            readGranted = granted
+            revision++
+        }
 
     // Texts arriving or leaving change the provider; the list reloads when that happens.
     DisposableEffect(Unit) {
-        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean) {
-                revision++
+        val observer =
+            object : ContentObserver(Handler(Looper.getMainLooper())) {
+                override fun onChange(selfChange: Boolean) {
+                    revision++
+                }
             }
-        }
         context.contentResolver.registerContentObserver(Telephony.Sms.CONTENT_URI, true, observer)
         onDispose { context.contentResolver.unregisterContentObserver(observer) }
     }
@@ -159,9 +174,10 @@ fun MessagesScreen(onOpenThread: (String) -> Unit = {}, onCompose: () -> Unit = 
         value = withContext(Dispatchers.IO) { loadModel(context, graph) }
     }
     val rows = if (tab == TAB_INBOX) model.inbox else model.quiet
-    val visible = rows.filter {
-        matchesQuery(query, it.name, it.conversation.number.e164, it.conversation.snippet)
-    }
+    val visible =
+        rows.filter {
+            matchesQuery(query, it.name, it.conversation.number.e164, it.conversation.snippet)
+        }
     val unread = model.inbox.sumOf { it.conversation.unread }
     val now = System.currentTimeMillis()
 
@@ -171,6 +187,7 @@ fun MessagesScreen(onOpenThread: (String) -> Unit = {}, onCompose: () -> Unit = 
             revision++
         }
     }
+
     fun closeSheet() {
         sheetOpen = false
         confirmDelete = false
@@ -212,11 +229,12 @@ fun MessagesScreen(onOpenThread: (String) -> Unit = {}, onCompose: () -> Unit = 
             if (visible.isEmpty()) {
                 item(key = "empty") {
                     Text(
-                        text = when {
-                            query.isNotBlank() -> "NO MATCHES"
-                            tab == TAB_QUIET -> "QUIET INBOX IS EMPTY"
-                            else -> "NO TEXTS YET"
-                        },
+                        text =
+                            when {
+                                query.isNotBlank() -> "NO MATCHES"
+                                tab == TAB_QUIET -> "QUIET INBOX IS EMPTY"
+                                else -> "NO TEXTS YET"
+                            },
                         style = CgType.Label,
                         color = CgColors.TextFaint,
                         modifier = Modifier.fillMaxWidth().padding(start = 20.dp, top = 40.dp),
@@ -248,14 +266,15 @@ fun MessagesScreen(onOpenThread: (String) -> Unit = {}, onCompose: () -> Unit = 
             exit = fadeOut(),
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.6f))
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = ::closeSheet,
-                    ),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.6f))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = ::closeSheet,
+                        ),
             )
         }
 
@@ -267,18 +286,20 @@ fun MessagesScreen(onOpenThread: (String) -> Unit = {}, onCompose: () -> Unit = 
             exit = slideOutVertically(targetOffsetY = { it }),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
-                    .background(CgColors.Surface)
-                    .padding(top = 12.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
+                        .background(CgColors.Surface)
+                        .padding(top = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(width = 32.dp, height = 4.dp)
-                        .clip(RoundedCornerShape(percent = 50))
-                        .background(CgColors.TextFaint),
+                    modifier =
+                        Modifier
+                            .size(width = 32.dp, height = 4.dp)
+                            .clip(RoundedCornerShape(percent = 50))
+                            .background(CgColors.TextFaint),
                 )
                 Spacer(Modifier.height(16.dp))
                 sheetRow?.let { row ->
@@ -322,35 +343,44 @@ fun MessagesScreen(onOpenThread: (String) -> Unit = {}, onCompose: () -> Unit = 
         }
 
         // Hidden under the conversation sheet, which would otherwise be drawn beneath it.
-        if (!sheetOpen) RoundKey(
-            onClick = onCompose,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 20.dp, bottom = 20.dp),
-            size = 60.dp,
-            containerColor = CgColors.Red,
-            contentColor = CgColors.White,
-        ) {
-            Icon(Icons.Filled.Add, contentDescription = "New message")
+        if (!sheetOpen) {
+            RoundKey(
+                onClick = onCompose,
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 20.dp, bottom = 20.dp),
+                size = 60.dp,
+                containerColor = CgColors.Red,
+                contentColor = CgColors.White,
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "New message")
+            }
         }
     }
 }
 
 /** Reads the provider and the message log, then splits and names the conversations. Runs off the main thread. */
-private fun loadModel(context: Context, graph: AppGraph): MessagesModel {
+private fun loadModel(
+    context: Context,
+    graph: AppGraph,
+): MessagesModel {
     val settings = graph.settingsStore.settings.value
     val conversations = groupConversations(SmsProvider.conversationRows(context))
-    val split = splitConversations(
-        conversations = conversations,
-        logs = graph.repos.messages.recent(Int.MAX_VALUE),
-        allowList = settings.allowList,
-        blockList = settings.blockList,
-    )
-    fun row(c: Conversation) = ListRow(
-        conversation = c,
-        name = graph.resolutionPolicy.resolve(c.number).name,
-        blocked = c.number.e164 in settings.blockList,
-    )
+    val split =
+        splitConversations(
+            conversations = conversations,
+            logs = graph.repos.messages.recent(Int.MAX_VALUE),
+            allowList = settings.allowList,
+            blockList = settings.blockList,
+        )
+
+    fun row(c: Conversation) =
+        ListRow(
+            conversation = c,
+            name = graph.resolutionPolicy.resolve(c.number).name,
+            blocked = c.number.e164 in settings.blockList,
+        )
     return MessagesModel(inbox = split.inbox.map { row(it) }, quiet = split.quiet.map { row(it) })
 }
 
@@ -372,7 +402,10 @@ private fun MsgHeader(unread: Int) {
 }
 
 @Composable
-private fun SearchPill(query: String, onQueryChange: (String) -> Unit) {
+private fun SearchPill(
+    query: String,
+    onQueryChange: (String) -> Unit,
+) {
     Row(
         Modifier
             .fillMaxWidth()
@@ -412,7 +445,11 @@ private fun SearchPill(query: String, onQueryChange: (String) -> Unit) {
 
 /** A dark card with one line of caps and a red pill that asks the system for the permission or role. */
 @Composable
-private fun SmsBanner(message: String, button: String, onRequest: () -> Unit) {
+private fun SmsBanner(
+    message: String,
+    button: String,
+    onRequest: () -> Unit,
+) {
     Column(
         Modifier
             .fillMaxWidth()
@@ -447,7 +484,12 @@ private fun SmsBanner(message: String, button: String, onRequest: () -> Unit) {
 }
 
 @Composable
-private fun MsgTabs(selected: Int, inboxUnread: Int, quietCount: Int, onSelect: (Int) -> Unit) {
+private fun MsgTabs(
+    selected: Int,
+    inboxUnread: Int,
+    quietCount: Int,
+    onSelect: (Int) -> Unit,
+) {
     Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
         Row(Modifier.fillMaxWidth()) {
             MsgTab(
@@ -664,12 +706,13 @@ private fun SheetPill(
     onClick: () -> Unit,
 ) {
     Row(
-        modifier = modifier
-            .height(54.dp)
-            .clip(RoundedCornerShape(percent = 50))
-            .background(containerColor)
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = 16.dp),
+        modifier =
+            modifier
+                .height(54.dp)
+                .clip(RoundedCornerShape(percent = 50))
+                .background(containerColor)
+                .clickable(role = Role.Button, onClick = onClick)
+                .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -697,5 +740,7 @@ private fun MsgDivider(indent: Boolean) {
     )
 }
 
-private fun hasSmsPermission(context: Context, permission: String): Boolean =
-    context.checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED
+private fun hasSmsPermission(
+    context: Context,
+    permission: String,
+): Boolean = context.checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED

@@ -14,4 +14,7 @@ fun addressToNumber(address: String): PhoneNumber {
 }
 
 /** True when a stored provider address is the same sender, whatever format the provider kept. */
-fun sameAddress(address: String, number: PhoneNumber): Boolean = addressToNumber(address) == number
+fun sameAddress(
+    address: String,
+    number: PhoneNumber,
+): Boolean = addressToNumber(address) == number

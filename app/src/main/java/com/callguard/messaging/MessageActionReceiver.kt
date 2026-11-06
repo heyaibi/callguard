@@ -16,12 +16,20 @@ import kotlin.concurrent.thread
  * in the conversation like any other outgoing text.
  */
 class MessageActionReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         val e164 = intent.getStringExtra(EXTRA_NUMBER)?.takeIf { it.isNotBlank() } ?: return
         val number = PhoneNumber(e164)
         when (intent.action) {
             ACTION_REPLY -> {
-                val reply = RemoteInput.getResultsFromIntent(intent)?.getCharSequence(KEY_REPLY)?.toString()?.trim()
+                val reply =
+                    RemoteInput
+                        .getResultsFromIntent(intent)
+                        ?.getCharSequence(KEY_REPLY)
+                        ?.toString()
+                        ?.trim()
                 if (reply.isNullOrEmpty()) return
                 val pending = goAsync()
                 thread {
@@ -35,6 +43,7 @@ class MessageActionReceiver : BroadcastReceiver() {
                     }
                 }
             }
+
             ACTION_MARK_READ -> {
                 val pending = goAsync()
                 thread {
@@ -49,7 +58,10 @@ class MessageActionReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun toast(context: Context, text: String) {
+    private fun toast(
+        context: Context,
+        text: String,
+    ) {
         Handler(Looper.getMainLooper()).post { Toast.makeText(context, text, Toast.LENGTH_SHORT).show() }
     }
 
@@ -60,7 +72,11 @@ class MessageActionReceiver : BroadcastReceiver() {
         const val KEY_REPLY = "com.callguard.key.REPLY"
 
         /** An intent for [action] on the conversation with [e164]. The data URI keeps each sender's PendingIntent distinct. */
-        fun intent(context: Context, action: String, e164: String): Intent =
+        fun intent(
+            context: Context,
+            action: String,
+            e164: String,
+        ): Intent =
             Intent(context, MessageActionReceiver::class.java)
                 .setAction(action)
                 .setData(Uri.fromParts("callguard", "$action:$e164", null))

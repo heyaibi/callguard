@@ -41,6 +41,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -61,21 +63,23 @@ import com.callguard.ui.theme.CgType
 import com.callguard.ui.theme.MonoFont
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 
 /**
  * A new message. Type a name or number in the To field: contacts that match appear below, and a typed number can be
  * sent to directly. Choosing one opens its conversation in place of this screen.
  */
 @Composable
-fun ComposeScreen(onBack: () -> Unit, onOpenThread: (String) -> Unit) {
+fun ComposeScreen(
+    onBack: () -> Unit,
+    onOpenThread: (String) -> Unit,
+) {
     val context = LocalContext.current
     var query by rememberSaveable { mutableStateOf("") }
     var contactsGranted by remember { mutableStateOf(hasContactsPermission(context)) }
-    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        contactsGranted = granted
-    }
+    val permission =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            contactsGranted = granted
+        }
 
     val typed = query.trim()
     val direct: PhoneNumber? = remember(typed) { directAddress(typed) }
@@ -180,5 +184,4 @@ fun ComposeScreen(onBack: () -> Unit, onOpenThread: (String) -> Unit) {
     }
 }
 
-private fun hasContactsPermission(context: Context): Boolean =
-    context.checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
+private fun hasContactsPermission(context: Context): Boolean = context.checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED

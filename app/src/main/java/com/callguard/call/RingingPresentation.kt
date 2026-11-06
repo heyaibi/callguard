@@ -6,7 +6,10 @@ import com.callguard.data.Direction
  * How the notification of a ringing call is presented: its channel, and whether it may take the full-screen intent.
  * Only the high-importance channel pops up over other apps as a heads-up.
  */
-data class RingingPresentation(val channelId: String, val fullScreen: Boolean) {
+data class RingingPresentation(
+    val channelId: String,
+    val fullScreen: Boolean,
+) {
     val headsUp: Boolean get() = channelId == CallNotifier.CHANNEL_INCOMING
 }
 
@@ -26,12 +29,13 @@ fun ringingPresentation(
     uiVisible: Boolean,
     screenOn: Boolean,
     fullScreenAllowed: Boolean,
-): RingingPresentation? = when {
-    phase != CallPhase.RINGING -> null
-    silenced -> RingingPresentation(CallNotifier.CHANNEL_SILENCED, fullScreen = false)
-    uiVisible && screenOn -> RingingPresentation(CallNotifier.CHANNEL_INCOMING_QUIET, fullScreen = false)
-    else -> RingingPresentation(CallNotifier.CHANNEL_INCOMING, fullScreen = fullScreenAllowed)
-}
+): RingingPresentation? =
+    when {
+        phase != CallPhase.RINGING -> null
+        silenced -> RingingPresentation(CallNotifier.CHANNEL_SILENCED, fullScreen = false)
+        uiVisible && screenOn -> RingingPresentation(CallNotifier.CHANNEL_INCOMING_QUIET, fullScreen = false)
+        else -> RingingPresentation(CallNotifier.CHANNEL_INCOMING, fullScreen = fullScreenAllowed)
+    }
 
 /**
  * Whether a new call starts the in-call screen itself. A placed call always does. A ringing call does when a CallGuard
@@ -39,5 +43,10 @@ fun ringingPresentation(
  * covers it too). Over another app with the screen on, a ringing call only raises its heads-up, and tapping that opens
  * the screen. A silenced call never does.
  */
-fun startsInCallUi(direction: Direction, phase: CallPhase, silenced: Boolean, uiVisible: Boolean, screenOn: Boolean): Boolean =
-    direction == Direction.OUTGOING || (phase == CallPhase.RINGING && !silenced && (uiVisible || !screenOn))
+fun startsInCallUi(
+    direction: Direction,
+    phase: CallPhase,
+    silenced: Boolean,
+    uiVisible: Boolean,
+    screenOn: Boolean,
+): Boolean = direction == Direction.OUTGOING || (phase == CallPhase.RINGING && !silenced && (uiVisible || !screenOn))

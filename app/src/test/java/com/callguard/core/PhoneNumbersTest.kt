@@ -5,7 +5,6 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class PhoneNumbersTest {
-
     private fun e164(raw: String): String? = PhoneNumbers.normalize(raw)?.e164
 
     @Test

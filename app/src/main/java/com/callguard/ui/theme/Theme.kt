@@ -15,8 +15,8 @@ import com.callguard.R
 /** Palette from the design inspirations: pure black, graphite surfaces, signal red, white. */
 object CgColors {
     val Black = Color(0xFF000000)
-    val Surface = Color(0xFF1B1B1D)      // round keys, chips
-    val SurfaceHigh = Color(0xFF2A2A2D)  // sheets, pills
+    val Surface = Color(0xFF1B1B1D) // round keys, chips
+    val SurfaceHigh = Color(0xFF2A2A2D) // sheets, pills
     val Divider = Color(0xFF1F1F21)
     val Red = Color(0xFFD71921)
     val White = Color(0xFFFFFFFF)
@@ -27,16 +27,18 @@ object CgColors {
 }
 
 /** Dot-matrix display face for names, numbers, and headings. */
-val DotFont = FontFamily(
-    Font(R.font.doto_bold, FontWeight.Bold),
-    Font(R.font.doto_black, FontWeight.Black),
-)
+val DotFont =
+    FontFamily(
+        Font(R.font.doto_bold, FontWeight.Bold),
+        Font(R.font.doto_black, FontWeight.Black),
+    )
 
 /** Monospaced face for list rows and labels (set in caps with wide tracking). */
-val MonoFont = FontFamily(
-    Font(R.font.space_mono_regular, FontWeight.Normal),
-    Font(R.font.space_mono_bold, FontWeight.Bold),
-)
+val MonoFont =
+    FontFamily(
+        Font(R.font.space_mono_regular, FontWeight.Normal),
+        Font(R.font.space_mono_bold, FontWeight.Bold),
+    )
 
 object CgType {
     val DisplayXL = TextStyle(fontFamily = DotFont, fontWeight = FontWeight.Black, fontSize = 44.sp, lineHeight = 48.sp, letterSpacing = 2.sp)
@@ -47,22 +49,23 @@ object CgType {
     val Label = TextStyle(fontFamily = MonoFont, fontWeight = FontWeight.Bold, fontSize = 11.sp, letterSpacing = 1.5.sp)
 }
 
-private val scheme = darkColorScheme(
-    primary = CgColors.White,
-    onPrimary = CgColors.Black,
-    secondary = CgColors.Red,
-    onSecondary = CgColors.White,
-    background = CgColors.Black,
-    onBackground = CgColors.White,
-    surface = CgColors.Black,
-    onSurface = CgColors.White,
-    surfaceVariant = CgColors.Surface,
-    onSurfaceVariant = CgColors.TextDim,
-    surfaceContainer = CgColors.Surface,
-    surfaceContainerHigh = CgColors.SurfaceHigh,
-    outline = CgColors.TextFaint,
-    error = CgColors.Red,
-)
+private val scheme =
+    darkColorScheme(
+        primary = CgColors.White,
+        onPrimary = CgColors.Black,
+        secondary = CgColors.Red,
+        onSecondary = CgColors.White,
+        background = CgColors.Black,
+        onBackground = CgColors.White,
+        surface = CgColors.Black,
+        onSurface = CgColors.White,
+        surfaceVariant = CgColors.Surface,
+        onSurfaceVariant = CgColors.TextDim,
+        surfaceContainer = CgColors.Surface,
+        surfaceContainerHigh = CgColors.SurfaceHigh,
+        outline = CgColors.TextFaint,
+        error = CgColors.Red,
+    )
 
 @Composable
 fun CallGuardTheme(content: @Composable () -> Unit) {

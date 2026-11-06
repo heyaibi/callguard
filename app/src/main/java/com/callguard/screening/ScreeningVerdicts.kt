@@ -16,7 +16,10 @@ object ScreeningVerdicts {
 
     private const val TTL_MILLIS = 60 * 60_000L
 
-    private class Verdict(val decision: ScreeningDecision, val recordedAt: Long)
+    private class Verdict(
+        val decision: ScreeningDecision,
+        val recordedAt: Long,
+    )
 
     private val verdicts = ConcurrentHashMap<String, Verdict>()
 
@@ -26,12 +29,19 @@ object ScreeningVerdicts {
         return PhoneNumbers.normalize(text)?.e164 ?: text
     }
 
-    fun record(key: String, decision: ScreeningDecision, now: Long = System.currentTimeMillis()) {
+    fun record(
+        key: String,
+        decision: ScreeningDecision,
+        now: Long = System.currentTimeMillis(),
+    ) {
         verdicts[key] = Verdict(decision, now)
     }
 
     /** The decision recorded for [key] within the TTL, or null when there is none. */
-    fun peek(key: String, now: Long = System.currentTimeMillis()): ScreeningDecision? {
+    fun peek(
+        key: String,
+        now: Long = System.currentTimeMillis(),
+    ): ScreeningDecision? {
         val verdict = verdicts[key] ?: return null
         if (now - verdict.recordedAt > TTL_MILLIS) {
             verdicts.remove(key, verdict)

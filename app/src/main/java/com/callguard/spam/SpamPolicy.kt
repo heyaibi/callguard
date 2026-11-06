@@ -7,11 +7,18 @@ import java.time.ZoneId
 
 enum class SpamSource { BUNDLED, LEARNED, USER, HEURISTIC, NONE }
 
-data class SpamAssessment(val number: PhoneNumber, val score: Int, val isSpam: Boolean, val reason: String)
+data class SpamAssessment(
+    val number: PhoneNumber,
+    val score: Int,
+    val isSpam: Boolean,
+    val reason: String,
+)
 
 interface ReputationStore {
     fun get(n: PhoneNumber): ReputationEntry?
+
     fun put(entry: ReputationEntry)
+
     fun remove(n: PhoneNumber)
 }
 
@@ -30,7 +37,10 @@ class SpamPolicy(
         private const val TELEMARKETING_PREFIX = "+91140"
     }
 
-    fun assess(n: PhoneNumber, nowMillis: Long = System.currentTimeMillis()): SpamAssessment {
+    fun assess(
+        n: PhoneNumber,
+        nowMillis: Long = System.currentTimeMillis(),
+    ): SpamAssessment {
         reputation.get(n)?.takeIf { it.source == SpamSource.USER }?.let { mark ->
             return if (mark.isSpam) {
                 SpamAssessment(n, USER_SPAM_SCORE, true, "user marked spam")
@@ -63,7 +73,10 @@ class SpamPolicy(
         )
     }
 
-    fun mark(n: PhoneNumber, spam: Boolean) {
+    fun mark(
+        n: PhoneNumber,
+        spam: Boolean,
+    ) {
         reputation.put(
             ReputationEntry(
                 number = n.e164,

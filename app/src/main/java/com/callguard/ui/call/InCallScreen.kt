@@ -68,13 +68,27 @@ import kotlinx.coroutines.delay
 /** Every action the in-call screens can take. The in-call activity connects these to CallManager. */
 interface InCallActions {
     fun answer(id: Long)
+
     fun decline(id: Long)
+
     fun hangUp(id: Long)
-    fun hold(id: Long, hold: Boolean)
+
+    fun hold(
+        id: Long,
+        hold: Boolean,
+    )
+
     fun setMuted(muted: Boolean)
+
     fun setSpeaker(on: Boolean)
-    fun playDtmf(id: Long, digit: Char)
+
+    fun playDtmf(
+        id: Long,
+        digit: Char,
+    )
+
     fun stopDtmf(id: Long)
+
     fun addCall()
 }
 
@@ -83,12 +97,16 @@ interface InCallActions {
  * call screen with its controls and the hang-up button. Nothing is drawn when no call is left.
  */
 @Composable
-fun InCallScreen(calls: List<CallState>, actions: InCallActions) {
+fun InCallScreen(
+    calls: List<CallState>,
+    actions: InCallActions,
+) {
     val ringing = calls.firstOrNull { it.phase == CallPhase.RINGING }
-    val primary = ringing
-        ?: calls.firstOrNull { it.phase == CallPhase.ACTIVE }
-        ?: calls.firstOrNull { it.phase == CallPhase.HOLDING || it.phase == CallPhase.DIALING }
-        ?: calls.lastOrNull()
+    val primary =
+        ringing
+            ?: calls.firstOrNull { it.phase == CallPhase.ACTIVE }
+            ?: calls.firstOrNull { it.phase == CallPhase.HOLDING || it.phase == CallPhase.DIALING }
+            ?: calls.lastOrNull()
     when {
         ringing != null -> RingingContent(ringing, actions)
         primary != null -> ActiveContent(primary, actions)
@@ -96,23 +114,27 @@ fun InCallScreen(calls: List<CallState>, actions: InCallActions) {
 }
 
 @Composable
-private fun RingingContent(call: CallState, actions: InCallActions) {
+private fun RingingContent(
+    call: CallState,
+    actions: InCallActions,
+) {
     val glow by animateColorAsState(if (call.spam) Color(0xFF3A1215) else Color(0xFF3A3A3E))
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(CgColors.Black)
-            .drawBehind {
-                drawRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(glow, CgColors.Black),
-                        center = Offset(size.width / 2f, 0f),
-                        radius = size.height * 0.6f,
-                    ),
-                )
-            }
-            .systemBarsPadding()
-            .padding(horizontal = 24.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(CgColors.Black)
+                .drawBehind {
+                    drawRect(
+                        brush =
+                            Brush.radialGradient(
+                                colors = listOf(glow, CgColors.Black),
+                                center = Offset(size.width / 2f, 0f),
+                                radius = size.height * 0.6f,
+                            ),
+                    )
+                }.systemBarsPadding()
+                .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(Modifier.height(24.dp))
@@ -140,14 +162,18 @@ private fun RingingContent(call: CallState, actions: InCallActions) {
 }
 
 @Composable
-private fun ActiveContent(call: CallState, actions: InCallActions) {
+private fun ActiveContent(
+    call: CallState,
+    actions: InCallActions,
+) {
     var keypadShown by rememberSaveable { mutableStateOf(false) }
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(CgColors.Black)
-            .systemBarsPadding()
-            .padding(horizontal = 20.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(CgColors.Black)
+                .systemBarsPadding()
+                .padding(horizontal = 20.dp),
     ) {
         Spacer(Modifier.height(16.dp))
         SourceLine(text = sourceText(call))
@@ -199,19 +225,24 @@ private fun CallStatus(call: CallState) {
         }
         StatusPill(text = formatElapsed(now - connectTime), container = CgColors.Surface)
     } else {
-        val text = when (call.phase) {
-            CallPhase.RINGING -> "INCOMING"
-            CallPhase.DIALING -> "CALLING…"
-            CallPhase.ACTIVE -> "CONNECTED"
-            CallPhase.HOLDING -> "ON HOLD"
-            CallPhase.DISCONNECTED -> "ENDED"
-        }
+        val text =
+            when (call.phase) {
+                CallPhase.RINGING -> "INCOMING"
+                CallPhase.DIALING -> "CALLING…"
+                CallPhase.ACTIVE -> "CONNECTED"
+                CallPhase.HOLDING -> "ON HOLD"
+                CallPhase.DISCONNECTED -> "ENDED"
+            }
         StatusPill(text = text, container = CgColors.Surface)
     }
 }
 
 @Composable
-private fun CallControls(call: CallState, actions: InCallActions, onKeypad: () -> Unit) {
+private fun CallControls(
+    call: CallState,
+    actions: InCallActions,
+    onKeypad: () -> Unit,
+) {
     val onHold = call.phase == CallPhase.HOLDING
     val holdable = call.canHold && (call.phase == CallPhase.ACTIVE || call.phase == CallPhase.HOLDING)
     Column(verticalArrangement = Arrangement.spacedBy(22.dp)) {
@@ -278,11 +309,12 @@ private fun ControlButton(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            modifier = Modifier
-                .size(76.dp)
-                .clip(CircleShape)
-                .background(if (active) CgColors.White else CgColors.Surface)
-                .then(if (enabled) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier),
+            modifier =
+                Modifier
+                    .size(76.dp)
+                    .clip(CircleShape)
+                    .background(if (active) CgColors.White else CgColors.Surface)
+                    .then(if (enabled) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -303,13 +335,17 @@ private fun ControlButton(
 }
 
 @Composable
-private fun EndCallButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun EndCallButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
     Box(
-        modifier = modifier
-            .size(84.dp)
-            .clip(CircleShape)
-            .background(CgColors.Red)
-            .clickable(role = Role.Button, onClick = onClick),
+        modifier =
+            modifier
+                .size(84.dp)
+                .clip(CircleShape)
+                .background(CgColors.Red)
+                .clickable(role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
@@ -325,11 +361,12 @@ private fun EndCallButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
 private fun DeclineButton(onDecline: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
-            modifier = Modifier
-                .size(72.dp)
-                .clip(CircleShape)
-                .background(CgColors.Red)
-                .clickable(role = Role.Button, onClick = onDecline),
+            modifier =
+                Modifier
+                    .size(72.dp)
+                    .clip(CircleShape)
+                    .background(CgColors.Red)
+                    .clickable(role = Role.Button, onClick = onDecline),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -357,11 +394,12 @@ private fun AnswerRings(onAnswer: () -> Unit) {
             RingDisc(diameter = 164.dp, fill = Color(0xFF131315))
             RingDisc(diameter = 112.dp, fill = Color(0xFF1A1A1D))
             Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
-                    .background(CgColors.White)
-                    .clickable(role = Role.Button, onClick = onAnswer),
+                modifier =
+                    Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(CgColors.White)
+                        .clickable(role = Role.Button, onClick = onAnswer),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -382,7 +420,10 @@ private fun AnswerRings(onAnswer: () -> Unit) {
 }
 
 @Composable
-private fun RingDisc(diameter: Dp, fill: Color) {
+private fun RingDisc(
+    diameter: Dp,
+    fill: Color,
+) {
     Box(
         Modifier
             .size(diameter)
@@ -432,12 +473,16 @@ private fun NameLines(lines: List<String>) {
 }
 
 @Composable
-private fun StatusPill(text: String, container: Color) {
+private fun StatusPill(
+    text: String,
+    container: Color,
+) {
     Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(50))
-            .background(container)
-            .padding(horizontal = 16.dp, vertical = 6.dp),
+        modifier =
+            Modifier
+                .clip(RoundedCornerShape(50))
+                .background(container)
+                .padding(horizontal = 16.dp, vertical = 6.dp),
     ) {
         Text(
             text = text,
@@ -448,17 +493,19 @@ private fun StatusPill(text: String, container: Color) {
     }
 }
 
-private fun sourceText(call: CallState): String = when {
-    call.hidden -> "HIDDEN NUMBER"
-    call.name != null -> "${call.source.label()} · ${call.confidence.name}"
-    else -> "NO NAME FOUND"
-}
+private fun sourceText(call: CallState): String =
+    when {
+        call.hidden -> "HIDDEN NUMBER"
+        call.name != null -> "${call.source.label()} · ${call.confidence.name}"
+        else -> "NO NAME FOUND"
+    }
 
-private fun ringingPill(call: CallState): String = when {
-    call.spam -> "LIKELY SPAM · ${call.spamScore}"
-    call.silenced -> "SILENCED · is calling…"
-    else -> "is calling…"
-}
+private fun ringingPill(call: CallState): String =
+    when {
+        call.spam -> "LIKELY SPAM · ${call.spamScore}"
+        call.silenced -> "SILENCED · is calling…"
+        else -> "is calling…"
+    }
 
 /** Two dot-matrix lines for the caller's name. A missing name reads UNKNOWN CALLER, or PRIVATE NUMBER when hidden. */
 private fun nameLines(call: CallState): List<String> {

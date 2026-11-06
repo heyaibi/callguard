@@ -81,7 +81,10 @@ object CallManager {
     }
 
     /** Telecom added [call]. An incoming call is screened only when CallGuard recorded a verdict for its number. */
-    fun add(call: Call, now: Long = System.currentTimeMillis()) {
+    fun add(
+        call: Call,
+        now: Long = System.currentTimeMillis(),
+    ) {
         if (tracked.any { it.call === call }) return
         val details = call.details
         val raw = details.handle?.schemeSpecificPart
@@ -89,25 +92,32 @@ object CallManager {
         val verdict = ScreeningVerdicts.peek(key, now)
         val direction = if (details.callDirection == Call.Details.DIRECTION_OUTGOING) Direction.OUTGOING else Direction.INCOMING
         val id = nextId.getAndIncrement()
-        val callback = object : Call.Callback() {
-            override fun onStateChanged(changed: Call, state: Int) = stateChanged(id)
-        }
-        val entry = TrackedCall(
-            id = id,
-            call = call,
-            callback = callback,
-            direction = direction,
-            raw = raw,
-            key = key,
-            cnap = trustedCnapName(
-                name = details.callerDisplayName,
-                presentation = details.callerDisplayNamePresentation,
-                allowedPresentation = TelecomManager.PRESENTATION_ALLOWED,
-            ),
-            arrivedAt = now,
-            silencedByScreening = verdict == ScreeningDecision.SILENCE ||
-                details.extras?.getBoolean(Call.EXTRA_SILENT_RINGING_REQUESTED) == true,
-        )
+        val callback =
+            object : Call.Callback() {
+                override fun onStateChanged(
+                    changed: Call,
+                    state: Int,
+                ) = stateChanged(id)
+            }
+        val entry =
+            TrackedCall(
+                id = id,
+                call = call,
+                callback = callback,
+                direction = direction,
+                raw = raw,
+                key = key,
+                cnap =
+                    trustedCnapName(
+                        name = details.callerDisplayName,
+                        presentation = details.callerDisplayNamePresentation,
+                        allowedPresentation = TelecomManager.PRESENTATION_ALLOWED,
+                    ),
+                arrivedAt = now,
+                silencedByScreening =
+                    verdict == ScreeningDecision.SILENCE ||
+                        details.extras?.getBoolean(Call.EXTRA_SILENT_RINGING_REQUESTED) == true,
+            )
         entry.phase = phaseFor(call.state)
         if (entry.phase == CallPhase.ACTIVE) entry.connectTime = connectTimeOf(details, now)
         tracked += entry
@@ -178,7 +188,10 @@ object CallManager {
         find(id)?.call?.disconnect()
     }
 
-    fun hold(id: Long, hold: Boolean) {
+    fun hold(
+        id: Long,
+        hold: Boolean,
+    ) {
         val call = find(id)?.call ?: return
         if (hold) call.hold() else call.unhold()
     }
@@ -199,7 +212,10 @@ object CallManager {
         }
     }
 
-    fun playDtmf(id: Long, digit: Char) {
+    fun playDtmf(
+        id: Long,
+        digit: Char,
+    ) {
         find(id)?.call?.playDtmfTone(digit)
     }
 
@@ -231,8 +247,7 @@ object CallManager {
     }
 
     /** Whether the screen is on. With it off, a ringing call relies on the full-screen intent. */
-    private fun isScreenOn(context: Context): Boolean =
-        context.getSystemService(PowerManager::class.java)?.isInteractive ?: true
+    private fun isScreenOn(context: Context): Boolean = context.getSystemService(PowerManager::class.java)?.isInteractive ?: true
 
     /** The call in progress that the foreground notification shows: an active call first, else a held or dialing one. */
     fun inProgressCall(): CallState? {
@@ -260,19 +275,24 @@ object CallManager {
     /** Rings for the oldest ringing call that screening did not silence. Anything else stops the ringer. */
     private fun syncRinger() {
         val context = appContext ?: return
-        val audible = tracked.firstOrNull {
-            it.phase == CallPhase.RINGING && !it.silencedByScreening && it.id !in ringerSilenced
-        }
+        val audible =
+            tracked.firstOrNull {
+                it.phase == CallPhase.RINGING && !it.silencedByScreening && it.id !in ringerSilenced
+            }
         if (audible == null) {
             CallRinger.stop()
             return
         }
-        val dnd = dndSuppresses(
-            platformSaysSuppressed = audible.call.details.extras?.getBoolean(Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB) == true,
-            sdkInt = Build.VERSION.SDK_INT,
-            interruptionFilter = context.getSystemService(NotificationManager::class.java)?.currentInterruptionFilter
-                ?: NotificationManager.INTERRUPTION_FILTER_ALL,
-        )
+        val dnd =
+            dndSuppresses(
+                platformSaysSuppressed =
+                    audible.call.details.extras
+                        ?.getBoolean(Call.EXTRA_IS_SUPPRESSED_BY_DO_NOT_DISTURB) == true,
+                sdkInt = Build.VERSION.SDK_INT,
+                interruptionFilter =
+                    context.getSystemService(NotificationManager::class.java)?.currentInterruptionFilter
+                        ?: NotificationManager.INTERRUPTION_FILTER_ALL,
+            )
         val ringerMode = context.getSystemService(AudioManager::class.java)?.ringerMode ?: AudioManager.RINGER_MODE_NORMAL
         val plan = ringPlan(silenced = false, dndSuppressed = dnd, ringerMode = ringerMode)
         if (plan.any) CallRinger.start(context, plan) else CallRinger.stop()
@@ -307,9 +327,10 @@ object CallManager {
     private fun resolve(entry: TrackedCall) {
         val context = appContext ?: return
         scope.launch {
-            val identity = withContext(Dispatchers.IO) {
-                runCatching { resolveIdentity(context, entry.raw, entry.cnap) }.getOrNull()
-            }
+            val identity =
+                withContext(Dispatchers.IO) {
+                    runCatching { resolveIdentity(context, entry.raw, entry.cnap) }.getOrNull()
+                }
             if (tracked.any { it === entry }) {
                 entry.identity = identity
                 publish()
@@ -367,18 +388,25 @@ private class Identity(
     val spamScore: Int,
 )
 
-private fun resolveIdentity(context: Context, raw: String?, cnap: String?): Identity {
+private fun resolveIdentity(
+    context: Context,
+    raw: String?,
+    cnap: String?,
+): Identity {
     val graph = CallGuardApp.graph(context)
-    val result = raw?.takeIf { it.isNotBlank() }?.let { graph.resolve(it, cnap) }
-        ?: return if (cnap != null) {
-            Identity(cnap, SourceKind.CNAP, Confidence.HIGH, spam = false, spamScore = 0)
-        } else {
-            Identity(null, SourceKind.NONE, Confidence.NONE, spam = false, spamScore = 0)
-        }
+    val result =
+        raw?.takeIf { it.isNotBlank() }?.let { graph.resolve(it, cnap) }
+            ?: return if (cnap != null) {
+                Identity(cnap, SourceKind.CNAP, Confidence.HIGH, spam = false, spamScore = 0)
+            } else {
+                Identity(null, SourceKind.NONE, Confidence.NONE, spam = false, spamScore = 0)
+            }
     val spam = graph.spamPolicy.assess(result.number)
     return Identity(result.name, result.source, result.confidence, spam.isSpam, spam.score)
 }
 
 /** The connect time from the platform, or [fallback] when the platform has not set one. */
-private fun connectTimeOf(details: Call.Details, fallback: Long): Long =
-    details.connectTimeMillis.takeIf { it > 0L } ?: fallback
+private fun connectTimeOf(
+    details: Call.Details,
+    fallback: Long,
+): Long = details.connectTimeMillis.takeIf { it > 0L } ?: fallback

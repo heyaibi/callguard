@@ -24,11 +24,12 @@ fun rememberPlaceCall(): (String) -> Unit {
     val context = LocalContext.current
     var waiting by remember { mutableStateOf<String?>(null) }
     // Placed whether or not the permission was granted: without it, placeOrDial falls back to the system dialer.
-    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-        val number = waiting
-        waiting = null
-        if (number != null) placeOrDial(context, number)
-    }
+    val permission =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+            val number = waiting
+            waiting = null
+            if (number != null) placeOrDial(context, number)
+        }
     return remember {
         { number: String ->
             if (number.isNotEmpty()) {
@@ -47,7 +48,10 @@ fun rememberPlaceCall(): (String) -> Unit {
  * Places the call through Telecom. When Telecom refuses (no permission, no calling account), the system dialer
  * opens with the number, so the user can still call.
  */
-private fun placeOrDial(context: Context, number: String) {
+private fun placeOrDial(
+    context: Context,
+    number: String,
+) {
     if (!Dialer.placeCall(context, number)) {
         runCatching { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", number, null))) }
     }

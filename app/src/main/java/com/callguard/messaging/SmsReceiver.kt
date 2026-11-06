@@ -10,7 +10,10 @@ import kotlin.concurrent.thread
  * so this receiver only logs them. When CallGuard is the default, [SmsDeliverReceiver] handles the text instead.
  */
 class SmsReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (isDefaultSmsApp(context)) return
         val parts = smsParts(intent) ?: return
         val pending = goAsync()

@@ -11,7 +11,12 @@ class MessageFilterPolicy {
      * Rules are applied in order: block list, allow list, contacts only, unknown sender in ignore or silence mode, spam, else notify.
      * Callers pass settings from AppGraph.effectiveSettings(), which clears contactsOnly without READ_CONTACTS.
      */
-    fun decide(identity: ResolutionResult, spam: SpamAssessment, settings: Settings, inContacts: Boolean): MessageOutcome {
+    fun decide(
+        identity: ResolutionResult,
+        spam: SpamAssessment,
+        settings: Settings,
+        inContacts: Boolean,
+    ): MessageOutcome {
         val e164 = identity.number.e164
         return when {
             e164 in settings.blockList -> MessageOutcome.BLOCKED

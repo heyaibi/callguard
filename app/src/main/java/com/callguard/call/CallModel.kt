@@ -10,24 +10,26 @@ import com.callguard.identity.SourceKind
 enum class CallPhase { RINGING, DIALING, ACTIVE, HOLDING, DISCONNECTED }
 
 /** Maps a platform call state to a phase. Only RINGING and SIMULATED_RINGING ring. */
-fun phaseFor(platformState: Int): CallPhase = when (platformState) {
-    Call.STATE_RINGING, Call.STATE_SIMULATED_RINGING -> CallPhase.RINGING
-    Call.STATE_ACTIVE -> CallPhase.ACTIVE
-    Call.STATE_HOLDING -> CallPhase.HOLDING
-    Call.STATE_DISCONNECTING, Call.STATE_DISCONNECTED -> CallPhase.DISCONNECTED
-    else -> CallPhase.DIALING
-}
+fun phaseFor(platformState: Int): CallPhase =
+    when (platformState) {
+        Call.STATE_RINGING, Call.STATE_SIMULATED_RINGING -> CallPhase.RINGING
+        Call.STATE_ACTIVE -> CallPhase.ACTIVE
+        Call.STATE_HOLDING -> CallPhase.HOLDING
+        Call.STATE_DISCONNECTING, Call.STATE_DISCONNECTED -> CallPhase.DISCONNECTED
+        else -> CallPhase.DIALING
+    }
 
 /** Where the call's audio goes. */
 enum class AudioRoute { EARPIECE, SPEAKER, BLUETOOTH, WIRED }
 
 /** Maps a platform audio route to [AudioRoute]. Unknown or combined routes read as the earpiece. */
-fun audioRouteFor(route: Int): AudioRoute = when (route) {
-    CallAudioState.ROUTE_SPEAKER -> AudioRoute.SPEAKER
-    CallAudioState.ROUTE_BLUETOOTH -> AudioRoute.BLUETOOTH
-    CallAudioState.ROUTE_WIRED_HEADSET -> AudioRoute.WIRED
-    else -> AudioRoute.EARPIECE
-}
+fun audioRouteFor(route: Int): AudioRoute =
+    when (route) {
+        CallAudioState.ROUTE_SPEAKER -> AudioRoute.SPEAKER
+        CallAudioState.ROUTE_BLUETOOTH -> AudioRoute.BLUETOOTH
+        CallAudioState.ROUTE_WIRED_HEADSET -> AudioRoute.WIRED
+        else -> AudioRoute.EARPIECE
+    }
 
 /**
  * One call as the in-call screens and notifications show it. Published as an immutable snapshot by [CallManager].

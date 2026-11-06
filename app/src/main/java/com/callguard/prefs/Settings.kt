@@ -12,6 +12,7 @@ data class Settings(
     val onlineLookup: Boolean = false,
     val googleContacts: Boolean = false,
     val bridgeApps: Map<String, Boolean> = mapOf("com.whatsapp" to true, "com.whatsapp.w4b" to true),
-    val allowList: Set<String> = emptySet(), // e164
-    val blockList: Set<String> = emptySet(), // e164
+    // Both lists hold e164 numbers.
+    val allowList: Set<String> = emptySet(),
+    val blockList: Set<String> = emptySet(),
 )

@@ -5,7 +5,6 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 class ScreeningVerdictsTest {
-
     @Test
     fun keyIsTheE164NumberWhenItNormalizes() {
         assertEquals("+919876543210", ScreeningVerdicts.keyFor("98765 43210"))

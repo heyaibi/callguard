@@ -2,10 +2,10 @@ package com.callguard.ui.screens
 
 import android.Manifest
 import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.ClipboardManager
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
@@ -19,23 +19,23 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -83,12 +83,12 @@ import com.callguard.core.PhoneNumber
 import com.callguard.core.PhoneNumbers
 import com.callguard.messaging.DeliveryState
 import com.callguard.messaging.MessageNotifier
+import com.callguard.messaging.SmsCount
 import com.callguard.messaging.SmsProvider
 import com.callguard.messaging.ThreadMessage
 import com.callguard.messaging.ThreadRow
 import com.callguard.messaging.isDefaultSmsApp
 import com.callguard.messaging.smsCount
-import com.callguard.messaging.SmsCount
 import com.callguard.messaging.threadRows
 import com.callguard.ui.components.RedPill
 import com.callguard.ui.components.RoundKey
@@ -113,7 +113,10 @@ private val BubbleText = TextStyle(fontFamily = MonoFont, fontWeight = FontWeigh
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ThreadScreen(number: String, onBack: () -> Unit) {
+fun ThreadScreen(
+    number: String,
+    onBack: () -> Unit,
+) {
     val context = LocalContext.current
     val graph = CallGuardApp.graph(context)
     val target = remember(number) { PhoneNumber(number) }
@@ -132,14 +135,15 @@ fun ThreadScreen(number: String, onBack: () -> Unit) {
 
     fun reload() {
         scope.launch {
-            messages = withContext(Dispatchers.IO) {
-                val loaded = SmsProvider.thread(context, target)
-                if (loaded.any { it.isUnreadIncoming } && isDefaultSmsApp(context)) {
-                    SmsProvider.markRead(context, target)
+            messages =
+                withContext(Dispatchers.IO) {
+                    val loaded = SmsProvider.thread(context, target)
+                    if (loaded.any { it.isUnreadIncoming } && isDefaultSmsApp(context)) {
+                        SmsProvider.markRead(context, target)
+                    }
+                    MessageNotifier.cancel(context, target)
+                    loaded
                 }
-                MessageNotifier.cancel(context, target)
-                loaded
-            }
         }
     }
 
@@ -148,17 +152,19 @@ fun ThreadScreen(number: String, onBack: () -> Unit) {
     }
 
     DisposableEffect(number) {
-        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean) = reload()
-        }
+        val observer =
+            object : ContentObserver(Handler(Looper.getMainLooper())) {
+                override fun onChange(selfChange: Boolean) = reload()
+            }
         context.contentResolver.registerContentObserver(Telephony.Sms.CONTENT_URI, true, observer)
         onDispose { context.contentResolver.unregisterContentObserver(observer) }
     }
 
-    val permissions = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        canRead = hasSmsPermission(context, Manifest.permission.READ_SMS)
-        canSend = hasSmsPermission(context, Manifest.permission.SEND_SMS)
-    }
+    val permissions =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            canRead = hasSmsPermission(context, Manifest.permission.READ_SMS)
+            canSend = hasSmsPermission(context, Manifest.permission.SEND_SMS)
+        }
 
     fun send() {
         val text = draft.trim()
@@ -168,9 +174,10 @@ fun ThreadScreen(number: String, onBack: () -> Unit) {
             return
         }
         scope.launch {
-            val error = withContext(Dispatchers.IO) {
-                runCatching { SmsProvider.send(context, target, text) }.exceptionOrNull()
-            }
+            val error =
+                withContext(Dispatchers.IO) {
+                    runCatching { SmsProvider.send(context, target, text) }.exceptionOrNull()
+                }
             sendFailed = error != null
             if (error == null) draft = ""
             reload()
@@ -179,12 +186,13 @@ fun ThreadScreen(number: String, onBack: () -> Unit) {
 
     fun resend(message: ThreadMessage) {
         scope.launch {
-            val error = withContext(Dispatchers.IO) {
-                runCatching {
-                    SmsProvider.send(context, target, message.body)
-                    SmsProvider.deleteMessage(context, message.id)
-                }.exceptionOrNull()
-            }
+            val error =
+                withContext(Dispatchers.IO) {
+                    runCatching {
+                        SmsProvider.send(context, target, message.body)
+                        SmsProvider.deleteMessage(context, message.id)
+                    }.exceptionOrNull()
+                }
             sendFailed = error != null
             reload()
         }
@@ -248,26 +256,32 @@ fun ThreadScreen(number: String, onBack: () -> Unit) {
                     },
                 ) { row ->
                     when (row) {
-                        is ThreadRow.Day -> DayHeading(row.millis)
-                        is ThreadRow.Text -> Bubble(
-                            message = row.message,
-                            menuOpen = menuFor?.id == row.message.id,
-                            onLongPress = { menuFor = row.message },
-                            onDismiss = { menuFor = null },
-                            onCopy = {
-                                menuFor = null
-                                context.getSystemService(ClipboardManager::class.java)
-                                    .setPrimaryClip(ClipData.newPlainText("text message", row.message.body))
-                            },
-                            onDelete = {
-                                menuFor = null
-                                delete(row.message)
-                            },
-                            onResend = {
-                                menuFor = null
-                                resend(row.message)
-                            },
-                        )
+                        is ThreadRow.Day -> {
+                            DayHeading(row.millis)
+                        }
+
+                        is ThreadRow.Text -> {
+                            Bubble(
+                                message = row.message,
+                                menuOpen = menuFor?.id == row.message.id,
+                                onLongPress = { menuFor = row.message },
+                                onDismiss = { menuFor = null },
+                                onCopy = {
+                                    menuFor = null
+                                    context
+                                        .getSystemService(ClipboardManager::class.java)
+                                        .setPrimaryClip(ClipData.newPlainText("text message", row.message.body))
+                                },
+                                onDelete = {
+                                    menuFor = null
+                                    delete(row.message)
+                                },
+                                onResend = {
+                                    menuFor = null
+                                    resend(row.message)
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -432,12 +446,13 @@ private fun StatusLine(message: ThreadMessage) {
             style = CgType.RowSub.copy(fontSize = 9.sp, letterSpacing = 0.8.sp),
             color = CgColors.TextFaint,
         )
-        val (icon, label, tint) = when (message.state) {
-            DeliveryState.RECEIVED -> return
-            DeliveryState.PENDING -> Triple(Icons.Filled.Schedule, "SENDING", CgColors.TextDim)
-            DeliveryState.SENT -> Triple(Icons.Filled.Done, "SENT", CgColors.TextDim)
-            DeliveryState.FAILED -> Triple(Icons.Filled.ErrorOutline, "FAILED", CgColors.Red)
-        }
+        val (icon, label, tint) =
+            when (message.state) {
+                DeliveryState.RECEIVED -> return
+                DeliveryState.PENDING -> Triple(Icons.Filled.Schedule, "SENDING", CgColors.TextDim)
+                DeliveryState.SENT -> Triple(Icons.Filled.Done, "SENT", CgColors.TextDim)
+                DeliveryState.FAILED -> Triple(Icons.Filled.ErrorOutline, "FAILED", CgColors.Red)
+            }
         Spacer(Modifier.width(6.dp))
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(11.dp))
         Spacer(Modifier.width(3.dp))
@@ -450,7 +465,11 @@ private fun StatusLine(message: ThreadMessage) {
 }
 
 @Composable
-private fun ComposeBar(draft: String, onDraftChange: (String) -> Unit, onSend: () -> Unit) {
+private fun ComposeBar(
+    draft: String,
+    onDraftChange: (String) -> Unit,
+    onSend: () -> Unit,
+) {
     val count = remember(draft) { smsCount(draft) }
     // The window does not resize for the keyboard (edge-to-edge, adjustNothing in the manifest), so this bar lifts itself
     // above the keyboard. It is the only place the IME inset is applied.
@@ -514,23 +533,30 @@ private fun counterLabel(count: SmsCount): String {
     return "${count.remaining} LEFT · ${count.parts} $parts$script"
 }
 
-private fun bubbleColor(state: DeliveryState): Color = when (state) {
-    DeliveryState.RECEIVED -> CgColors.SurfaceHigh
-    DeliveryState.PENDING -> CgColors.White.copy(alpha = 0.55f)
-    DeliveryState.SENT -> CgColors.White
-    DeliveryState.FAILED -> CgColors.Red
-}
+private fun bubbleColor(state: DeliveryState): Color =
+    when (state) {
+        DeliveryState.RECEIVED -> CgColors.SurfaceHigh
+        DeliveryState.PENDING -> CgColors.White.copy(alpha = 0.55f)
+        DeliveryState.SENT -> CgColors.White
+        DeliveryState.FAILED -> CgColors.Red
+    }
 
 @Composable
-private fun ThreadMenuItem(label: String, color: Color, onClick: () -> Unit) {
+private fun ThreadMenuItem(
+    label: String,
+    color: Color,
+    onClick: () -> Unit,
+) {
     DropdownMenuItem(
         text = { Text(label.uppercase(), style = CgType.Label.copy(fontSize = 11.sp), color = color) },
         onClick = onClick,
     )
 }
 
-private fun hasSmsPermission(context: Context, permission: String): Boolean =
-    context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+private fun hasSmsPermission(
+    context: Context,
+    permission: String,
+): Boolean = context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
 
 private fun Context.toast(text: String) {
     Toast.makeText(this, text, Toast.LENGTH_SHORT).show()

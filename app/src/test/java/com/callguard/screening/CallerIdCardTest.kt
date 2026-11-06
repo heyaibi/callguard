@@ -9,7 +9,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class CallerIdCardTest {
-
     private val n = PhoneNumber("+919876543210")
     private val clean = SpamAssessment(n, 0, false, "no spam signals")
 

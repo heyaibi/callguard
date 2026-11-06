@@ -83,12 +83,13 @@ fun ListsScreen(onBack: () -> Unit = {}) {
         }
     }
 
-    val visible = listed.sorted().filter { n ->
-        query.isBlank() ||
-            names[n].orEmpty().contains(query, ignoreCase = true) ||
-            displayNumber(n).contains(query, ignoreCase = true) ||
-            n.contains(query, ignoreCase = true)
-    }
+    val visible =
+        listed.sorted().filter { n ->
+            query.isBlank() ||
+                names[n].orEmpty().contains(query, ignoreCase = true) ||
+                displayNumber(n).contains(query, ignoreCase = true) ||
+                n.contains(query, ignoreCase = true)
+        }
 
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
         Spacer(Modifier.height(28.dp))
@@ -105,7 +106,10 @@ fun ListsScreen(onBack: () -> Unit = {}) {
             selected = kind,
             allowLabel = "ALLOW · ${allowList.size}",
             blockLabel = "BLOCK · ${blockList.size}",
-            onSelect = { kind = it; note = null },
+            onSelect = {
+                kind = it
+                note = null
+            },
         )
         Spacer(Modifier.height(16.dp))
 
@@ -238,16 +242,18 @@ private fun LstKindSegment(
     modifier: Modifier,
     onClick: () -> Unit,
 ) {
-    val bg = when {
-        !selected -> Color.Transparent
-        kind == LstKind.BLOCK -> CgColors.Red
-        else -> CgColors.White
-    }
-    val fg = when {
-        !selected -> CgColors.TextDim
-        kind == LstKind.BLOCK -> CgColors.White
-        else -> CgColors.Black
-    }
+    val bg =
+        when {
+            !selected -> Color.Transparent
+            kind == LstKind.BLOCK -> CgColors.Red
+            else -> CgColors.White
+        }
+    val fg =
+        when {
+            !selected -> CgColors.TextDim
+            kind == LstKind.BLOCK -> CgColors.White
+            else -> CgColors.Black
+        }
     Box(
         modifier
             .clip(RoundedCornerShape(50))
@@ -261,7 +267,11 @@ private fun LstKindSegment(
 }
 
 @Composable
-private fun LstSearchRow(query: String, onQuery: (String) -> Unit, onAdd: () -> Unit) {
+private fun LstSearchRow(
+    query: String,
+    onQuery: (String) -> Unit,
+    onAdd: () -> Unit,
+) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Row(
             Modifier
@@ -320,13 +330,19 @@ private fun LstSearchRow(query: String, onQuery: (String) -> Unit, onAdd: () -> 
 }
 
 @Composable
-private fun LstRowItem(number: String, name: String?, kind: LstKind, onRemove: () -> Unit) {
+private fun LstRowItem(
+    number: String,
+    name: String?,
+    kind: LstKind,
+    onRemove: () -> Unit,
+) {
     val isSenderId = number.any { it.isLetter() }
-    val initials = when {
-        name != null -> initialsOf(name)
-        isSenderId -> number.take(2)
-        else -> "#"
-    }
+    val initials =
+        when {
+            name != null -> initialsOf(name)
+            isSenderId -> number.take(2)
+            else -> "#"
+        }
     Row(
         Modifier
             .fillMaxWidth()
@@ -362,11 +378,12 @@ private fun LstRowItem(number: String, name: String?, kind: LstKind, onRemove: (
             )
             Spacer(Modifier.height(3.dp))
             Text(
-                text = when {
-                    isSenderId -> "SENDER ID"
-                    name != null -> displayNumber(number)
-                    else -> "NOT IN CONTACTS"
-                },
+                text =
+                    when {
+                        isSenderId -> "SENDER ID"
+                        name != null -> displayNumber(number)
+                        else -> "NOT IN CONTACTS"
+                    },
                 style = CgType.RowSub.copy(fontSize = 11.sp),
                 color = CgColors.TextDim,
                 maxLines = 1,
@@ -428,7 +445,10 @@ private fun LstAddDialog(
                 label = "NUMBER OR SENDER ID",
                 value = number,
                 keyboard = KeyboardType.Phone,
-                onValue = { number = it; error = null },
+                onValue = {
+                    number = it
+                    error = null
+                },
             )
             Spacer(Modifier.height(10.dp))
             Text(
@@ -456,14 +476,14 @@ private fun LstAddDialog(
                         .clickable {
                             val parsed = PhoneNumbers.normalize(number)
                             val same = if (target == LstKind.ALLOW) allowList else blockList
-                            error = when {
-                                parsed == null -> "ENTER A PHONE NUMBER OR SENDER ID"
-                                parsed.e164 in same -> "ALREADY IN ${target.name}"
-                                else -> null
-                            }
+                            error =
+                                when {
+                                    parsed == null -> "ENTER A PHONE NUMBER OR SENDER ID"
+                                    parsed.e164 in same -> "ALREADY IN ${target.name}"
+                                    else -> null
+                                }
                             if (parsed != null && error == null) onConfirm(parsed, target)
-                        }
-                        .padding(horizontal = 22.dp, vertical = 12.dp),
+                        }.padding(horizontal = 22.dp, vertical = 12.dp),
                 ) {
                     Text(text = "ADD", style = CgType.Label, color = CgColors.Black)
                 }
@@ -493,11 +513,12 @@ private fun LstDialogField(
             keyboardOptions = KeyboardOptions(keyboardType = keyboard),
             textStyle = CgType.Row.copy(color = CgColors.White, fontSize = 14.sp),
             cursorBrush = SolidColor(CgColors.White),
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(50))
-                .background(CgColors.SurfaceHigh)
-                .padding(horizontal = 18.dp, vertical = 14.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(50))
+                    .background(CgColors.SurfaceHigh)
+                    .padding(horizontal = 18.dp, vertical = 14.dp),
         )
     }
 }

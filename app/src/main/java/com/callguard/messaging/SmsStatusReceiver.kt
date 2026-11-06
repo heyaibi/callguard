@@ -11,7 +11,10 @@ import kotlin.concurrent.thread
  * pending, sent or failed.
  */
 class SmsStatusReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(
+        context: Context,
+        intent: Intent,
+    ) {
         if (intent.action != ACTION_SENT) return
         val id = intent.getLongExtra(EXTRA_ID, -1L)
         if (id < 0) return

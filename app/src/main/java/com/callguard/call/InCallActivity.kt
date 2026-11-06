@@ -31,22 +31,35 @@ private const val ENDED_LINGER_MILLIS = 1_500L
  * of the call notification and [CallManager] start it. It finishes when no call is left.
  */
 class InCallActivity : ComponentActivity() {
+    private val actions =
+        object : InCallActions {
+            override fun answer(id: Long) = CallManager.answer(id)
 
-    private val actions = object : InCallActions {
-        override fun answer(id: Long) = CallManager.answer(id)
-        override fun decline(id: Long) = CallManager.decline(id)
-        override fun hangUp(id: Long) = CallManager.hangUp(id)
-        override fun hold(id: Long, hold: Boolean) = CallManager.hold(id, hold)
-        override fun setMuted(muted: Boolean) = CallManager.setMuted(muted)
-        override fun setSpeaker(on: Boolean) = CallManager.setSpeaker(on)
-        override fun playDtmf(id: Long, digit: Char) = CallManager.playDtmf(id, digit)
-        override fun stopDtmf(id: Long) = CallManager.stopDtmf(id)
+            override fun decline(id: Long) = CallManager.decline(id)
 
-        /** Opens the dialer over the call, so a second call can be placed. */
-        override fun addCall() {
-            startActivity(Intent(this@InCallActivity, DialActivity::class.java).setAction(Intent.ACTION_DIAL))
+            override fun hangUp(id: Long) = CallManager.hangUp(id)
+
+            override fun hold(
+                id: Long,
+                hold: Boolean,
+            ) = CallManager.hold(id, hold)
+
+            override fun setMuted(muted: Boolean) = CallManager.setMuted(muted)
+
+            override fun setSpeaker(on: Boolean) = CallManager.setSpeaker(on)
+
+            override fun playDtmf(
+                id: Long,
+                digit: Char,
+            ) = CallManager.playDtmf(id, digit)
+
+            override fun stopDtmf(id: Long) = CallManager.stopDtmf(id)
+
+            /** Opens the dialer over the call, so a second call can be placed. */
+            override fun addCall() {
+                startActivity(Intent(this@InCallActivity, DialActivity::class.java).setAction(Intent.ACTION_DIAL))
+            }
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,8 +80,7 @@ class InCallActivity : ComponentActivity() {
 
     companion object {
         /** An intent that brings this screen to the front as its own task. */
-        fun intent(context: Context): Intent =
-            Intent(context, InCallActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        fun intent(context: Context): Intent = Intent(context, InCallActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
         /** Brings the screen up. A launch the platform refuses is ignored; the call notification still opens it. */
         fun start(context: Context) {
@@ -82,17 +94,24 @@ class InCallActivity : ComponentActivity() {
  * screen opens gets a grace period, because the calls may not have arrived yet.
  */
 @Composable
-private fun FinishWhenIdle(calls: List<CallState>, onFinished: () -> Unit) {
+private fun FinishWhenIdle(
+    calls: List<CallState>,
+    onFinished: () -> Unit,
+) {
     var sawCall by remember { mutableStateOf(false) }
     LaunchedEffect(calls) {
         if (calls.isNotEmpty()) sawCall = true
         if (calls.any { it.phase != CallPhase.DISCONNECTED }) return@LaunchedEffect
         when {
-            calls.isEmpty() && sawCall -> onFinished()
+            calls.isEmpty() && sawCall -> {
+                onFinished()
+            }
+
             calls.isEmpty() -> {
                 delay(EMPTY_GRACE_MILLIS)
                 onFinished()
             }
+
             else -> {
                 delay(ENDED_LINGER_MILLIS)
                 onFinished()

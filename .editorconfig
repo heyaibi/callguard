@@ -1,0 +1,26 @@
+# Shared formatting rules for the whole repo. Kotlin files are linted and formatted by ktlint
+# (org.jlleitschuh.gradle.ktlint, applied in app/build.gradle.kts).
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# Long SQL, JSON and URL literals cannot be rewrapped by the formatter and are not worth
+# breaking by hand, so the hard wrap is off. Everything else stays at the ktlint defaults.
+max_line_length = off
+
+[*.{kt,kts}]
+ktlint_code_style = ktlint_official
+# Compose screens and components are PascalCase by convention; the rule is only for plain functions.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
+[*.{xml,json,yml,yaml,toml}]
+indent_size = 4
+
+[*.md]
+trim_trailing_whitespace = false

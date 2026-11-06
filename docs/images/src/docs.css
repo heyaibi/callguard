@@ -1,0 +1,76 @@
+/* Shared documentation-screenshot styles.
+   Fonts load from the app's own res/font folder (relative from docs/images/src/).
+   Canvas is 900x1200; the phone screen box is 396x880, which is exactly the 0.45
+   ratio of the 1080x2400 device captures, so object-fit: cover never crops. */
+@font-face { font-family: "Doto CG"; src: url("../../../app/src/main/res/font/doto_black.ttf") format("truetype"); font-weight: 900; font-style: normal; }
+@font-face { font-family: "Doto CG"; src: url("../../../app/src/main/res/font/doto_bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "Space Mono CG"; src: url("../../../app/src/main/res/font/space_mono_regular.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "Space Mono CG"; src: url("../../../app/src/main/res/font/space_mono_bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+
+:root {
+  --black: #000000;
+  --graphite: #1B1B1D;
+  --graphite-2: #2A2A2D;
+  --red: #D71921;
+  --white: #FFFFFF;
+  --mute: #9A9AA0;
+}
+
+html, body { margin: 0; padding: 0; background: var(--black); overflow: hidden; }
+* { box-sizing: border-box; }
+
+/* 900 x 1200 render surface. */
+.doc {
+  position: relative; width: 900px; height: 1200px; overflow: hidden;
+  background: var(--black);
+}
+
+.doc .grid {
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, #1B1B1E 2px, transparent 2.6px);
+  background-size: 36px 36px; background-position: 18px 18px;
+}
+
+/* Caption: screen name plus the source capture it came from. No marketing copy. */
+.doc .caption {
+  position: absolute; left: 0; right: 0; top: 54px;
+  text-align: center;
+}
+.doc .caption .index {
+  margin: 0; font-family: "Space Mono CG", monospace; font-weight: 700;
+  font-size: 13px; letter-spacing: 0.24em; color: var(--mute);
+  text-transform: uppercase;
+}
+.doc .caption .name {
+  margin: 10px 0 0; font-family: "Doto CG", monospace; font-weight: 900;
+  font-size: 46px; line-height: 1; letter-spacing: 0.05em; color: var(--white);
+  text-transform: uppercase; white-space: nowrap;
+}
+.doc .caption .bar {
+  display: block; width: 44px; height: 4px; background: var(--red);
+  margin: 14px auto 12px;
+}
+.doc .caption .source {
+  margin: 0; font-family: "Space Mono CG", monospace; font-weight: 400;
+  font-size: 13px; letter-spacing: 0.02em; color: var(--mute);
+  text-transform: none; white-space: nowrap;
+}
+
+/* Phone frame: 14 padding + 1px border around the 396x880 screen = 428x912 outer.
+   Left = (900 - 428) / 2 = 236. Top 176, so the frame ends at 1088. */
+.doc .phone {
+  position: absolute; left: 236px; top: 176px; width: 428px; height: 912px;
+  background: #0B0B0C;
+  border: 1px solid #3A3A3E;
+  border-radius: 34px;
+  padding: 14px;
+  box-shadow: 0 0 0 1px rgba(215, 25, 33, 0.16), 0 26px 60px rgba(0, 0, 0, 0.85);
+}
+.doc .screen {
+  width: 396px; height: 880px;
+  border-radius: 22px; overflow: hidden; background: var(--black);
+}
+.doc .screen img {
+  display: block; width: 396px; height: 880px;
+  object-fit: cover;
+}

@@ -16,9 +16,9 @@ The rows live in `app/src/main/java/com/callguard/ui/screens/SettingsSections.kt
 
 | Label in the app | Field | Storage key | Type | Default | What it changes |
 |---|---|---|---|---|---|
-| CONTACTS ONLY | `contactsOnly` | `contactsOnly` | Boolean | `true` | Blocks calls and texts from numbers that are not in the phonebook |
-| SILENCE MODE | `silenceMode` | `silenceMode` | Boolean | `false` | Silences unknown calls, and silences texts from unknown senders |
-| IGNORE MODE | `ignoreMode` | `ignoreMode` | Boolean | `false` | Sends texts from unknown senders to the quiet inbox; no effect on calls |
+| CONTACTS ONLY | `contactsOnly` | `contactsOnly` | Boolean | `true` | Blocks calls, and texts, from numbers that are not in the phonebook, unless the text's kind rings |
+| SILENCE MODE | `silenceMode` | `silenceMode` | Boolean | `false` | Silences unknown calls, and silences texts from unknown senders unless the text's kind rings |
+| IGNORE MODE | `ignoreMode` | `ignoreMode` | Boolean | `false` | Sends texts from unknown senders to the quiet inbox unless the text's kind rings; no effect on calls |
 | UNKNOWN CALLERS | `unknownCallerAction` | `unknownCallerAction` | Enum `UnknownCallerAction`: `SILENCE` or `BLOCK`, stored as its name | `SILENCE` | Decides whether silence mode silences or blocks an unknown call |
 | BLOCK SPAM | `blockSpam` | `blockSpam` | Boolean | `false` | Blocks a call whose spam score is 70 or more, instead of silencing it |
 | SHOW CARD FOR UNKNOWN | `showCardForUnknown` | `showCardForUnknown` | Boolean | `true` | Shows the caller ID card for a caller with no resolved name |
@@ -28,14 +28,18 @@ The rows live in `app/src/main/java/com/callguard/ui/screens/SettingsSections.kt
 | WHATSAPP BUSINESS | `bridgeApps["com.whatsapp.w4b"]` | `bridgeApps` | Entry in a string set, written `com.whatsapp.w4b=true` | `true` | The same for WhatsApp Business |
 | ALLOW / BLOCK LISTS | `allowList` | `allowList` | String set of E.164 numbers | empty | Numbers that always ring and notify |
 | ALLOW / BLOCK LISTS | `blockList` | `blockList` | String set of E.164 numbers | empty | Numbers that are always blocked |
+| TEXTS THAT RING | `ringKinds` | `ringKinds` | String set of kind names, such as `OTP` | OTP, FINANCE, GOVERNMENT, TRANSACTIONAL, DELIVERY and PERSONAL on; PROMOTIONAL and SCAM off | Texts of a kind that is on ring when the sender is not a contact |
+| ALWAYS RING and MUTE SENDER | `senderRing` | `senderRing` | String set, each entry `key=RING` or `key=MUTE` | Empty | RING notifies every text from the sender. MUTE silences every text from it. |
 
 The two list rows have no switch. The row opens the lists screen, and numbers reach the lists from that screen, the conversation screen, the messages screen, and the incoming-call screen. The recents screen changes spam marks instead, which is a separate record.
+
+The TEXTS THAT RING switches are on the Guard tab. The sender actions are in the conversation sheet on the Messages tab.
 
 ## What each setting changes
 
 ### CONTACTS ONLY
 
-When on, any number that is not in the phonebook is blocked: calls are rejected, and texts are stored, logged as blocked, and produce no alert. The check runs after the allow list, so an allow-listed non-contact still rings.
+When on, any number that is not in the phonebook is blocked: calls are rejected. Texts from such a number are stored, logged as blocked, and produce no alert, unless a kind in TEXTS THAT RING rings or the text looks like spam. The check runs after the allow list, so an allow-listed non-contact still rings.
 
 The setting only applies while `READ_CONTACTS` is granted. `AppGraph.effectiveSettings()` copies the settings with `contactsOnly = false` when the permission is missing, which keeps the screening and messaging policies free of permission checks. The Guard tab shows a `GRANT CONTACTS` pill under the row in that state, and the Contacts screen shows the same request.
 
@@ -43,11 +47,11 @@ The setting only applies while `READ_CONTACTS` is granted. `AppGraph.effectiveSe
 
 For calls, silence mode acts only on a number that is not a contact and has no resolved name. With `UNKNOWN CALLERS` set to `SILENCE` the call rings without sound; with `BLOCK` it is rejected. A contact, an allow-listed number, and any number with a resolved name are unaffected.
 
-For texts, silence mode silences unknown senders. Ignore mode is checked first, so a text from an unknown sender goes to the quiet inbox when both are on.
+For texts, silence mode silences unknown senders, unless the text's kind rings. Ignore mode is checked before silence mode, so a text from an unknown sender goes to the quiet inbox when both are on.
 
 ### IGNORE MODE
 
-Ignore mode affects texts only. A text from a number that is not a contact goes to the quiet inbox and posts no alert. Calls are unaffected.
+Ignore mode affects texts only. A text from a number that is not a contact goes to the quiet inbox and posts no alert, unless the text's kind rings. Calls are unaffected.
 
 ### UNKNOWN CALLERS
 
@@ -83,6 +87,22 @@ Both lists hold E.164 strings. `SettingsStore.allow` adds a number to the allow 
 
 The allow list is checked before every other rule except the block list, so an allow-listed number rings and notifies even with contacts only and silence mode on. The block list is checked first of all, so a number that somehow reached both lists would be blocked; the store methods keep that state from being written. The lists screen, the conversation screen, the messages screen and the incoming-call screen all change the lists through the same three store methods.
 
+### TEXTS THAT RING
+
+Each kind of text has one switch under TEXTS THAT RING on the Guard tab. A switch that is on makes a text of that kind notify. This applies to a sender that is not a contact, when the text scores below 0.6 for spam and the number is not marked as spam. Texts from contacts notify too, unless the number is marked as spam. The app sorts each text into one kind when it arrives, and the switches do not change that sorting.
+
+A text that scores 0.6 or more for spam goes to the quiet inbox before its kind is checked. So PROMOTIONS changes only promotions that score below 0.6. SCAM has no effect, because a scam text always scores 0.7 or more.
+
+PROMOTIONS and SCAM are off by default. The full order is in [How CallGuard decides which texts ring](../explanation/message-filtering.md).
+
+### ALWAYS RING and MUTE SENDER
+
+Long-press a conversation on the Messages tab to open its sheet. ALWAYS RING notifies every text from that sender with sound. It applies even with CONTACTS ONLY on, a kind switched off, or a high spam score. MUTE SENDER silences every text from that sender, and the text stays in the inbox with no sound.
+
+When a sender has an action, its label changes to STOP ALWAYS RINGING or UNMUTE. Tap that label to clear the setting. The block list and the allow list are still checked first.
+
+A DLT sender ID is stored under its brand header. For example, VM-HDFCBK-S is stored as HDFCBK. So one action also covers AX-HDFCBK and other prefixes of that brand.
+
 ## Identity source rows on the Guard tab
 
 The `IDENTITY SOURCES · ORDER` section lists eight sources in the fixed order the resolution policy uses: CNAP, Contacts, Google Contacts, Operator Service, App Profile, Cache, Bundled DB, Online Lookup. The order is not a preference. It comes from the `rank` value on `SourceKind` (`app/src/main/java/com/callguard/identity/Resolution.kt`), and nothing on the screen writes it back.
@@ -108,9 +128,11 @@ The export file is written to the app's external files directory, or to the inte
 - `bridgeApps` is read as a string set of `package=value` pairs. When the key is absent entirely, the two WhatsApp entries default to on. When the key is present, any package missing from the set reads as off.
 - `unknownCallerAction` is read with `runCatching`, so an unrecognised stored string becomes `SILENCE`.
 - `allowList` and `blockList` are read as raw string sets with no normalisation at load time. A value written by an older build in another format would stay in the set and never match a normalised lookup.
+- `ringKinds` and `senderRing` are read with `runCatching`. An entry that does not parse is skipped. A missing `ringKinds` key gives the six default kinds. An empty stored set stays empty, so switching every kind off is kept.
 
 ## Related
 
 - [Permissions and roles reference](permissions-and-roles.md) for the grants these settings depend on.
 - [Why screening works the way it does](../explanation/screening.md) for the order the rules are applied in.
+- [Why some texts ring and others stay quiet](../explanation/message-filtering.md) for the order that the text rules apply in.
 - [User Preferences domain specification](../blueprint/domains/user-preferences.md) for the product-level definition of each setting.

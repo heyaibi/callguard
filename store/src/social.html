@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CallGuard social preview</title>
+<link rel="stylesheet" href="store.css">
+<style>
+  .canvas { position: relative; width: 1280px; height: 640px; background: var(--black); overflow: hidden; }
+  .dots {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, var(--graphite-2) 2px, transparent 2.6px);
+    background-size: 32px 32px; background-position: 16px 16px;
+  }
+  .rule {
+    position: absolute; left: 0; right: 0; height: 6px; background: var(--red);
+  }
+  .rule.top { top: 0; }
+  .rule.bottom { bottom: 0; }
+  .copy {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .mark { display: flex; align-items: center; gap: 32px; }
+  .mark img { width: 132px; height: 132px; border-radius: 30px; }
+  h1 {
+    margin: 0; font-family: "Doto CG", monospace; font-weight: 900;
+    font-size: 118px; line-height: 1; letter-spacing: 0.04em; color: var(--white);
+    white-space: nowrap;
+  }
+  .bar { width: 88px; height: 8px; background: var(--red); margin: 40px 0 28px; }
+  .tag {
+    margin: 0; font-family: "Space Mono CG", monospace; font-weight: 700;
+    font-size: 27px; letter-spacing: 0.16em; color: var(--white);
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .sub {
+    margin: 20px 0 0; font-family: "Space Mono CG", monospace; font-weight: 400;
+    font-size: 19px; letter-spacing: 0.03em; color: var(--mute);
+  }
+</style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="dots"></div>
+    <div class="rule top"></div>
+    <div class="rule bottom"></div>
+    <div class="copy">
+      <div class="mark">
+        <img src="../icon-512.png" alt="">
+        <h1>CALLGUARD</h1>
+      </div>
+      <div class="bar"></div>
+      <p class="tag">Know who's calling. Silence the rest.</p>
+      <p class="sub">On-device caller ID and call screening. No account, no backend.</p>
+    </div>
+  </div>
+</body>
+</html>

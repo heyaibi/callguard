@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CallGuard README banner</title>
+<link rel="stylesheet" href="store.css">
+<style>
+  .canvas { position: relative; width: 1600px; height: 400px; background: var(--black); overflow: hidden; }
+  .dots {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, var(--graphite-2) 2px, transparent 2.6px);
+    background-size: 30px 30px; background-position: 15px 15px;
+  }
+  .copy {
+    position: absolute; left: 96px; top: 0; height: 400px; width: 1040px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .mark { display: flex; align-items: center; gap: 30px; }
+  .mark img { width: 100px; height: 100px; border-radius: 22px; }
+  h1 {
+    margin: 0; font-family: "Doto CG", monospace; font-weight: 900;
+    font-size: 92px; line-height: 1; letter-spacing: 0.04em; color: var(--white);
+    white-space: nowrap;
+  }
+  .bar { width: 76px; height: 8px; background: var(--red); margin: 24px 0 20px; }
+  .tag {
+    margin: 0; font-family: "Space Mono CG", monospace; font-weight: 700;
+    font-size: 21px; letter-spacing: 0.14em; color: var(--white);
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .sub {
+    margin: 16px 0 0; font-family: "Space Mono CG", monospace; font-weight: 400;
+    font-size: 17px; letter-spacing: 0.02em; color: var(--mute);
+  }
+  /* Screen box matches the 1080x1920 capture so the image is not cropped sideways. */
+  .phone {
+    /* Captures are 1080x2400 (0.45), so the screen box keeps that ratio to avoid cropping.
+       162 screen + 8+8 padding + 2+2 border = 182 content box */
+    position: absolute; right: 140px; top: 16px; width: 182px;
+    transform: rotate(8deg); transform-origin: 50% 100%;
+    background: #0B0B0C; border: 2px solid var(--graphite-2); border-radius: 34px; padding: 8px;
+  }
+  .phone .screen { width: 162px; height: 360px; border-radius: 27px; overflow: hidden; background: var(--black); }
+  .phone img { display: block; width: 162px; height: 360px; object-fit: cover; }
+</style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="dots"></div>
+    <div class="copy">
+      <div class="mark">
+        <img src="../icon-512.png" alt="">
+        <h1>CALLGUARD</h1>
+      </div>
+      <div class="bar"></div>
+      <p class="tag">Know who's calling. Silence the rest.</p>
+      <p class="sub">On-device caller ID and call screening. No account, no backend.</p>
+    </div>
+    <div class="phone">
+      <div class="screen"><img src="../raw/a-incoming-call.png" alt="CallGuard incoming call screen"></div>
+    </div>
+  </div>
+</body>
+</html>

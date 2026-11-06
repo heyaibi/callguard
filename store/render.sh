@@ -43,6 +43,15 @@ fi
 if want feature-graphic; then
   shot "$SRC/feature.html" "$HERE/feature-graphic.png" 1024 500
 fi
+# Repository graphics live outside store/ because the README links to them.
+if want banner; then
+  mkdir -p "$HERE/../assets"
+  shot "$SRC/banner.html" "$HERE/../assets/banner.png" 1600 400
+fi
+if want social; then
+  mkdir -p "$HERE/../assets"
+  shot "$SRC/social.html" "$HERE/../assets/social-preview.png" 1280 640
+fi
 for n in 1 2 3 4 5 6; do
   if want "slide-0$n"; then
     mkdir -p "$HERE/screenshots"

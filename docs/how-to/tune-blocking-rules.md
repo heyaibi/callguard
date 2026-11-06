@@ -1,6 +1,6 @@
 # Tune what CallGuard blocks
 
-You set how unknown callers, spam, and non-contact texts are handled from the toggles under **PROTECTION** on the **Guard** tab. You need the call screening role granted for any call rule to run, and Contacts access for Contacts only to do anything.
+You set how unknown callers, spam, and non-contact texts are handled from the toggles under **PROTECTION** and **TEXTS THAT RING** on the **Guard** tab. You need the call screening role granted for any call rule to run, and Contacts access for Contacts only to do anything.
 
 Every rule lives on this one screen. The numbers themselves live in the allow and block lists, covered in [Manage the allow and block lists](../how-to/manage-lists.md).
 
@@ -8,7 +8,7 @@ Every rule lives on this one screen. The numbers themselves live in the allow an
 
 | Row | Default | What it does |
 |---|---|---|
-| **CONTACTS ONLY** | On | Blocks calls and texts from numbers that are not in your contacts. |
+| **CONTACTS ONLY** | On | Blocks calls and texts from numbers that are not in your contacts, unless a kind in **TEXTS THAT RING** rings. |
 | **SILENCE MODE** | Off | Mutes unknown calls and unknown texts, or rejects them when **UNKNOWN CALLERS** is set to BLOCK. |
 | **IGNORE MODE** | Off | Sends texts from non-contacts to the Quiet Inbox with no alert. |
 | **UNKNOWN CALLERS** | SILENCE | Picks between silencing and rejecting an unknown call. |
@@ -17,9 +17,9 @@ Every rule lives on this one screen. The numbers themselves live in the allow an
 
 Every setting, with its storage key and its default, is in the [settings reference](../reference/settings.md).
 
-Silence mode is the master switch for unknown callers, and it also applies to texts even though its subtitle mentions calls only. The **UNKNOWN CALLERS** choice between SILENCE and BLOCK takes effect only while Silence mode is on, and only for a call with no contact match and no name from any source.
+Silence mode is the master switch for unknown callers, and it also applies to texts even though its subtitle mentions calls only. A text whose kind rings is not silenced. The **UNKNOWN CALLERS** choice between SILENCE and BLOCK takes effect only while Silence mode is on, and only for a call with no contact match and no name from any source.
 
-**BLOCK SPAM** affects calls only. A text that scores 70 or more goes to the Quiet Inbox whether the toggle is on or off.
+**BLOCK SPAM** affects calls only. A text that looks like spam goes to the Quiet Inbox whether the toggle is on or off.
 
 A call that scores 70 or more arrives flagged, with the score's reasons alongside it:
 
@@ -39,15 +39,7 @@ CallGuard applies the rules in this order and stops at the first match:
 
 ## How a text is decided
 
-Texts use a different order:
-
-1. Sender in the block list: blocked.
-2. Sender in the allow list: notify normally.
-3. Contacts only, and the sender is not a contact: blocked.
-4. Ignore mode on and the sender is not a contact: Quiet Inbox.
-5. Silence mode on and the sender is not a contact: silent notify.
-6. Spam score of 70 or more: Quiet Inbox.
-7. Anything else: notify normally.
+Texts use their own order, which is set out in [How CallGuard decides which texts ring](../explanation/message-filtering.md). The **TEXTS THAT RING** switches matter most here. A text from someone who is not a contact rings when its kind is on, unless it looks like spam, even with CONTACTS ONLY or SILENCE MODE on.
 
 ## Contacts only needs Contacts access
 

@@ -6,10 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Texts that ring. The Guard tab has a TEXTS THAT RING section with one switch for each kind of text.
+- ALWAYS RING and MUTE SENDER in a conversation. A muted sender stays in the inbox with no sound.
+- Each new text is sorted into a kind and scored for spam on the phone.
+
 ### Changed
 
 - The bottom bar reads Keypad, Recents, Messages, Contacts, and Guard.
 - Settings now live on the Guard screen, below the protection status. The separate Settings screen is gone.
+- Texts from people who are not your contacts ring by default when they are one-time codes, bank, government, service, or delivery texts. Personal texts and promotions from strangers do not ring by default. Scams never ring.
 
 ### Fixed
 

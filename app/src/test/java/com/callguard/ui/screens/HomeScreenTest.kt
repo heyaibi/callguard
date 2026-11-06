@@ -1,5 +1,6 @@
 package com.callguard.ui.screens
 
+import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -7,7 +8,11 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.test.core.app.ApplicationProvider
+import com.callguard.CallGuardApp
+import com.callguard.spam.classify.SmsKind
 import com.callguard.ui.theme.CallGuardTheme
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -68,5 +73,37 @@ class HomeScreenTest {
         compose.onNodeWithText("ALLOW / BLOCK LISTS").performScrollTo().performClick()
 
         assertTrue(opened)
+    }
+
+    @Test
+    fun guardScreenShowsTextsThatRingWithARowPerKind() {
+        compose.setContent {
+            CallGuardTheme {
+                HomeScreen()
+            }
+        }
+
+        compose.onNodeWithText("TEXTS THAT RING").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("PROMOTIONS").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("BANKS & INVESTMENTS").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun tappingAKindRowTurnsThatKindOnAndOff() {
+        val store = CallGuardApp.graph(ApplicationProvider.getApplicationContext<Context>()).settingsStore
+        compose.setContent {
+            CallGuardTheme {
+                HomeScreen()
+            }
+        }
+        assertFalse(SmsKind.PROMOTIONAL in store.settings.value.ringKinds)
+
+        compose.onNodeWithText("PROMOTIONS").performScrollTo().performClick()
+        compose.waitForIdle()
+        assertTrue(SmsKind.PROMOTIONAL in store.settings.value.ringKinds)
+
+        compose.onNodeWithText("PROMOTIONS").performScrollTo().performClick()
+        compose.waitForIdle()
+        assertFalse(SmsKind.PROMOTIONAL in store.settings.value.ringKinds)
     }
 }

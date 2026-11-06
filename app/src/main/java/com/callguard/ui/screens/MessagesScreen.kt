@@ -46,6 +46,8 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -85,7 +87,9 @@ import com.callguard.messaging.SmsProvider
 import com.callguard.messaging.groupConversations
 import com.callguard.messaging.isDefaultSmsApp
 import com.callguard.messaging.matchesQuery
+import com.callguard.messaging.senderKey
 import com.callguard.messaging.splitConversations
+import com.callguard.prefs.SenderRing
 import com.callguard.ui.components.OutcomeTag
 import com.callguard.ui.components.PillAvatar
 import com.callguard.ui.components.RedPill
@@ -321,6 +325,7 @@ fun MessagesScreen(
                         row = row,
                         quiet = tab == TAB_QUIET,
                         confirming = confirmDelete,
+                        ring = settings.senderRing[senderKey(number.e164)],
                         onCall = {
                             placeCall(number.e164)
                             closeSheet()
@@ -338,6 +343,14 @@ fun MessagesScreen(
                         },
                         onAllow = {
                             act { graph.settingsStore.allow(number) }
+                            closeSheet()
+                        },
+                        onRing = {
+                            act { graph.settingsStore.toggleSenderRing(senderKey(number.e164), SenderRing.RING) }
+                            closeSheet()
+                        },
+                        onMute = {
+                            act { graph.settingsStore.toggleSenderRing(senderKey(number.e164), SenderRing.MUTE) }
                             closeSheet()
                         },
                         onAskDelete = { confirmDelete = true },
@@ -663,10 +676,13 @@ private fun ConversationSheet(
     row: ListRow,
     quiet: Boolean,
     confirming: Boolean,
+    ring: SenderRing?,
     onCall: () -> Unit,
     onMarkRead: () -> Unit,
     onBlock: () -> Unit,
     onAllow: () -> Unit,
+    onRing: () -> Unit,
+    onMute: () -> Unit,
     onAskDelete: () -> Unit,
     onConfirmDelete: () -> Unit,
     onCancelDelete: () -> Unit,
@@ -696,6 +712,10 @@ private fun ConversationSheet(
         }
         Spacer(Modifier.height(10.dp))
         SheetPill(if (quiet) "Move to inbox" else "Allow", Icons.Filled.Check, Modifier.fillMaxWidth(), onClick = onAllow)
+        Spacer(Modifier.height(10.dp))
+        SheetPill(ringLabel(ring), Icons.Filled.Notifications, Modifier.fillMaxWidth(), onClick = onRing)
+        Spacer(Modifier.height(10.dp))
+        SheetPill(muteLabel(ring), Icons.Filled.NotificationsOff, Modifier.fillMaxWidth(), onClick = onMute)
         Spacer(Modifier.height(22.dp))
         if (confirming) {
             Text(
@@ -726,6 +746,12 @@ private fun ConversationSheet(
         }
     }
 }
+
+/** The ring action's label. It reads as clearing the ring when this sender already rings. */
+private fun ringLabel(ring: SenderRing?): String = if (ring == SenderRing.RING) "Stop always ringing" else "Always ring"
+
+/** The mute action's label. It reads as clearing the mute when this sender is muted. */
+private fun muteLabel(ring: SenderRing?): String = if (ring == SenderRing.MUTE) "Unmute" else "Mute sender"
 
 @Composable
 private fun SheetPill(

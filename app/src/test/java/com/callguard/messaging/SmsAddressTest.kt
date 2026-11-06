@@ -41,4 +41,29 @@ class SmsAddressTest {
         assertFalse(sameAddress("+919876543211", PhoneNumber("+919876543210")))
         assertFalse(sameAddress("5554002", PhoneNumber("5554001")))
     }
+
+    @Test
+    fun senderKeyOfDltSendersIsTheBrandHeader() {
+        assertEquals("HDFCBK", senderKey("VM-HDFCBK-S"))
+        assertEquals("HDFCBK", senderKey("AX-HDFCBK"))
+        assertEquals("HDFCBK", senderKey("vm-hdfcbk-t"))
+    }
+
+    @Test
+    fun senderKeyOfIndianNumbersIsE164() {
+        assertEquals("+919876501234", senderKey("+91 98765 01234"))
+        assertEquals("+919876501234", senderKey("9876501234"))
+        assertEquals("+919876501234", senderKey("09876501234"))
+        assertEquals("+919876501234", senderKey("00919876501234"))
+    }
+
+    @Test
+    fun senderKeyOfShortCodeKeepsItsDigits() {
+        assertEquals("56767", senderKey("56767"))
+    }
+
+    @Test
+    fun senderKeyOfBareAlphanumericSenderIsUpperCase() {
+        assertEquals("HDFCBK", senderKey("hdfcbk"))
+    }
 }

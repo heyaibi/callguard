@@ -60,6 +60,7 @@ import com.callguard.identity.hasReadContacts
 import com.callguard.messaging.isDefaultSmsApp
 import com.callguard.prefs.Settings
 import com.callguard.prefs.UnknownCallerAction
+import com.callguard.spam.classify.SmsKind
 import com.callguard.ui.components.CgConfirmDialog
 import com.callguard.ui.components.CgGutter
 import com.callguard.ui.theme.CgColors
@@ -192,6 +193,26 @@ fun SettingsSections(
                 title = "SHOW CARD FOR UNKNOWN",
                 subtitle = "CALLER CARD OVER OTHER APPS",
             ) { CfgSwitch(checked = s.showCardForUnknown, onChange = { v -> store.update { it.copy(showCardForUnknown = v) } }) }
+        }
+
+        CfgSection("TEXTS THAT RING") {
+            Column(Modifier.fillMaxWidth().padding(vertical = 14.dp)) {
+                Text(
+                    text = "TEXTS FROM CONTACTS ALWAYS RING. THESE SWITCHES DECIDE TEXTS FROM EVERYONE ELSE.",
+                    style = CfgSub,
+                    color = CgColors.TextDim,
+                )
+            }
+            CfgDivider()
+            ringKindRows.forEach { row ->
+                val on = row.kind in s.ringKinds
+                val setOn = { v: Boolean ->
+                    store.update { it.copy(ringKinds = if (v) it.ringKinds + row.kind else it.ringKinds - row.kind) }
+                }
+                CfgRow(title = row.title, subtitle = row.subtitle, onClick = { setOn(!on) }) {
+                    CfgSwitch(checked = on, onChange = setOn)
+                }
+            }
         }
 
         CfgSection("IDENTITY SOURCES · ORDER") {
@@ -411,6 +432,27 @@ private fun Settings.toJson(): JSONObject =
         .put("bridgeApps", JSONObject(bridgeApps))
         .put("allowList", JSONArray(allowList.toList()))
         .put("blockList", JSONArray(blockList.toList()))
+
+/**
+ * The TEXTS THAT RING rows, in the order they show. Each row maps one classifier kind to one switch. SCAM has no row: a
+ * scam text always scores as spam, so it goes to the quiet inbox whatever a switch says.
+ */
+private val ringKindRows =
+    listOf(
+        RingKindRow(SmsKind.OTP, "OTP", "LOGIN CODES & ONE-TIME PASSWORDS"),
+        RingKindRow(SmsKind.FINANCE, "BANKS & INVESTMENTS", "BANK, CARD, UPI & BROKER ALERTS"),
+        RingKindRow(SmsKind.GOVERNMENT, "GOVERNMENT", "TAX, PASSPORT & OFFICIAL NOTICES"),
+        RingKindRow(SmsKind.TRANSACTIONAL, "SERVICE & BILLS", "RECHARGES, BILLS & ACCOUNT NOTICES"),
+        RingKindRow(SmsKind.DELIVERY, "DELIVERY", "ORDERS, COURIERS & TRACKING"),
+        RingKindRow(SmsKind.PERSONAL, "PERSONAL", "PEOPLE WHO ARE NOT IN CONTACTS"),
+        RingKindRow(SmsKind.PROMOTIONAL, "PROMOTIONS", "OFFERS, DEALS & ADS"),
+    )
+
+private data class RingKindRow(
+    val kind: SmsKind,
+    val title: String,
+    val subtitle: String,
+)
 
 private val CfgSub = CgType.RowSub.copy(fontSize = 10.sp, letterSpacing = 0.8.sp)
 

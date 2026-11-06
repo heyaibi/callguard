@@ -17,7 +17,7 @@ object MessageHandler {
         body: String,
         timestamp: Long,
     ) {
-        val decision = decide(context, sender, timestamp)
+        val decision = decide(context, sender, body, timestamp)
         if (isDefaultSmsApp(context)) {
             SmsProvider.insertInbox(context, sender.trim(), body, timestamp, isReadOnArrival(decision.outcome))
         }
@@ -35,7 +35,7 @@ object MessageHandler {
         body: String,
         timestamp: Long,
     ) {
-        record(context, decide(context, sender, timestamp), body, timestamp)
+        record(context, decide(context, sender, body, timestamp), body, timestamp)
     }
 
     private class Decision(
@@ -44,9 +44,11 @@ object MessageHandler {
         val outcome: MessageOutcome,
     )
 
+    /** Classifies the text and applies the filter policy. The SMS receivers call this from a background thread. */
     private fun decide(
         context: Context,
         sender: String,
+        body: String,
         timestamp: Long,
     ): Decision {
         val graph = CallGuardApp.graph(context)
@@ -57,6 +59,7 @@ object MessageHandler {
             graph.messageFilterPolicy.decide(
                 identity = identity,
                 spam = spam,
+                verdict = graph.smsClassifier.classify(sender, body),
                 settings = graph.effectiveSettings(),
                 inContacts = graph.isInContacts(number),
             )

@@ -1,12 +1,8 @@
 # CallGuard documentation
 
-CallGuard is an Android dialer and messaging app that shows who is calling and blocks
-unwanted calls and texts. It resolves caller names from India's CNAP network first, then the
-device phonebook, then an on-device cache. Everything stays on the phone: no account, no
-backend, no remote database.
+CallGuard is an Android dialer and messaging app that shows who is calling and blocks unwanted calls and texts. It resolves caller names from India's CNAP network first, then the device phonebook, then an on-device cache. Everything stays on the phone: no account, no backend, no remote database.
 
-New here? Read [Build CallGuard and run it on a device](tutorials/get-started.md) first. It
-takes about ten minutes and ends with the app running.
+New here? Read [Build CallGuard and run it on a device](tutorials/get-started.md) first. It takes about ten minutes and ends with the app running.
 
 ## Do something
 
@@ -37,6 +33,7 @@ Task guides for people who already have the app built and running.
   where the fallbacks sit.
 - [How screening decides](explanation/screening.md): the decision model behind allow, block,
   and ask.
+- [How CallGuard decides which texts ring](explanation/message-filtering.md): the order for texts, the text kinds, and the sender actions.
 - [The App Bridge](explanation/app-bridge.md): how WhatsApp notifications reach CallGuard, and
   what the bridge cannot see.
 - [Architecture](explanation/architecture.md): layers, module boundaries, and the reasons
@@ -44,13 +41,10 @@ Task guides for people who already have the app built and running.
 
 ## Design records
 
-The product's domain specification is the source of truth for behavior. Start at
-[the blueprint](blueprint/README.md); it defines the bounded contexts, their rules, and the
-[glossary](blueprint/glossary.md) this documentation borrows from.
+The product's domain specification is the source of truth for behavior. Start at [the blueprint](blueprint/README.md); it defines the bounded contexts, their rules, and the [glossary](blueprint/glossary.md) this documentation borrows from.
 
 ## Contributing
 
-[CONTRIBUTING.md](../CONTRIBUTING.md) covers the build, the CI gates, and the pull request
-rule: `master` takes changes through a pull request, never a direct push.
+[CONTRIBUTING.md](../CONTRIBUTING.md) covers the build, the CI gates, and the pull request rule: `master` takes changes through a pull request, never a direct push.
 
 [AGENTS.md](../AGENTS.md) sets the rules for working from an issue. [Testing standard](contributing/testing.md) sets the test types, names, rules, and templates.

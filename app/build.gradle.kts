@@ -13,8 +13,8 @@ android {
         applicationId = "com.callguard"
         minSdk = 29
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.1.1"
     }
 
     // Release signing material never lives in the repo. CI exports the four variables below; when they are

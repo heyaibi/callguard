@@ -22,6 +22,8 @@ import com.callguard.prefs.Settings
 import com.callguard.prefs.SettingsStore
 import com.callguard.screening.ScreeningPolicy
 import com.callguard.spam.SpamPolicy
+import com.callguard.ui.screens.MessagesModel
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /** Manual service locator. Built once by [CallGuardApp]. */
 class AppGraph(
@@ -48,6 +50,12 @@ class AppGraph(
     val spamPolicy = SpamPolicy(repos.reputation, bundled::isSpam, repos.calls::countSince)
     val screeningPolicy = ScreeningPolicy()
     val messageFilterPolicy = MessageFilterPolicy()
+
+    /**
+     * The Messages list as last loaded, null until the first load. It outlives the screen, so a return shows it
+     * at once.
+     */
+    internal val messagesModel = MutableStateFlow<MessagesModel?>(null)
 
     /** Null when [raw] is not a usable number (blank, private, or unrecognized). */
     fun resolve(

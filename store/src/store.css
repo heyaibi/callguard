@@ -1,0 +1,17 @@
+/* Shared store-graphics styles. Fonts load from the app's own res/font folder (relative to store/src/). */
+@font-face { font-family: "Doto CG"; src: url("../../app/src/main/res/font/doto_black.ttf") format("truetype"); font-weight: 900; font-style: normal; }
+@font-face { font-family: "Doto CG"; src: url("../../app/src/main/res/font/doto_bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+@font-face { font-family: "Space Mono CG"; src: url("../../app/src/main/res/font/space_mono_regular.ttf") format("truetype"); font-weight: 400; font-style: normal; }
+@font-face { font-family: "Space Mono CG"; src: url("../../app/src/main/res/font/space_mono_bold.ttf") format("truetype"); font-weight: 700; font-style: normal; }
+
+:root {
+  --black: #000000;
+  --graphite: #1B1B1D;
+  --graphite-2: #2A2A2D;
+  --red: #D71921;
+  --white: #FFFFFF;
+  --mute: #9A9AA0;
+}
+
+html, body { margin: 0; padding: 0; background: var(--black); overflow: hidden; }
+* { box-sizing: border-box; }

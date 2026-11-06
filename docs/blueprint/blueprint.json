@@ -1,0 +1,10 @@
+{
+  "product": "callguard",
+  "entry_file": "README.md",
+  "sync": "on",
+  "local_dir": "./blueprints/callguard",
+  "custom": "",
+  "stale_local": "",
+  "migration_dir": "agent-files/blueprint-migration",
+  "updated": "2026-11-05"
+}

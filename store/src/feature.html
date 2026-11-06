@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CallGuard feature graphic</title>
+<link rel="stylesheet" href="store.css">
+<style>
+  .canvas { position: relative; width: 1024px; height: 500px; background: var(--black); overflow: hidden; }
+  .dots {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle, var(--graphite-2) 2px, transparent 2.6px);
+    background-size: 30px 30px; background-position: 15px 15px;
+  }
+  .copy {
+    position: absolute; left: 84px; top: 0; height: 500px; width: 520px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  h1 {
+    margin: 0; font-family: "Doto CG", monospace; font-weight: 900;
+    font-size: 100px; line-height: 1; letter-spacing: 0.03em; color: var(--white);
+    white-space: nowrap;
+  }
+  .bar { width: 76px; height: 8px; background: var(--red); margin: 28px 0 24px; }
+  .tag {
+    margin: 0; font-family: "Space Mono CG", monospace; font-weight: 700;
+    font-size: 22px; letter-spacing: 0.12em; color: var(--white); text-transform: uppercase; white-space: nowrap;
+  }
+  .phone {
+    position: absolute; left: 700px; top: 10px; width: 256px;
+    transform: rotate(8deg); transform-origin: 50% 100%;
+    background: #0B0B0C; border: 2px solid var(--graphite-2); border-radius: 50px; padding: 8px;
+  }
+  .phone .screen { width: 236px; height: 524px; border-radius: 40px; overflow: hidden; background: var(--black); }
+  .phone img { display: block; width: 236px; height: 524px; object-fit: cover; }
+</style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="dots"></div>
+    <div class="copy">
+      <h1>CALLGUARD</h1>
+      <div class="bar"></div>
+      <p class="tag">KNOW WHO'S CALLING. SILENCE THE REST.</p>
+    </div>
+    <div class="phone">
+      <div class="screen"><img src="../raw/a-incoming-call.png" alt="CallGuard incoming call screen"></div>
+    </div>
+  </div>
+</body>
+</html>

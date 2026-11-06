@@ -1,0 +1,181 @@
+<title>CallGuard Store Kit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Doto:wght@700;900&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: one dark column like the app itself; dot-matrix headings, mono labels, real assets at true aspect ratios. */
+:root {
+  --bg: #000000;
+  --panel: #111113;
+  --line: #2a2a2d;
+  --fg: #f4f4f5;
+  --dim: #9a9aa0;
+  --red: #d71921;
+  --dot: "Doto", "Courier New", monospace;
+  --mono: "Space Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 15px; line-height: 1.6;
+  background-image: radial-gradient(var(--line) 1px, transparent 1px); background-size: 22px 22px;
+}
+.wrap {
+  max-width: 1120px; margin: 0 auto;
+  padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 56px;
+}
+h1, h2 { font-family: var(--dot); font-weight: 900; text-transform: uppercase; margin: 0; text-wrap: balance; letter-spacing: .04em; }
+h1 { font-size: clamp(44px, 9vw, 96px); line-height: .95; }
+h2 { font-size: clamp(26px, 4vw, 36px); }
+.label { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); }
+.label b { color: var(--red); font-weight: 700; }
+header { display: grid; grid-template-columns: auto 1fr; gap: 24px; align-items: center; }
+header img { width: 112px; height: 112px; border-radius: 26px; border: 1px solid var(--line); }
+header p { margin: 10px 0 0; color: var(--dim); max-width: 60ch; }
+section { display: grid; gap: 18px; }
+.head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+.feature img { width: 100%; aspect-ratio: 1024 / 500; border-radius: 14px; border: 1px solid var(--line); display: block; }
+.shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.shots figure { margin: 0; display: grid; gap: 8px; }
+.shots img { width: 100%; aspect-ratio: 1080 / 1920; border-radius: 12px; border: 1px solid var(--line); display: block; background: var(--panel); }
+.shots figcaption { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); }
+.copy { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 12px; min-width: 0; }
+.copy pre { margin: 0; white-space: pre-wrap; font-family: var(--mono); font-size: 14px; line-height: 1.65; max-height: 420px; overflow: auto; }
+.short { font-size: 17px; }
+button {
+  font: 700 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase;
+  color: var(--fg); background: transparent; border: 1px solid var(--fg); border-radius: 999px; padding: 9px 16px; cursor: pointer;
+}
+button:hover { background: var(--fg); color: var(--bg); }
+button:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+td, th { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--dim); font-weight: 400; letter-spacing: .1em; text-transform: uppercase; font-size: 11px; }
+td:nth-child(2) { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tablebox { overflow-x: auto; }
+@media (max-width: 760px) {
+  .shots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  header { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <img src="icon-512.png" alt="CallGuard icon: white dot-matrix shield with one red dot on black">
+    <div>
+      <div class="label"><b>■</b> Google Play listing kit</div>
+      <h1>CallGuard</h1>
+      <p>Every graphic Google Play asks for, at its exact size, plus the listing text ready to paste. All images come from the real app on the emulator.</p>
+    </div>
+  </header>
+
+  <section class="feature">
+    <div class="head"><h2>Feature graphic</h2><span class="label">1024 × 500 · PNG · no alpha</span></div>
+    <img src="feature-graphic.png" alt="Feature graphic: CALLGUARD title, tagline, phone showing an incoming call">
+  </section>
+
+  <section>
+    <div class="head"><h2>Phone screenshots</h2><span class="label">6 × 1080 × 1920 · 9:16</span></div>
+    <div class="shots">
+      <figure><img src="screenshots/01.png" alt="Know who's calling" loading="lazy"><figcaption>01 · Know who's calling</figcaption></figure>
+      <figure><img src="screenshots/02.png" alt="Block every stranger" loading="lazy"><figcaption>02 · Block every stranger</figcaption></figure>
+      <figure><img src="screenshots/03.png" alt="Spam, spotted" loading="lazy"><figcaption>03 · Spam, spotted</figcaption></figure>
+      <figure><img src="screenshots/04.png" alt="One app for calls" loading="lazy"><figcaption>04 · One app for calls</figcaption></figure>
+      <figure><img src="screenshots/05.png" alt="Texts, quietly filtered" loading="lazy"><figcaption>05 · Texts, quietly filtered</figcaption></figure>
+      <figure><img src="screenshots/06.png" alt="Private by design" loading="lazy"><figcaption>06 · Private by design</figcaption></figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="head"><h2>Short description</h2><span class="label">70 of 80 characters</span></div>
+    <div class="copy">
+      <pre class="short" id="short">Know who's calling. Silence strangers and spam. No server, no account.</pre>
+      <div><button type="button" id="copy-short" data-target="short">Copy</button></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head"><h2>Full description</h2><span class="label">≈ 2,600 of 4,000 characters</span></div>
+    <div class="copy">
+<pre id="full">CallGuard is a phone and SMS app for India. It answers one question first: who is calling?
+
+WHO IS CALLING
+- Shows the caller's name from the network (CNAP) when your carrier sends it, plus names from your contacts and from what the app has learned on this phone.
+- Labels every name with where it came from: a contact, the network, or the phone.
+- A "Who is this?" lookup on the keypad for any number.
+
+BLOCK STRANGERS, IF YOU WANT
+- Contacts only: calls and texts from numbers not in your contacts are held back. It is on by default once Contacts access is granted.
+- Silence mode: unknown callers ring silently.
+- Block and allow lists that you control.
+
+SPAM, SCORED ON YOUR PHONE
+- Each incoming call and text gets a spam score computed on the phone. It uses a bundled list of known spam numbers and simple patterns: how often a number calls in a short time, and the hour of the call.
+- Likely spam is marked on the incoming-call screen. Spam calls are silenced by default. A setting blocks them outright.
+- Scores are estimates and can be wrong.
+
+ONE APP FOR CALLS AND TEXTS
+- Default phone app: incoming and in-call screens, a keypad, contacts with an alphabet scroller, and recent calls merged into one list.
+- Default messaging app: conversations, compose, and reply from the notification.
+- Ignore mode sends texts from non-contacts to a Quiet Inbox, so they stay out of your main inbox until you open it.
+
+WHATSAPP CALLER CARD (OPTIONAL)
+- With notification access turned on, CallGuard can show a caller card for WhatsApp calls, using the name from the call notification. You can turn it off in settings.
+
+PRIVATE BY DESIGN
+- No server, no account, no sign-in.
+- The app does not request the internet permission. Your contacts, call history and messages stay on your phone.
+- Lookup from Google Contacts is off by default and can be turned on in settings.
+
+SETUP
+CallGuard asks you to make it your default apps. Android shows these choices:
+- Default phone app: for calls and the in-call screen.
+- Default SMS app: for texts.
+- Call screening: checks calls from numbers that are not in your contacts before they ring.
+
+Contacts access lets CallGuard use your contacts for names and for contacts-only mode. Notification access is needed only for the WhatsApp caller card. The overlay permission, also optional, shows that card over other apps.
+
+LIMITS
+- Caller names depend on the network sending them. CallGuard cannot identify every number. There is no online lookup database.
+- Spam scores are estimates on your device, not a guarantee.
+- Requires Android 10 or newer.</pre>
+      <div><button type="button" id="copy-full" data-target="full">Copy</button></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="head"><h2>Files</h2><span class="label">apps/callguard/store/</span></div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>File</th><th>Size</th><th>Use</th></tr></thead>
+        <tbody>
+          <tr><td>icon-512.png</td><td>512 × 512</td><td>Play Console → App icon</td></tr>
+          <tr><td>feature-graphic.png</td><td>1024 × 500</td><td>Play Console → Feature graphic</td></tr>
+          <tr><td>screenshots/01–06.png</td><td>1080 × 1920</td><td>Play Console → Phone screenshots</td></tr>
+          <tr><td>src/ · render.sh</td><td>—</td><td>Editable HTML/CSS sources; <code>sh store/render.sh</code> re-renders every PNG</td></tr>
+          <tr><td>listing.md</td><td>—</td><td>Listing text shown above</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+document.querySelectorAll('button[data-target]').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    var el = document.getElementById(btn.dataset.target);
+    var done = function (msg) { btn.textContent = msg; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); };
+    var fallback = function () {
+      var r = document.createRange(); r.selectNodeContents(el);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      done('Selected · press copy');
+    };
+    try {
+      navigator.clipboard.writeText(el.textContent).then(function () { done('Copied'); }, fallback);
+    } catch (e) { fallback(); }
+  });
+});
+</script>

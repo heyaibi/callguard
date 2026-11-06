@@ -1,0 +1,25 @@
+# Build output
+.gradle/
+build/
+.kotlin/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Local machine configuration
+local.properties
+.DS_Store
+Thumbs.db
+
+# Signing material — never commit
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# IDE
+.idea/
+*.iml
+*.hprof
+captures/

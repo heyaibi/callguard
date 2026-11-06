@@ -70,7 +70,6 @@ class MessageListFilterTest {
 
     @Test
     fun activeFilterHidesAConversationWithNoVerdict() {
-        assertFalse(ListFilter(score = ScoreFilter.SPAM).matches(null))
         assertFalse(ListFilter(kinds = setOf(SmsKind.OTP)).matches(null))
     }
 
@@ -85,27 +84,28 @@ class MessageListFilterTest {
 
     @Test
     fun spamScoreAtTheThresholdCountsAsSpam() {
-        val filter = ListFilter(score = ScoreFilter.SPAM)
-
-        assertTrue(filter.matches(verdict(0.6)))
-        assertFalse(filter.matches(verdict(0.59)))
+        assertTrue(isSpamVerdict(verdict(0.6)))
+        assertFalse(isSpamVerdict(verdict(0.59)))
     }
 
     @Test
-    fun notSpamScoreIsBelowTheThreshold() {
-        val filter = ListFilter(score = ScoreFilter.NOT_SPAM)
+    fun kindChipsListTheKindsATabHoldsInKindOrder() {
+        val verdicts =
+            listOf(verdict(0.1, SmsKind.PROMOTIONAL), null, verdict(0.1, SmsKind.OTP), verdict(0.2, SmsKind.OTP))
 
-        assertTrue(filter.matches(verdict(0.59)))
-        assertFalse(filter.matches(verdict(0.6)))
+        assertEquals(listOf(SmsKind.OTP, SmsKind.PROMOTIONAL), kindsShown(verdicts, emptySet()))
     }
 
     @Test
-    fun kindAndScoreMustBothMatch() {
-        val filter = ListFilter(kinds = setOf(SmsKind.PROMOTIONAL), score = ScoreFilter.SPAM)
+    fun aPickedKindKeepsItsChipWhenTheTabNoLongerHoldsIt() {
+        val shown = kindsShown(listOf(verdict(0.1, SmsKind.OTP)), setOf(SmsKind.SCAM))
 
-        assertTrue(filter.matches(verdict(0.9, SmsKind.PROMOTIONAL)))
-        assertFalse(filter.matches(verdict(0.9, SmsKind.OTP)))
-        assertFalse(filter.matches(verdict(0.2, SmsKind.PROMOTIONAL)))
+        assertEquals(listOf(SmsKind.OTP, SmsKind.SCAM), shown)
+    }
+
+    @Test
+    fun aTabWithNoScoredTextShowsNoChips() {
+        assertEquals(emptyList<SmsKind>(), kindsShown(listOf(null, null), emptySet()))
     }
 
     @Test
@@ -136,8 +136,13 @@ class MessageListFilterTest {
     }
 
     @Test
-    fun captionShowsTheKindAndTheRoundedScore() {
-        assertEquals("PROMOTIONS · 72", verdictCaption(verdict(0.72, SmsKind.PROMOTIONAL)))
-        assertEquals("OTP · 60", verdictCaption(verdict(0.6, SmsKind.OTP)))
+    fun spamTabCaptionShowsTheKindAndTheRoundedScore() {
+        assertEquals("PROMOTIONS · 72", verdictCaption(verdict(0.72, SmsKind.PROMOTIONAL), withScore = true))
+        assertEquals("OTP · 60", verdictCaption(verdict(0.6, SmsKind.OTP), withScore = true))
+    }
+
+    @Test
+    fun inboxCaptionShowsTheKindOnly() {
+        assertEquals("BANKS", verdictCaption(verdict(0.72, SmsKind.FINANCE), withScore = false))
     }
 }

@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import com.callguard.AppGraph
 import com.callguard.messaging.ListFilter
 import com.callguard.messaging.MessageNotifier
-import com.callguard.messaging.ScoreFilter
 import com.callguard.messaging.SmsProvider
 import com.callguard.messaging.isDefaultSmsApp
 import com.callguard.messaging.kindLabel
@@ -52,7 +51,7 @@ import com.callguard.ui.theme.CgType
 import com.callguard.ui.theme.MonoFont
 
 /** Bottom space the list keeps while the selection bar covers its end. The bar grows when it asks for confirmation. */
-internal val selectionBarClearance: Dp = 360.dp
+internal val selectionBarClearance: Dp = 220.dp
 
 private const val DISABLED_ALPHA = 0.4f
 
@@ -109,24 +108,20 @@ internal class Selection {
     }
 }
 
-/** Keeps the filter across a rotation as names: the score first, then one name per picked kind. */
+/** Keeps the filter across a rotation as names: one name per picked kind. */
 internal val listFilterSaver: Saver<ListFilter, Any> =
     listSaver<ListFilter, String>(
-        save = { listOf(it.score.name) + it.kinds.map { kind -> kind.name } },
-        restore = { saved ->
-            ListFilter(
-                kinds = saved.drop(1).mapTo(mutableSetOf()) { SmsKind.valueOf(it) },
-                score = ScoreFilter.valueOf(saved.first()),
-            )
-        },
+        save = { it.kinds.map { kind -> kind.name } },
+        restore = { saved -> ListFilter(kinds = saved.mapTo(mutableSetOf()) { SmsKind.valueOf(it) }) },
     )
 
 /**
- * The filter chips under the tabs. Score comes first and takes one choice. Then comes one chip per kind. Any number of
+ * The kind chips under the tabs: one chip per kind in [kinds], which are the kinds the open tab holds. Any number of
  * kinds may be picked, and none means every kind.
  */
 @Composable
-internal fun filterBar(
+internal fun FilterBar(
+    kinds: List<SmsKind>,
     filter: ListFilter,
     onChange: (ListFilter) -> Unit,
 ) {
@@ -137,17 +132,8 @@ internal fun filterBar(
             .padding(start = 20.dp, end = 20.dp, bottom = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        filterChip("ANY SCORE", selected = filter.score == ScoreFilter.ANY, role = Role.RadioButton) {
-            onChange(filter.copy(score = ScoreFilter.ANY))
-        }
-        filterChip("SPAM", selected = filter.score == ScoreFilter.SPAM, role = Role.RadioButton) {
-            onChange(filter.copy(score = ScoreFilter.SPAM))
-        }
-        filterChip("NOT SPAM", selected = filter.score == ScoreFilter.NOT_SPAM, role = Role.RadioButton) {
-            onChange(filter.copy(score = ScoreFilter.NOT_SPAM))
-        }
-        SmsKind.entries.forEach { kind ->
-            filterChip(kindLabel(kind), selected = kind in filter.kinds, role = Role.Checkbox) {
+        kinds.forEach { kind ->
+            FilterChip(kindLabel(kind), selected = kind in filter.kinds, role = Role.Checkbox) {
                 onChange(filter.toggleKind(kind))
             }
         }
@@ -155,7 +141,7 @@ internal fun filterBar(
 }
 
 @Composable
-private fun filterChip(
+private fun FilterChip(
     label: String,
     selected: Boolean,
     role: Role,
@@ -184,7 +170,7 @@ private fun filterChip(
  * shows the chosen count, with ALL (choose every visible row, or clear them when all are chosen) and DONE.
  */
 @Composable
-internal fun tabCaption(
+internal fun TabCaption(
     caption: String,
     selecting: Boolean,
     chosenCount: Int,
@@ -199,17 +185,17 @@ internal fun tabCaption(
     ) {
         if (selecting) {
             Text(text = "$chosenCount SELECTED", style = style, color = CgColors.White, modifier = Modifier.weight(1f))
-            captionAction("ALL", onSelectAll)
-            captionAction("DONE", onDoneSelect)
+            CaptionAction("ALL", onSelectAll)
+            CaptionAction("DONE", onDoneSelect)
         } else {
             Text(text = caption, style = style, color = CgColors.TextFaint, modifier = Modifier.weight(1f))
-            captionAction("SELECT", onStartSelect)
+            CaptionAction("SELECT", onStartSelect)
         }
     }
 }
 
 @Composable
-private fun captionAction(
+private fun CaptionAction(
     label: String,
     onClick: () -> Unit,
 ) {
@@ -226,7 +212,7 @@ private fun captionAction(
 
 /** The round mark that replaces a row's avatar in selection mode: a white check when picked, a faint ring when not. */
 @Composable
-internal fun selectionMark(selected: Boolean) {
+internal fun SelectionMark(selected: Boolean) {
     Box(
         Modifier
             .size(40.dp)
@@ -242,12 +228,12 @@ internal fun selectionMark(selected: Boolean) {
 }
 
 /**
- * The bottom bar in selection mode. It acts on the chosen rows, in four rows: READ and BLOCK, then ALLOW (MOVE TO INBOX
- * on the quiet tab), then SPAM and NOT SPAM, then DELETE. DELETE asks first. Its red pill then gives way to Cancel and
- * Delete, so only one red element shows. Every action is disabled while no row is chosen.
+ * The bottom bar in selection mode. It acts on the chosen rows, in two rows: READ, BLOCK and ALLOW (INBOX on the quiet
+ * tab), then SPAM, NOT SPAM and DELETE. DELETE asks first. The second row then gives way to Cancel and Delete, so
+ * only one red element shows. Every action is disabled while no row is chosen.
  */
 @Composable
-internal fun selectionBar(
+internal fun SelectionBar(
     modifier: Modifier,
     quiet: Boolean,
     chosen: Int,
@@ -267,7 +253,7 @@ internal fun selectionBar(
             .fillMaxWidth()
             .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp))
             .background(CgColors.Surface)
-            .padding(start = 20.dp, end = 20.dp, bottom = 28.dp),
+            .padding(start = 16.dp, end = 16.dp, bottom = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
@@ -278,18 +264,12 @@ internal fun selectionBar(
                 .background(CgColors.TextFaint),
         )
         Spacer(Modifier.height(16.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            bulkPill("Read", Modifier.weight(1f), enabled, onClick = onRead)
-            bulkPill("Block", Modifier.weight(1f), enabled, onClick = onBlock)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            BulkPill("Read", Modifier.weight(1f), enabled, onClick = onRead)
+            BulkPill("Block", Modifier.weight(1f), enabled, onClick = onBlock)
+            BulkPill(if (quiet) "Inbox" else "Allow", Modifier.weight(1f), enabled, onClick = onAllow)
         }
-        Spacer(Modifier.height(10.dp))
-        bulkPill(if (quiet) "Move to inbox" else "Allow", Modifier.fillMaxWidth(), enabled, onClick = onAllow)
-        Spacer(Modifier.height(10.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            bulkPill("Spam", Modifier.weight(1f), enabled, onClick = onSpam)
-            bulkPill("Not spam", Modifier.weight(1f), enabled, onClick = onNotSpam)
-        }
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(8.dp))
         if (confirming) {
             val noun = if (chosen == 1) "CONVERSATION" else "CONVERSATIONS"
             Text(
@@ -300,8 +280,8 @@ internal fun selectionBar(
             Spacer(Modifier.height(10.dp))
             // One red element only: the confirm button. Cancel stays neutral.
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                bulkPill("Cancel", Modifier.weight(1f), enabled = true, onClick = onCancelDelete)
-                bulkPill(
+                BulkPill("Cancel", Modifier.weight(1f), enabled = true, onClick = onCancelDelete)
+                BulkPill(
                     "Delete",
                     Modifier.weight(1f),
                     enabled,
@@ -310,14 +290,18 @@ internal fun selectionBar(
                 )
             }
         } else {
-            bulkPill("Delete", Modifier.fillMaxWidth(), enabled, containerColor = CgColors.Red, onClick = onAskDelete)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                BulkPill("Spam", Modifier.weight(1f), enabled, onClick = onSpam)
+                BulkPill("Not spam", Modifier.weight(1f), enabled, onClick = onNotSpam)
+                BulkPill("Delete", Modifier.weight(1f), enabled, containerColor = CgColors.Red, onClick = onAskDelete)
+            }
         }
     }
 }
 
 /** A pill button for the selection bar, styled like the sheet pills. Disabled, it dims and ignores taps. */
 @Composable
-private fun bulkPill(
+private fun BulkPill(
     label: String,
     modifier: Modifier,
     enabled: Boolean,
@@ -327,7 +311,7 @@ private fun bulkPill(
     Box(
         modifier =
             modifier
-                .height(54.dp)
+                .height(48.dp)
                 .alpha(if (enabled) 1f else DISABLED_ALPHA)
                 .clip(RoundedCornerShape(percent = 50))
                 .background(containerColor)

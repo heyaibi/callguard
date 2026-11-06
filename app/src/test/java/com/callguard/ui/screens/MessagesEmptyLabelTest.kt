@@ -36,7 +36,7 @@ class MessagesEmptyLabelTest {
 
     @Test
     fun theQuietInboxAndTheInboxSayTheirOwnWords() {
-        assertEquals("QUIET INBOX IS EMPTY", emptyListLabel(loaded = true, visibleRows = 0, query = "", quiet = true))
+        assertEquals("NO SPAM", emptyListLabel(loaded = true, visibleRows = 0, query = "", quiet = true))
         assertEquals("NO TEXTS YET", emptyListLabel(loaded = true, visibleRows = 0, query = "", quiet = false))
     }
 }

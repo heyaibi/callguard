@@ -236,4 +236,22 @@ class ConversationModelTest {
         assertEquals(listOf("+919000000005"), marked.quiet.map { it.number.e164 })
         assertEquals("Flat 50% off today", marked.quiet.single().snippet)
     }
+
+    @Test
+    fun aSpamScoreMovesAnUnmarkedSenderToTheSpamTab() {
+        val conversations = listOf(Conversation(PhoneNumber("+919000000006"), "You won a lottery", 100, 1, setOf(3L)))
+
+        val split = splitConversations(conversations, emptyList(), emptySet(), emptySet(), spamScored = { true })
+
+        assertEquals(listOf("+919000000006"), split.quiet.map { it.number.e164 })
+    }
+
+    @Test
+    fun allowListAndANotSpamMarkBeatASpamScore() {
+        val number = "+919000000007"
+
+        assertFalse(isQuietSender(number, null, setOf(number), emptySet(), spamScored = true))
+        assertFalse(isQuietSender(number, null, emptySet(), emptySet(), userMark = false, spamScored = true))
+        assertTrue(isQuietSender(number, null, emptySet(), emptySet(), spamScored = true))
+    }
 }

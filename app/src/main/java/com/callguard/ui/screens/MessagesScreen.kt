@@ -90,6 +90,7 @@ import com.callguard.messaging.SmsProvider
 import com.callguard.messaging.groupConversations
 import com.callguard.messaging.isDefaultSmsApp
 import com.callguard.messaging.isSpamVerdict
+import com.callguard.messaging.kindsShown
 import com.callguard.messaging.latestIncoming
 import com.callguard.messaging.latestLogEntries
 import com.callguard.messaging.matchesQuery
@@ -123,7 +124,7 @@ private const val RELOAD_DELAY_MS = 150L
 
 /** The caption under the tabs, by tab. */
 private const val INBOX_CAPTION = "FROM CONTACTS & TRUSTED SENDERS · RED COUNT IS UNREAD"
-private const val QUIET_CAPTION = "HELD-BACK & BLOCKED SENDERS · NO ALERTS"
+private const val QUIET_CAPTION = "SPAM, HELD-BACK & BLOCKED SENDERS · NO ALERTS"
 
 /**
  * One conversation row: the conversation, its contact name, and whether the sender is blocked. [incoming] is the text
@@ -144,7 +145,7 @@ internal data class MessagesModel(
 
 /**
  * The messages list: conversations from the SMS provider, one row per sender, plus the quiet inbox of held-back and
- * blocked senders. Long-press a row for its actions. The filter chips narrow the list by kind and spam score. SELECT
+ * blocked senders. Long-press a row for its actions. The filter chips narrow the tab by kind. SELECT
  * picks many rows for one bulk action. The red key starts a new message. The last list loaded is kept in the graph, so
  * a return here shows it at once while it refreshes.
  */
@@ -270,14 +271,19 @@ fun MessagesScreen(
                         tab = it
                         closeSheet()
                         selection.stop()
+                        // Each tab has its own kinds, so a filter from the other tab does not carry over.
+                        filter = ListFilter()
                     },
                     onStartSelect = { selection.start() },
                     onSelectAll = { selection.toggleAll(visible) },
                     onDoneSelect = { selection.stop() },
                 )
             }
-            item(key = "filters") {
-                filterBar(filter = filter, onChange = { filter = it })
+            val kinds = kindsShown(rows.map { it.verdict }, filter.kinds)
+            if (kinds.isNotEmpty()) {
+                item(key = "filters") {
+                    FilterBar(kinds = kinds, filter = filter, onChange = { filter = it })
+                }
             }
             val emptyText =
                 emptyListLabel(
@@ -406,7 +412,7 @@ fun MessagesScreen(
 
         // Bulk actions for the picked rows. They take the place of the red key while picking.
         if (selection.active) {
-            selectionBar(
+            SelectionBar(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 quiet = tab == TAB_QUIET,
                 chosen = selection.chosen(visible).size,
@@ -476,8 +482,8 @@ private fun keyShown(
 ): Boolean = !sheetOpen && !selecting
 
 /**
- * Reads the provider and the message log, then splits and names the conversations, and scores each one's newest text.
- * Runs off the main thread.
+ * Reads the provider and the message log, scores each sender's newest received text, then splits and names the
+ * conversations. Runs off the main thread.
  */
 private fun loadModel(
     context: Context,
@@ -486,6 +492,22 @@ private fun loadModel(
     val settings = graph.settingsStore.settings.value
     val texts = SmsProvider.conversationRows(context)
     val logs = graph.repos.messages.recent(Int.MAX_VALUE)
+    val received = latestIncoming(texts)
+    val logNewest = latestLogEntries(logs)
+    // The newest received text per sender. A quiet sender with no provider thread has only its logged texts.
+    val incoming = HashMap<String, IncomingText?>()
+    val verdicts = HashMap<String, SmsVerdict?>()
+
+    fun incomingFor(key: String): IncomingText? =
+        incoming.getOrPut(key) {
+            received[key] ?: logNewest[key]?.let { IncomingText(sender = it.number, body = it.body) }
+        }
+
+    fun verdictFor(key: String): SmsVerdict? {
+        val text = incomingFor(key) ?: return null
+        return verdicts.getOrPut(key) { graph.smsClassifier.classify(text.sender, text.body) }
+    }
+
     val split =
         splitConversations(
             conversations = groupConversations(texts),
@@ -494,25 +516,20 @@ private fun loadModel(
             blockList = settings.blockList,
             // The user's own spam mark for a number, if there is one. It decides which list the sender is in.
             userMark = { e164 -> userSpamMark(graph, e164) },
+            // Like the filter policy, the spam score never moves a contact.
+            spamScored = { e164 ->
+                verdictFor(e164)?.let(::isSpamVerdict) == true && !graph.isInContacts(PhoneNumber(e164))
+            },
         )
-    val received = latestIncoming(texts)
-    val logNewest = latestLogEntries(logs)
 
     fun row(c: Conversation): ListRow {
         val key = c.number.e164
-        // A quiet sender with no provider thread has only its logged texts. Its newest logged text is scored.
-        val incoming =
-            if (c.threadIds.isEmpty()) {
-                logNewest[key]?.let { IncomingText(sender = it.number, body = it.body) }
-            } else {
-                received[key]
-            }
         return ListRow(
             conversation = c,
             name = graph.resolutionPolicy.resolve(c.number).name,
             blocked = key in settings.blockList,
-            incoming = incoming,
-            verdict = incoming?.let { graph.smsClassifier.classify(it.sender, it.body) },
+            incoming = incomingFor(key),
+            verdict = verdictFor(key),
         )
     }
     return MessagesModel(inbox = split.inbox.map { row(it) }, quiet = split.quiet.map { row(it) })
@@ -532,7 +549,7 @@ internal fun emptyListLabel(
     when {
         !loaded || visibleRows > 0 -> null
         query.isNotBlank() || filtered -> "NO MATCHES"
-        quiet -> "QUIET INBOX IS EMPTY"
+        quiet -> "NO SPAM"
         else -> "NO TEXTS YET"
     }
 
@@ -657,7 +674,7 @@ private fun MsgTabs(
                 onClick = { onSelect(TAB_INBOX) },
             )
             MsgTab(
-                label = "QUIET INBOX",
+                label = "SPAM",
                 count = quietCount,
                 selected = selected == TAB_QUIET,
                 modifier = Modifier.weight(1f),
@@ -665,7 +682,7 @@ private fun MsgTabs(
             )
         }
         MsgDivider(indent = false)
-        tabCaption(
+        TabCaption(
             caption = if (selected == TAB_INBOX) INBOX_CAPTION else QUIET_CAPTION,
             selecting = selecting,
             chosenCount = chosenCount,
@@ -752,7 +769,7 @@ private fun ConversationRowItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (selecting) {
-            selectionMark(selected)
+            SelectionMark(selected)
         } else {
             PillAvatar(
                 initials = initialsOf(row.name),
@@ -778,13 +795,13 @@ private fun ConversationRowItem(
             )
         }
         Spacer(Modifier.width(12.dp))
-        rowTrail(row = row, quiet = quiet, now = now, selecting = selecting, onMoveToInbox = onMoveToInbox)
+        RowTrail(row = row, quiet = quiet, now = now, selecting = selecting, onMoveToInbox = onMoveToInbox)
     }
 }
 
 /** The right-hand column of a row: the time, the kind and spam caption, then the tag, the pill or the unread count. */
 @Composable
-private fun rowTrail(
+private fun RowTrail(
     row: ListRow,
     quiet: Boolean,
     now: Long,
@@ -802,9 +819,9 @@ private fun rowTrail(
         row.verdict?.let { verdict ->
             Spacer(Modifier.height(4.dp))
             Text(
-                text = verdictCaption(verdict),
+                text = verdictCaption(verdict, withScore = quiet),
                 style = CgType.Label.copy(fontSize = 9.sp),
-                color = if (isSpamVerdict(verdict)) CgColors.Red else CgColors.TextFaint,
+                color = if (quiet && isSpamVerdict(verdict)) CgColors.Red else CgColors.TextFaint,
                 maxLines = 1,
             )
         }

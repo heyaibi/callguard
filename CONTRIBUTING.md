@@ -72,6 +72,10 @@ All changes land on `master` through a pull request. Direct pushes to `master` a
 - Wait for both CI jobs before you request review.
 - Docs change with code. A PR that changes a setting, a default, a permission, or a role updates the page that documents it: [settings reference](docs/reference/settings.md), [permissions and roles](docs/reference/permissions-and-roles.md), or the matching page under [docs](docs/index.md).
 
+## Working from an issue
+
+Read [AGENTS.md](AGENTS.md) before you start. It sets the rules for issues, scope, branches, and pull requests, including the rules for test-only work. Test rules are in [docs/contributing/testing.md](docs/contributing/testing.md).
+
 ## License
 
 CallGuard is Apache-2.0. By opening a pull request you agree that your contribution is licensed under the same terms. See [LICENSE](LICENSE).

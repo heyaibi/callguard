@@ -1,0 +1,60 @@
+name: Task
+description: Scoped work. Test-only by default. Source code changes are maintainer-only.
+title: "[Task] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read [AGENTS.md](https://github.com/heyaibi/callguard/blob/master/AGENTS.md) before you start.
+        Test-only is the default. Source code changes need the maintainer to name a source path below.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: One outcome, in one or two sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context (files and paths)
+      description: List the files to read first, and the files the work touches.
+      placeholder: |
+        - app/src/test/java/com/callguard/screening/ScreeningPolicyTest.kt
+    validations:
+      required: true
+  - type: textarea
+    id: allowed-paths
+    attributes:
+      label: Allowed paths
+      description: The default is the two test folders. Source code changes are maintainer-only. Add a source path only when the maintainer asks for source changes.
+      value: "app/src/test/**, app/src/androidTest/**"
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: One checkbox per line. Each item must name the command or the result that proves it.
+      value: |
+        - [ ] <testable criterion>
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification commands
+      description: Commands to run from the repository root. Each one must pass.
+      value: |
+        ./gradlew ktlintCheck
+        ./gradlew detekt
+        ./gradlew testDebugUnitTest
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: What this issue does not cover. Problems found outside this scope go in the PR body, not in this change.
+    validations:
+      required: true

@@ -1,0 +1,3 @@
+# The maintainer reviews every path.
+# Test-only contributors may change only app/src/test/** and app/src/androidTest/**. See AGENTS.md.
+* @heyaibi

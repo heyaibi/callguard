@@ -52,3 +52,5 @@ The product's domain specification is the source of truth for behavior. Start at
 
 [CONTRIBUTING.md](../CONTRIBUTING.md) covers the build, the CI gates, and the pull request
 rule: `master` takes changes through a pull request, never a direct push.
+
+[AGENTS.md](../AGENTS.md) sets the rules for working from an issue. [Testing standard](contributing/testing.md) sets the test types, names, rules, and templates.

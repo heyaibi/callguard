@@ -64,7 +64,11 @@ internal object Rules {
                 """\b(?:blocked|suspended|deactivated|frozen)\b.{0,60}""" +
                 """\b(?:update|verify|click|reactivate|unblock|link|now|immediately|today)\b""",
         )
-    private val negationRe = Regex("""\b(?:never|do not share|don['’]t share|will not ask|won['’]t ask)\b""")
+    private val negationRe =
+        Regex(
+            """\b(?:never|do not share|don['’]t share|do not disclose|don['’]t disclose|""" +
+                """will not ask|won['’]t ask)\b""",
+        )
     private val upiCollectRe =
         Regex(
             """\bcollect (?:request|req)\b|""" +

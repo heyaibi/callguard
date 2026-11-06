@@ -267,6 +267,19 @@ class SmsClassifierTest {
     }
 
     @Test
+    fun negationFarBeforeKycInTheSameSentenceStillCounts() {
+        val verdict =
+            classifier.classify(
+                "VM-SYNTHPAY-S",
+                "Synthpay will never call you for the card number/CVV/expiry/OTP/PIN " +
+                    "for any purpose like KYC update. " +
+                    "Do NOT disclose it to anyone on call/email.",
+            )
+        assertTrue(verdict.signals.none { it.name == "kyc_or_blocked_account" })
+        assertTrue("score ${verdict.spamScore}", verdict.spamScore < 0.3)
+    }
+
+    @Test
     fun negationInAnEarlierSentenceDoesNotHideKyc() {
         val verdict = classifier.classify("9000012345", "Never share your OTP. Your KYC is pending, update now.")
         assertTrue(verdict.signals.any { it.name == "kyc_or_blocked_account" })

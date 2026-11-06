@@ -44,8 +44,11 @@ object ClassifierConfig {
     /** Longest host label that counts as a very short, shortener-like domain. */
     const val SHORT_LABEL_MAX = 4
 
-    /** Characters before a KYC, block or update phrase that are checked for a negation, such as "never". */
-    const val NEGATION_WINDOW = 40
+    /**
+     * Characters before a KYC, block or update phrase that are checked for a negation, such as "never". The search also
+     * stops at the start of the sentence. One SMS segment is 160 characters, so a whole safety-notice sentence fits.
+     */
+    const val NEGATION_WINDOW = 160
 
     /** A verdict lists at most this many signals. */
     const val MAX_SIGNALS = 5

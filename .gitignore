@@ -18,6 +18,9 @@ Thumbs.db
 keystore.properties
 signing.properties
 
+# Tooling config that has to be committed even though it is a dotfile
+!.editorconfig
+
 # IDE
 .idea/
 *.iml

@@ -8,7 +8,7 @@ CallGuard shows who is calling, names the source of that name, and holds back th
 
 - Resolves a caller's name from the carrier's CNAP (Calling Name Presentation) signal, then from your phonebook, then from names CallGuard has learned on this phone, and labels each name with the source that produced it.
 - Screens incoming calls before they ring with an allow list, a block list, contacts-only blocking (on by default once Contacts access is granted), and a spam score computed on the device.
-- Holds back texts the same way, and Ignore mode moves messages from unknown senders into a Quiet Inbox.
+- Holds back texts the same way, and Ignore mode moves messages from unknown senders into the Spam tab of Messages.
 - Works as the default phone app (incoming and in-call screens, keypad, contacts, one merged recents list) and as the default SMS app (conversations, and reply from the notification).
 - Shows a caller card over WhatsApp when you grant notification access and the overlay permission.
 - Keeps names, calls, and messages on the phone. There is no backend, no account, and no INTERNET permission in the manifest.
@@ -50,6 +50,7 @@ The app opens on the Guard home screen with no roles held. [Get started](docs/tu
 - [Make CallGuard the default SMS app](docs/how-to/set-as-default-sms-app.md): take over texts and conversations.
 - [Tune what CallGuard blocks](docs/how-to/tune-blocking-rules.md): choose what silence, ignore, and contacts-only do to a call or text.
 - [Manage the allow and block lists](docs/how-to/manage-lists.md): add, remove, and clear numbers on both lists.
+- [Filter texts by kind and act on many at once](docs/how-to/filter-and-act-on-texts.md): sort the Inbox and Spam tabs by kind, and act on many conversations.
 - [Cut a release](docs/how-to/cut-a-release.md): tag a version and let the release workflow build the APK.
 - [CallGuard settings reference](docs/reference/settings.md): every setting, its default, and what it changes.
 - [Permissions and roles reference](docs/reference/permissions-and-roles.md): what each permission and Android role buys the app.

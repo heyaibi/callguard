@@ -14,8 +14,8 @@ Each text ends in one of four outcomes. The outcome sets the alert, and it sets 
 |---|---|---|
 | Notify | A sound and a notification | Inbox |
 | Silenced | A notification with no sound | Inbox |
-| Quiet inbox | No notification | Quiet Inbox tab, marked as read |
-| Blocked | No notification | Quiet Inbox tab, marked as read |
+| Quiet inbox | No notification | Spam tab, marked as read |
+| Blocked | No notification | Spam tab, marked as read |
 
 These outcomes apply only when CallGuard is the default SMS app. Any other default SMS app stores the text and shows the alert. CallGuard only logs the outcome in that case. See [Make CallGuard the default SMS app](../how-to/set-as-default-sms-app.md).
 
@@ -82,10 +82,21 @@ A real alert with a high spam score goes to the quiet inbox. To fix that sender,
 
 ## Where the decision happens
 
-The app reads each text when it arrives, on a background thread. The classifier runs on the phone, and it does not send the text anywhere. The classifier uses fixed rules. It does not learn from your choices yet.
+The app reads each text when it arrives, on a background thread. The classifier runs on the phone, and it does not send the text anywhere. The classifier uses fixed rules plus a small word model that learns from your spam marks.
+
+## Why the Spam tab also uses the score
+
+The order above decides each text when it arrives. A text that arrived before CallGuard was the default SMS app has no outcome. So the Messages list also checks the score: a sender whose newest received text scores 0.6 or more shows on the Spam tab. The allow list, the block list, and your own spam mark come first. Like rule 4, the score never moves a contact.
+
+## What a spam mark changes
+
+When you mark a conversation SPAM or NOT SPAM on the Messages screen, three things happen. The number reputation records your mark, so rules 4, 6, and 10 use it for new texts. The conversation moves at once: SPAM to the Spam tab, NOT SPAM to the Inbox. The classifier also learns the newest text from that sender and saves what it learned on the phone.
+
+The word model adds to the score only after it has learned 20 texts. Until then, your marks change the number reputation and the tab, not the spam score. See [Filter texts by kind and act on many at once](../how-to/filter-and-act-on-texts.md).
 
 ## Related
 
 - [CallGuard settings reference](../reference/settings.md): every switch, its storage key, and its default.
 - [Tune what CallGuard blocks](../how-to/tune-blocking-rules.md): the rules for calls and texts, and how to change them.
 - [Manage the allow and block lists](../how-to/manage-lists.md): the lists that the order checks first.
+- [Filter texts by kind and act on many at once](../how-to/filter-and-act-on-texts.md): the two tabs, the kind chips, and bulk actions.

@@ -30,7 +30,7 @@ You cannot normally create that state. Adding a number to one list removes it fr
 
 ## What each list overrides
 
-An allow-listed number skips Contacts only, the spam rules, and Silence mode, for calls and texts alike. A block-listed call is rejected with no ring and no notification, and a block-listed text is marked blocked in the Quiet Inbox.
+An allow-listed number skips Contacts only, the spam rules, and Silence mode, for calls and texts alike. A block-listed call is rejected with no ring and no notification, and a block-listed text is marked blocked in the Spam tab.
 
 The Contacts screen carries the same state per person:
 
@@ -52,3 +52,4 @@ The segment count goes up by one and the new row appears with a name if the numb
 
 - [Tune what CallGuard blocks](../how-to/tune-blocking-rules.md)
 - [Make CallGuard the default SMS app](../how-to/set-as-default-sms-app.md)
+- [Filter texts by kind and act on many at once](filter-and-act-on-texts.md)

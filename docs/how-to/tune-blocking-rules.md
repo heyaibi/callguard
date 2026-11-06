@@ -10,7 +10,7 @@ Every rule lives on this one screen. The numbers themselves live in the allow an
 |---|---|---|
 | **CONTACTS ONLY** | On | Blocks calls and texts from numbers that are not in your contacts, unless a kind in **TEXTS THAT RING** rings. |
 | **SILENCE MODE** | Off | Mutes unknown calls and unknown texts, or rejects them when **UNKNOWN CALLERS** is set to BLOCK. |
-| **IGNORE MODE** | Off | Sends texts from non-contacts to the Quiet Inbox with no alert. |
+| **IGNORE MODE** | Off | Sends texts from non-contacts to the Spam tab with no alert. |
 | **UNKNOWN CALLERS** | SILENCE | Picks between silencing and rejecting an unknown call. |
 | **BLOCK SPAM** | Off | Rejects calls scored 70 or more. |
 | **SHOW CARD FOR UNKNOWN** | On | Draws the caller card over other apps for unknown numbers. |
@@ -19,7 +19,7 @@ Every setting, with its storage key and its default, is in the [settings referen
 
 Silence mode is the master switch for unknown callers, and it also applies to texts even though its subtitle mentions calls only. A text whose kind rings is not silenced. The **UNKNOWN CALLERS** choice between SILENCE and BLOCK takes effect only while Silence mode is on, and only for a call with no contact match and no name from any source.
 
-**BLOCK SPAM** affects calls only. A text that looks like spam goes to the Quiet Inbox whether the toggle is on or off.
+**BLOCK SPAM** affects calls only. A text that looks like spam goes to the Spam tab whether the toggle is on or off.
 
 A call that scores 70 or more arrives flagged, with the score's reasons alongside it:
 

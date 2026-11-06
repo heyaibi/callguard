@@ -16,6 +16,7 @@ Task guides for people who already have the app built and running.
   screened, including the deadline fallback.
 - [Manage the allow and block lists](how-to/manage-lists.md): add numbers, remove them, and
   see which list wins.
+- [Filter texts by kind and act on many at once](how-to/filter-and-act-on-texts.md): sort the Inbox and Spam tabs by kind, and act on many conversations.
 - [Cut a release](how-to/cut-a-release.md): tag a version and get a signed APK from CI.
 
 ## Look something up

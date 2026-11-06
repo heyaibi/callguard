@@ -114,17 +114,23 @@ fun latestLogEntries(logs: List<MessageLogEntry>): Map<String, MessageLogEntry> 
 
 /**
  * A sender is quiet when the user blocked it, or when its newest held-back text was quiet or blocked.
- * An allowed sender always stays in the inbox.
+ * An allowed sender always stays in the inbox. The user's own spam mark ([userMark]) decides when the lists do not:
+ * true is quiet, false is the inbox. Without a mark, a newest received text that scores as spam ([spamScored]) makes
+ * the sender quiet. Only then does the log outcome decide.
  */
 fun isQuietSender(
     number: String,
     latest: MessageOutcome?,
     allowList: Set<String>,
     blockList: Set<String>,
+    userMark: Boolean? = null,
+    spamScored: Boolean = false,
 ): Boolean =
     when {
         number in allowList -> false
         number in blockList -> true
+        userMark != null -> userMark
+        spamScored -> true
         else -> latest == MessageOutcome.QUIET_INBOX || latest == MessageOutcome.BLOCKED
     }
 
@@ -136,16 +142,24 @@ data class SplitConversations(
 /**
  * Splits conversations between the inbox and the quiet inbox. A quiet sender with logged texts but no provider
  * thread (CallGuard was not the default app then) still appears, with its logged text.
+ * [userMark] gives the user's spam mark for a number: true, false, or null when the user never marked it. The mark
+ * applies to threaded and log-only senders alike, after the allow and block lists. [spamScored] is true for a number
+ * whose newest received text scores as spam. It applies after the mark.
  */
 fun splitConversations(
     conversations: List<Conversation>,
     logs: List<MessageLogEntry>,
     allowList: Set<String>,
     blockList: Set<String>,
+    userMark: (String) -> Boolean? = { null },
+    spamScored: (String) -> Boolean = { false },
 ): SplitConversations {
     val latest = latestLogEntries(logs)
 
-    fun quiet(number: String) = isQuietSender(number, latest[number]?.outcome, allowList, blockList)
+    fun quiet(number: String): Boolean {
+        val outcome = latest[number]?.outcome
+        return isQuietSender(number, outcome, allowList, blockList, userMark(number), spamScored(number))
+    }
 
     val (quietThreads, inbox) = conversations.partition { quiet(it.number.e164) }
     val threaded = conversations.mapTo(mutableSetOf()) { it.number.e164 }

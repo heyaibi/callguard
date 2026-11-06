@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Messages: the Quiet Inbox tab is now Spam, and a text that scores as spam lands there; each tab filters by kind; select many conversations and mark read, block, allow, mark spam or not spam, or delete them at once (#12).
+
 ## [0.1.1] - 2026-11-06
 
 ### Added

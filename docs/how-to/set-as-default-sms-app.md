@@ -14,9 +14,9 @@ Accept the system prompt that names CallGuard. The row re-reads the role when th
 
 ## What the role changes
 
-With the role, `SmsDeliverReceiver` receives each text, stores it in the Android SMS provider, writes a log entry, and notifies according to the outcome: a normal alert for a text from a contact or an allow-listed sender, a silent one when Silence mode applies, and none at all for the Quiet Inbox or a blocked sender.
+With the role, `SmsDeliverReceiver` receives each text, stores it in the Android SMS provider, writes a log entry, and notifies according to the outcome: a normal alert for a text from a contact or an allow-listed sender, a silent one when Silence mode applies, and none at all for the Spam tab or a blocked sender.
 
-The Messages screen shows that split: unread counts per thread, **INBOX** for what reached you, and **QUIET INBOX** beside it for what was held back.
+The Messages screen shows that split: unread counts per thread, **INBOX** for what reached you, and **SPAM** beside it for what was held back.
 
 ![Messages inbox showing four conversations with unread counts, with the Inbox and Quiet Inbox tabs](../images/messages.png)
 
@@ -28,11 +28,11 @@ Replying from a thread uses `SEND_SMS`, which the app requests the first time yo
 
 - **PERMISSIONS** shows **DEFAULT SMS APP** as **HELD**.
 - The **SET AS DEFAULT SMS APP TO BLOCK TEXTS** banner is gone from Messages.
-- With Ignore mode on, a text from a number outside your contacts lands under the **QUIET INBOX** tab with no alert, and **INBOX** does not list it.
+- With Ignore mode on, a text from a number outside your contacts lands under the **SPAM** tab with no alert, and **INBOX** does not list it.
 
 ## What breaks when you revoke it
 
-Texts go back to whichever app holds the role. CallGuard stops storing new messages, so its threads stop growing and its replies stop working. The Quiet Inbox keeps the messages it already has and receives nothing new.
+Texts go back to whichever app holds the role. CallGuard stops storing new messages, so its threads stop growing and its replies stop working. The Spam tab keeps the messages it already has and receives nothing new.
 
 Existing conversations stay in the system SMS provider, so the next default app can show them. The [permissions reference](../reference/permissions-and-roles.md) lists what each role binds.
 

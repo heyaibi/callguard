@@ -191,7 +191,9 @@ class SmsClassifierTest {
             trained.classify(sender, body)
         }
         val elapsedMs = (System.nanoTime() - start) / 1_000_000
-        assertTrue("1000 messages took $elapsedMs ms", elapsedMs < 200)
+        // A loose bound: shared CI runners vary in speed. 2 ms per message still catches a pathological slowdown, such
+        // as runaway regex backtracking.
+        assertTrue("1000 messages took $elapsedMs ms", elapsedMs < 2_000)
     }
 
     @Test

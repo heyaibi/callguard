@@ -33,7 +33,7 @@ The suite is `app/src/androidTest/java/com/callguard/MainActivityTest.kt`.
 
 ## CI gates
 
-CI runs on every pull request and every push to `master`. The jobs are defined in `.github/workflows/ci.yml`. On a pull request, the jobs run in parallel. A pull request is ready for review when every job passes.
+CI runs on every pull request and every push to `master`. The jobs are defined in `.github/workflows/ci.yml`. On a pull request, the jobs run in parallel. A pull request is ready for review when all required CI checks pass.
 
 | Gate | Command | Job |
 |---|---|---|
@@ -83,7 +83,7 @@ The detekt pin is `2.0.0-alpha.6`, a pre-release, and that is deliberate rather 
 All changes land on `master` through a pull request. Direct pushes to `master` are blocked, so branch from `master` and open a PR for every change, including one-line fixes.
 
 - Keep the PR to one concern, and say what changed for a user of the app.
-- Wait for every CI job to pass before you request review.
+- Wait for all required CI checks to pass before you request review.
 - Docs change with code. A PR that changes a setting, a default, a permission, or a role updates the page that documents it: [settings reference](docs/reference/settings.md), [permissions and roles](docs/reference/permissions-and-roles.md), or the matching page under [docs](docs/index.md).
 
 ## License

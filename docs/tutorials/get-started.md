@@ -72,7 +72,7 @@ The app opens on the Guard screen:
 
 ## Verify
 
-The Guard screen opens with the protection card reading **3 TO SET UP**, because the call screening role, the WhatsApp bridge, and Contacts access are all still missing on a fresh install. The bottom bar shows Keypad, Recents, Contacts, Messages, and Guard. Once CallGuard holds the dialer role it opens on the keypad instead, so expect that on a second run.
+The Guard screen opens with the protection card reading **3 TO SET UP**, because the call screening role, the WhatsApp bridge, and Contacts access are all still missing on a fresh install. The bottom bar shows Keypad, Recents, Messages, Contacts, and Guard. Once CallGuard holds the dialer role it opens on the keypad instead, so expect that on a second run.
 
 ## What you have now
 
